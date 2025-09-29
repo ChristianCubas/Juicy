@@ -18,14 +18,14 @@ public class CrearCuenta extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding.btnBack.setOnClickListener(v->{
-            /*FragmentManager manager = getActivity().getSupportFragmentManager();
+        /*binding.btnBack.setOnClickListener(v->{
+            FragmentManager manager = getActivity().getSupportFragmentManager();
             CrearCuenta fragment_CrearCuenta = new CrearCuenta();
             manager.beginTransaction()
                     .replace(R.id.nav_host_fragment_content_main,fragment_CrearCuenta)
                     .addToBackStack(null)
-                    .commit();*/
-        });
+                    .commit();
+        });*/
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_crear_cuenta, container, false);
