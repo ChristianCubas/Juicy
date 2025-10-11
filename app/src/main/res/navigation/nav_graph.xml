@@ -18,8 +18,6 @@
         <action
             android:id="@+id/action_FirstFragment_to_CrearCuenta"
             app:destination="@id/CrearCuentaFragment" />
-
-
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -42,30 +40,8 @@
             app:destination="@id/FirstFragment" />
     </fragment>
     <fragment
-        android:id="@+id/direccionesFragment"
-        android:name="com.example.juicy.direccionesFragment"
-        android:label="fragment_direcciones"
-        tools:layout="@layout/fragment_direcciones">
-        <action
-            android:id="@+id/action_direccionesFragment_to_agregarDireccionFragment"
-            app:destination="@id/AgregarDirecciones" />
-    </fragment>
-
-
-    <fragment
-        android:id="@+id/AgregarDirecciones"
-        android:name="com.example.juicy.AgregarDirecciones"
-        android:label="fragment_agregar_direcciones"
-        tools:layout="@layout/fragment_agregar_direcciones"
-        >
-        <action
-            android:id="@+id/action_agregarDireccion_to_buscarMapa"
-            app:destination="@id/buscarMapa" />
-
-    </fragment>
-    <fragment
-        android:id="@+id/buscarMapa"
-        android:name="com.example.juicy.BuscarMapa"
-        android:label="fragment_buscar_mapa"
-        tools:layout="@layout/fragment_buscar_mapa" />
+        android:id="@+id/paymentMethodFragment"
+        android:name="com.example.juicy.MpagoFragment"
+        android:label="@string/payment_method_title"
+        tools:layout="@layout/fragment_mpago" />
 </navigation>

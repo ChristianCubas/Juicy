@@ -6,7 +6,8 @@
     <string name="second_fragment_label"></string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-
+    <string name="guardado">Guardados:</string>
+    <string name="metodo_pago">Método Pago</string>
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
@@ -46,4 +47,32 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="crear_cuenta"></string>
+    <string name="payment_method_title">Método de pago</string>
+    <string name="payment_saved_methods">Guardados:</string>
+    <string name="payment_other_methods">Otros:</string>
+    <string name="payment_card_visa">Visa</string>
+    <string name="payment_saved_primary_title">Visa</string>
+    <string name="payment_saved_secondary_title">Visa</string>
+    <string name="payment_saved_primary_number">**** **** **** 5678</string>
+    <string name="payment_saved_secondary_number">**** **** **** 4444</string>
+    <string name="payment_saved_primary_cardholder">Juan Pérez</string>
+    <string name="payment_saved_primary_exp">11/27</string>
+    <string name="payment_saved_secondary_exp">08/26</string>
+    <string name="payment_method_selected">Método de pago seleccionado</string>
+    <string name="payment_method_paypal">PayPal</string>
+    <string name="payment_continue_message">Método seleccionado: %1$s</string>
+    <string name="payment_other_cardholder_hint">Titular de la tarjeta</string>
+    <string name="payment_other_cardholder_sample">Juan Pérez</string>
+    <string name="payment_other_card_number_hint">Número de tarjeta</string>
+    <string name="payment_other_card_number_sample">5254 7634 8734 7690</string>
+    <string name="payment_other_expiration_hint">EXP</string>
+    <string name="payment_other_expiration_sample">24/24</string>
+    <string name="payment_other_cvv_hint">CVV</string>
+    <string name="payment_other_cvv_sample">776</string>
+    <string name="payment_other_save_card">Guardar tarjeta</string>
+    <string name="payment_other_paypal_id_hint">ID del titular</string>
+    <string name="payment_other_paypal_id_sample">cesar.paypal</string>
+    <string name="payment_paypal_open_account">Abrir cuenta de Paypal</string>
+    <string name="continuar">Continuar</string>
+
 </resources>

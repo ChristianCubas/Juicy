@@ -8,18 +8,8 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_direcciones"
-        android:orderInCategory="100"
-        android:title="direcciones"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_agregardirecciones"
-        android:orderInCategory="100"
-        android:title="agregar direcciones"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_buscarmapa"
-        android:orderInCategory="100"
-        android:title="buscar mapa"
-        app:showAsAction="never" />
+        android:id="@+id/action_mpago"
+        android:orderInCategory="200"
+        android:title="@string/metodo_pago"
+        app:showAsAction="never"/>
 </menu>

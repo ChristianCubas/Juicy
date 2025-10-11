@@ -30,7 +30,11 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
     }
 
@@ -52,25 +56,12 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-        if(id == R.id.action_agregardirecciones){
+        if(id==R.id.action_mpago) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_main, new AgregarDirecciones())
+                    .replace(R.id.nav_host_fragment_content_main, new MpagoFragment())
                     .addToBackStack(null)
                     .commit();
         }
-        if(id == R.id.action_direcciones){
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_main, new direccionesFragment())
-                    .addToBackStack(null)
-                    .commit();
-        }
-        if(id == R.id.action_buscarmapa){
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_main, new BuscarMapa())
-                    .addToBackStack(null)
-                    .commit();
-        }
-
 
         return super.onOptionsItemSelected(item);
     }
