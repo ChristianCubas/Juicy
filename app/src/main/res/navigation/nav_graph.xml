@@ -19,9 +19,7 @@
             android:id="@+id/action_FirstFragment_to_CrearCuenta"
             app:destination="@id/CrearCuentaFragment" />
 
-        <action
-            android:id="@+id/action_FirstFragment_to_RecuperarContrasenia"
-            app:destination="@id/RecuperarContrasenia"/>
+
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -44,9 +42,30 @@
             app:destination="@id/FirstFragment" />
     </fragment>
     <fragment
-        android:id="@+id/RecuperarContrasenia"
-        android:name="com.example.juicy.RecuperarContrasenia"
-        android:label=""
-        tools:layout="@layout/fragment_recuperar_contrasenia">
+        android:id="@+id/direccionesFragment"
+        android:name="com.example.juicy.direccionesFragment"
+        android:label="fragment_direcciones"
+        tools:layout="@layout/fragment_direcciones">
+        <action
+            android:id="@+id/action_direccionesFragment_to_agregarDireccionFragment"
+            app:destination="@id/AgregarDirecciones" />
     </fragment>
+
+
+    <fragment
+        android:id="@+id/AgregarDirecciones"
+        android:name="com.example.juicy.AgregarDirecciones"
+        android:label="fragment_agregar_direcciones"
+        tools:layout="@layout/fragment_agregar_direcciones"
+        >
+        <action
+            android:id="@+id/action_agregarDireccion_to_buscarMapa"
+            app:destination="@id/buscarMapa" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/buscarMapa"
+        android:name="com.example.juicy.BuscarMapa"
+        android:label="fragment_buscar_mapa"
+        tools:layout="@layout/fragment_buscar_mapa" />
 </navigation>

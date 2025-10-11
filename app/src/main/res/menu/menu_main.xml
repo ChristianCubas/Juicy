@@ -7,4 +7,19 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_direcciones"
+        android:orderInCategory="100"
+        android:title="direcciones"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_agregardirecciones"
+        android:orderInCategory="100"
+        android:title="agregar direcciones"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_buscarmapa"
+        android:orderInCategory="100"
+        android:title="buscar mapa"
+        app:showAsAction="never" />
 </menu>
