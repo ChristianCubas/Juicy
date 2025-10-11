@@ -3,6 +3,7 @@ package com.example.juicy;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -59,6 +60,34 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.paymentWalletFragment);
             return true;
         }
+        if (id == R.id.action_agregardirecciones) {
+            // Abrir AgregarDirecciones (ID en nav_graph: agregarDirecciones)
+            navController.navigate(R.id.agregarDirecciones);
+            return true;
+        }
+
+        if (id == R.id.action_direcciones) {
+            // Abrir lista de direcciones (ID en nav_graph: direccionesFragment)
+            navController.navigate(R.id.direccionesFragment);
+            return true;
+        }
+
+        if (id == R.id.action_buscarmapa) {
+            // Ir al mapa (ID en nav_graph: buscarMapa)
+            navController.navigate(R.id.buscarMapa);
+            return true;
+        }
+        if (id == R.id.action_perfilUsuario) {
+            // Ir al mapa (ID en nav_graph: buscarMapa)
+            navController.navigate(R.id.perfilUsuario);
+            return true;
+        }
+        if (id == R.id.action_editorPerfil) {
+            // Ir al mapa (ID en nav_graph: buscarMapa)
+            navController.navigate(R.id.editarPerfil);
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
     }

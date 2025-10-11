@@ -17,4 +17,31 @@
         android:orderInCategory="200"
         android:title="@string/payment_wallet_title"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_buscarmapa"
+        android:orderInCategory="200"
+        android:title="Buscar Mapa"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_agregardirecciones"
+        android:orderInCategory="200"
+        android:title="Agregar Direcciones"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_direcciones"
+        android:orderInCategory="200"
+        android:title="Mis direcciones"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_perfilUsuario"
+        android:orderInCategory="200"
+        android:title="Perfil"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_editorPerfil"
+        android:orderInCategory="200"
+        android:title="editar perfil"
+        app:showAsAction="never"/>
+
+
 </menu>

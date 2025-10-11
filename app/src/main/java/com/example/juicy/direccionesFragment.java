@@ -29,7 +29,7 @@ public class direccionesFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 NavHostFragment.findNavController(direccionesFragment.this)
-                        .navigate(R.id.AgregarDirecciones);
+                        .navigate(R.id.agregarDirecciones);
             }
         });
         return view;

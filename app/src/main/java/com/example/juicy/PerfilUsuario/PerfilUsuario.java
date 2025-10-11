@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.juicy.R;
 
@@ -66,13 +68,16 @@ public class PerfilUsuario extends Fragment {
         View root = inflater.inflate(R.layout.fragment_perfil_usuario, container, false);
 
         Button btnEditar = root.findViewById(R.id.btnEditarPerfil);
+
         if (btnEditar != null) {
             btnEditar.setOnClickListener(v -> {
-                Intent i = new Intent(requireContext(), com.example.juicy.PerfilUsuario.editarPerfil.class);
-                startActivity(i);
+                Toast.makeText(requireContext(), "Abriendo edición de perfil...", Toast.LENGTH_SHORT).show();
+
+                // Navegar al fragmento editarPerfil usando NavController
+                NavHostFragment.findNavController(PerfilUsuario.this)
+                        .navigate(R.id.editarPerfil);
             });
         }
-
         return root;
     }
 
