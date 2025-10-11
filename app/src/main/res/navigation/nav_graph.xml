@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_FirstFragment_to_CrearCuenta"
             app:destination="@id/CrearCuentaFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_BilleteraMetodoPagoFragment"
+            app:destination="@id/paymentWalletFragment" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -44,4 +47,18 @@
         android:name="com.example.juicy.MpagoFragment"
         android:label="@string/payment_method_title"
         tools:layout="@layout/fragment_mpago" />
+    <fragment
+        android:id="@+id/paymentWalletFragment"
+        android:name="com.example.juicy.BilleteraMetodoPagoFragment"
+        android:label="@string/payment_wallet_title"
+        tools:layout="@layout/fragment_billetera_metodo_pago">
+        <action
+            android:id="@+id/action_paymentWalletFragment_to_addPaymentMethodFragment"
+            app:destination="@id/addPaymentMethodFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addPaymentMethodFragment"
+        android:name="com.example.juicy.AgregarMetodoPagoFragment"
+        android:label="@string/payment_add_title"
+        tools:layout="@layout/fragment_agregar_metodo_pago" />
 </navigation>
