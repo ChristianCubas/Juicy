@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -14,39 +13,30 @@ import com.example.juicy.databinding.FragmentFirstBinding;
 
 public class FirstFragment extends Fragment {
 
-    /*prueba para hacer push al master*/
-
-
-
-    /* Prueba de push a mi rama */
-
     private FragmentFirstBinding binding;
-
-    /* Hola soy Medalith, probando commits en github
-    * prueba 02 */
-
-    /*Hola Meda xd*/
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
-
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.tvRegistrarme.setOnClickListener(v->{
-            NavHostFragment.findNavController(FirstFragment.this).navigate(R.id.action_FirstFragment_to_CrearCuenta);
+        // Navegar a la pantalla de registro
+        binding.tvRegistrarme.setOnClickListener(v -> {
+            NavHostFragment.findNavController(FirstFragment.this)
+                    .navigate(R.id.action_FirstFragment_to_CrearCuenta);
         });
 
-        binding.tvOlvidePassword.setOnClickListener(v->{
-            NavHostFragment.findNavController(FirstFragment.this).navigate(R.id.action_FirstFragment_to_RecuperarContrasenia);
+
+        binding.btnIniciarSesion.setOnClickListener(v -> {
+            NavHostFragment.findNavController(FirstFragment.this)
+                    .navigate(R.id.action_FirstFragment_to_BilleteraMetodoPagoFragment);
         });
     }
 
@@ -55,5 +45,4 @@ public class FirstFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
 }
