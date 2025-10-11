@@ -56,6 +56,25 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if(id == R.id.action_agregardirecciones){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host_fragment_content_main, new AgregarDirecciones())
+                    .addToBackStack(null)
+                    .commit();
+        }
+        if(id == R.id.action_direcciones){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host_fragment_content_main, new direccionesFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
+        if(id == R.id.action_buscarmapa){
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host_fragment_content_main, new BuscarMapa())
+                    .addToBackStack(null)
+                    .commit();
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
