@@ -14,6 +14,12 @@ import com.example.juicy.databinding.FragmentFirstBinding;
 
 public class FirstFragment extends Fragment {
 
+    /*prueba para hacer push al master*/
+
+
+
+    /* Prueba de push a mi rama */
+
     private FragmentFirstBinding binding;
 
     /* Hola soy Medalith, probando commits en github
