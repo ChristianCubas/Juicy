@@ -4,6 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/FirstFragment">
+    <action
+        android:id="@+id/action_global_direccionesFragment"
+        app:destination="@id/direccionesFragment" />
+
+    <action
+        android:id="@+id/action_global_agregarDireccionesFragment"
+        app:destination="@id/agregarDireccionesFragment" />
+
+    <action
+        android:id="@+id/action_global_buscarMapaFragment"
+        app:destination="@id/buscarMapaFragment" />
 
     <fragment
         android:id="@+id/FirstFragment"
@@ -18,6 +29,10 @@
         <action
             android:id="@+id/action_FirstFragment_to_CrearCuenta"
             app:destination="@id/CrearCuentaFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_BilleteraMetodoPagoFragment"
+            app:destination="@id/paymentWalletFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -39,4 +54,40 @@
             android:id="@+id/action_CrearCuentaFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/paymentMethodFragment"
+        android:name="com.example.juicy.MpagoFragment"
+        android:label="@string/payment_method_title"
+        tools:layout="@layout/fragment_mpago" />
+    <fragment
+        android:id="@+id/paymentWalletFragment"
+        android:name="com.example.juicy.BilleteraMetodoPagoFragment"
+        android:label="@string/payment_wallet_title"
+        tools:layout="@layout/fragment_billetera_metodo_pago">
+        <action
+            android:id="@+id/action_paymentWalletFragment_to_addPaymentMethodFragment"
+            app:destination="@id/addPaymentMethodFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addPaymentMethodFragment"
+        android:name="com.example.juicy.AgregarMetodoPagoFragment"
+        android:label="@string/payment_add_title"
+        tools:layout="@layout/fragment_agregar_metodo_pago" />
+    <fragment
+        android:id="@+id/direccionesFragment"
+        android:name="com.example.juicy.direccionesFragment"
+        android:label="Direcciones"
+        tools:layout="@layout/fragment_direcciones" />
+
+    <fragment
+        android:id="@+id/agregarDireccionesFragment"
+        android:name="com.example.juicy.AgregarDirecciones"
+        android:label="Agregar Dirección"
+        tools:layout="@layout/fragment_agregar_direcciones" />
+
+    <fragment
+        android:id="@+id/buscarMapaFragment"
+        android:name="com.example.juicy.BuscarMapa"
+        android:label="Buscar en el mapa"
+        tools:layout="@layout/fragment_buscar_mapa" />
 </navigation>

@@ -46,7 +46,7 @@ public class AgregarDirecciones extends Fragment {
                 Toast.makeText(requireContext(), "Abriendo mapa para seleccionar dirección", Toast.LENGTH_SHORT).show();
                 limpiarCampos();
                 NavHostFragment.findNavController(AgregarDirecciones.this)
-                        .navigate(R.id.buscarMapa);
+                        .navigate(R.id.buscarMapaFragment);
             }
         });
 

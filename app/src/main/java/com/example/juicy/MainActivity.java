@@ -1,27 +1,22 @@
 package com.example.juicy;
 
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.juicy.databinding.ActivityMainBinding;
 
-import android.view.Menu;
-import android.view.MenuItem;
-
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +25,15 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        setSupportActionBar(binding.toolbar);
 
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_content_main);
+
+        navController = navHostFragment.getNavController();
+
+        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
 
     @Override
@@ -48,27 +50,25 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_agregardirecciones) {
+            navController.navigate(R.id.agregarDireccionesFragment);
             return true;
         }
-        if(id == R.id.action_agregardirecciones){
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_main, new AgregarDirecciones())
-                    .addToBackStack(null)
-                    .commit();
+        if (id == R.id.action_direcciones) {
+            navController.navigate(R.id.direccionesFragment);
+            return true;
         }
-        if(id == R.id.action_direcciones){
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_main, new direccionesFragment())
-                    .addToBackStack(null)
-                    .commit();
+        if (id == R.id.action_buscarmapa) {
+            navController.navigate(R.id.buscarMapaFragment);
+            return true;
         }
-        if(id == R.id.action_buscarmapa){
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_main, new BuscarMapa())
-                    .addToBackStack(null)
-                    .commit();
+        if (id == R.id.action_mpago) {
+            navController.navigate(R.id.paymentMethodFragment);
+            return true;
+        }
+        if (id == R.id.action_billetera) {
+            navController.navigate(R.id.paymentWalletFragment);
+            return true;
         }
 
 
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        // Usar la instancia guardada de navController para manejar el botón de "atrás"
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }

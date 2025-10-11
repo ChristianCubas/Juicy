@@ -22,4 +22,14 @@
         android:orderInCategory="100"
         android:title="buscar mapa"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_mpago"
+        android:orderInCategory="200"
+        android:title="@string/metodo_pago"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_billetera"
+        android:orderInCategory="200"
+        android:title="@string/payment_wallet_title"
+        app:showAsAction="never"/>
 </menu>
