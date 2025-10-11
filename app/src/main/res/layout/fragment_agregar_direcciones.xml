@@ -162,5 +162,16 @@
             android:layout_marginTop="24dp"
             android:padding="12dp"
             android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/btnAbrirMapa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Abrir mapa"
+            android:backgroundTint="@color/black"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="12dp"
+            android:padding="12dp"
+            android:textStyle="bold" />
     </LinearLayout>
 </ScrollView>
