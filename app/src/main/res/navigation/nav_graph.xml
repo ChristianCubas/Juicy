@@ -39,4 +39,9 @@
             android:id="@+id/action_CrearCuentaFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/paymentMethodFragment"
+        android:name="com.example.juicy.MpagoFragment"
+        android:label="@string/payment_method_title"
+        tools:layout="@layout/fragment_mpago" />
 </navigation>

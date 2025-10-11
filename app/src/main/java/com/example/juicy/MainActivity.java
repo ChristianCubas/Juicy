@@ -56,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if(id==R.id.action_mpago) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host_fragment_content_main, new MpagoFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
 
         return super.onOptionsItemSelected(item);
     }
