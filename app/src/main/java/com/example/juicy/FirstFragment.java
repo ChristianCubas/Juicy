@@ -19,6 +19,8 @@ public class FirstFragment extends Fragment {
     /* Hola soy Medalith, probando commits en github
     * prueba 02 */
 
+    /*Hola Meda xd*/
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -35,6 +37,10 @@ public class FirstFragment extends Fragment {
 
         binding.tvRegistrarme.setOnClickListener(v->{
             NavHostFragment.findNavController(FirstFragment.this).navigate(R.id.action_FirstFragment_to_CrearCuenta);
+        });
+
+        binding.tvOlvidePassword.setOnClickListener(v->{
+            NavHostFragment.findNavController(FirstFragment.this).navigate(R.id.action_FirstFragment_to_RecuperarContrasenia);
         });
     }
 
