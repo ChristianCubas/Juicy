@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@android:color/white"
+    tools:context=".AgregarDirecciones">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Agregar dirección"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="16dp"/>
+
+        <!-- Categoría -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Categoría (25 caracteres máx.)"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/etCategoria"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Casa"
+            android:maxLength="25"
+            android:inputType="text"/>
+
+        <!-- Tipo de vía -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tipo de vía (Calle, avenida, pasaje, etc)"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etTipoVia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Avenida"
+            android:inputType="text"/>
+
+        <!-- Nombre de vía -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre de vía"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etNombreVia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Miguel Grau"
+            android:inputType="text"/>
+
+        <!-- Número y departamento en una fila -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Número (Vía)"
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/etNumeroVia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="1003"
+                    android:inputType="number"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="match_parent"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Departamento*"
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/etDepartamento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="B12"
+                    android:inputType="text"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Referencia -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Referencia"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etReferencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cerca al supermercado Metro"
+            android:inputType="text"/>
+
+        <!-- Ciudad -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ciudad"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"/>
+
+        <EditText
+            android:id="@+id/etCiudad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Chiclayo"
+            android:inputType="text"/>
+
+        <!-- Botón Guardar -->
+        <Button
+            android:id="@+id/btnGuardarDireccion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Guardar dirección"
+            android:backgroundTint="#FFA54C"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="24dp"
+            android:padding="12dp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/btnAbrirMapa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Abrir mapa"
+            android:backgroundTint="@color/black"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="12dp"
+            android:padding="12dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</ScrollView>

@@ -18,10 +18,6 @@
         <action
             android:id="@+id/action_FirstFragment_to_CrearCuenta"
             app:destination="@id/CrearCuentaFragment" />
-
-        <action
-            android:id="@+id/action_FirstFragment_to_RecuperarContrasenia"
-            app:destination="@id/RecuperarContrasenia"/>
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -42,11 +38,5 @@
         <action
             android:id="@+id/action_CrearCuentaFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/RecuperarContrasenia"
-        android:name="com.example.juicy.RecuperarContrasenia"
-        android:label=""
-        tools:layout="@layout/fragment_recuperar_contrasenia">
     </fragment>
 </navigation>
