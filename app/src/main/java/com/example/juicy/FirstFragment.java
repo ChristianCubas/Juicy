@@ -15,29 +15,37 @@ public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
 
+    /* Hola soy Medalith, probando commits en github
+     * prueba 02 */
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
+
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
+
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Navegar a la pantalla de registro
         binding.tvRegistrarme.setOnClickListener(v -> {
             NavHostFragment.findNavController(FirstFragment.this)
-                    .navigate(R.id.action_FirstFragment_to_CrearCuenta);
+                    .navigate(R.id.action_FirstFragment_to_SecondFragment);
         });
-
 
         binding.btnIniciarSesion.setOnClickListener(v -> {
             NavHostFragment.findNavController(FirstFragment.this)
                     .navigate(R.id.action_FirstFragment_to_BilleteraMetodoPagoFragment);
         });
+
+
+        /*binding.tvOlvidePassword.setOnClickListener(v->{
+            NavHostFragment.findNavController(FirstFragment.this).navigate(R.id.action_FirstFragment_to_RecuperarContrasenia);
+        });*/
     }
 
     @Override
@@ -45,4 +53,5 @@ public class FirstFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
 }

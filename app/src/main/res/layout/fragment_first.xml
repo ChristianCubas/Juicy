@@ -8,115 +8,120 @@
     tools:context=".FirstFragment"
     android:background="@android:color/white">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:gravity="center_horizontal">
-
-    <!-- Parte superior (fondo naranja) -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:background="#FFA54C" />
-
-    <!-- Bienvenido -->
-    <TextView
-        android:id="@+id/tvBienvenido"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bienvenido(a)"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:textColor="@android:color/black" />
-
-    <!-- Campo de correo -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilCorreo"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginHorizontal="24dp"
-        android:hint="Correo electrónico">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etCorreo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:hint="" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Campo de contraseña -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilPassword"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginHorizontal="24dp"
-        android:hint="Contraseña"
-        app:endIconMode="password_toggle">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Olvidé la contraseña -->
-    <TextView
-        android:id="@+id/tvOlvidePassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:layout_gravity="end"
-        android:text="Olvidé la contraseña"
-        android:textColor="#FFA54C"
-        android:textSize="14sp" />
-
-    <!-- Botón iniciar sesión -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnIniciarSesion"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginHorizontal="24dp"
-        android:backgroundTint="#FFA54C"
-        android:text="Iniciar sesión"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"/>
-
-    <!-- Texto registrarse -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
+        <!-- Parte superior (fondo naranja) -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="#FFA54C" />
+
+        <!-- Bienvenido -->
         <TextView
+            android:id="@+id/tvBienvenido"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="¿No tienes una cuenta? "
-            android:textColor="@android:color/black"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/tvRegistrarme"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Registrarme"
-            android:textColor="#FFA54C"
+            android:text="Bienvenido(a)"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:textSize="14sp" />
-    </LinearLayout>
+            android:layout_marginTop="24dp"
+            android:textColor="@android:color/black" />
 
-</LinearLayout>
+        <!-- Campo de correo -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilCorreo"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginHorizontal="24dp"
+            android:hint="Correo electrónico">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCorreo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:text="email_example@gmail.com"
+                android:hint="" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Campo de contraseña -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="24dp"
+            android:hint="Contraseña"
+            app:endIconMode="password_toggle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:text="password12345"
+                android:hint="" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Olvidé la contraseña -->
+        <TextView
+            android:id="@+id/tvOlvidePassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:layout_gravity="end"
+            android:text="Olvidé la contraseña"
+            android:textColor="#FFA54C"
+            android:textSize="14sp" />
+
+        <!-- Botón iniciar sesión -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnIniciarSesion"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginHorizontal="24dp"
+            android:backgroundTint="#FFA54C"
+            android:text="Iniciar sesión"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"/>
+
+        <!-- Texto registrarse -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¿No tienes una cuenta? "
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvRegistrarme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Registrarme"
+                android:textColor="#FFA54C"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
 </ScrollView>

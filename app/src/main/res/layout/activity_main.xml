@@ -15,12 +15,9 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:background="#FFA64D"
-
-            android:layout_height="?attr/actionBarSize" />
-
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFA64D" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_main" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
