@@ -46,5 +46,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation("com.squareup.retrofit2:retrofit:2.5.0")
     implementation("com.squareup.retrofit2:converter-gson:2.5.0")
+    implementation("com.android.volley:volley:1.1.1")
 
 }
