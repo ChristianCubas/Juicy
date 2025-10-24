@@ -98,6 +98,8 @@ public class FirstFragment extends Fragment {
                     // navegar después del login, descomentar:
                     // NavHostFragment.findNavController(FirstFragment.this)
                     //        .navigate(R.id.action_FirstFragment_to_BilleteraMetodoPagoFragment);
+                    NavHostFragment.findNavController(FirstFragment.this)
+                            .navigate(R.id.agregarDirecciones);
                 } else {
                     showDialog("Respuesta inválida",
                             "No se recibió el token de autenticación.");
