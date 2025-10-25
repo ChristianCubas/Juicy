@@ -2,6 +2,7 @@ package com.example.juicy.Interface;
 
 import com.example.juicy.Model.EliminarMetodoPagoRequest;
 import com.example.juicy.Model.GuardarMetodoPagoRequest;
+import com.example.juicy.Model.MetodoPagoVentaRequest;
 import com.example.juicy.Model.RptaGeneral;
 
 import retrofit2.Call;
@@ -24,5 +25,10 @@ public interface metodosPagoApi {
     Call<RptaGeneral> eliminarMetodo(@Header("Authorization") String authorization,
                                      @Body EliminarMetodoPagoRequest body);
 
+    @POST("api_metodo_pago_venta")
+    Call<RptaGeneral> setMetodoPagoVenta(
+            @Header("Authorization") String authorization,
+            @Body MetodoPagoVentaRequest body
+    );
 
 }
