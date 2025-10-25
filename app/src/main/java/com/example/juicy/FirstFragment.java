@@ -1,6 +1,5 @@
 package com.example.juicy;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,11 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.juicy.Interface.DambJuiceApi;
+import com.example.juicy.Interface.ronaldApi;
+import com.example.juicy.Model.AuthRequest;
+import com.example.juicy.Model.AuthResponse;
 import com.example.juicy.databinding.FragmentFirstBinding;
-import com.example.juicy.model.AuthRequest;
-import com.example.juicy.model.AuthResponse;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,16 +26,20 @@ public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
 
+    /* Hola soy Medalith, probando commits en github
+     * prueba 02 */
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
+
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
+
     }
 
-    @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -46,82 +48,74 @@ public class FirstFragment extends Fragment {
                     .navigate(R.id.action_FirstFragment_to_SecondFragment);
         });
 
-        binding.btnIniciarSesion.setOnClickListener(v -> iniciarSesion());
+        binding.btnIniciarSesion.setOnClickListener(v -> {
+            String correo = binding.etCorreo.getText() != null ? binding.etCorreo.getText().toString() : "";
+            String password = binding.etPassword.getText() != null ? binding.etPassword.getText().toString() : "";
+
+            if (correo.isEmpty() || password.isEmpty()) {
+                Toast.makeText(requireContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!isPasswordValid(password)) {
+                Toast.makeText(requireContext(), "La contraseña debe tener al menos 8 caracteres", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            getToken(correo, password);
+        });
+
+
+        /*binding.tvOlvidePassword.setOnClickListener(v->{
+            NavHostFragment.findNavController(FirstFragment.this).navigate(R.id.action_FirstFragment_to_RecuperarContrasenia);
+        });*/
     }
-
-    private void iniciarSesion() {
-        String email = binding.etCorreo.getText().toString().trim();
-        String password = binding.etPassword.getText().toString().trim();
-
-        if (email.isEmpty() || password.isEmpty()) {
-            showDialog("Datos incompletos", "Ingrese su correo y contraseña.");
-            return;
-        }
-
+    private void getToken(String username, String password) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://grupotres20252.pythonanywhere.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        DambJuiceApi api = retrofit.create(DambJuiceApi.class);
+        ronaldApi api = retrofit.create(ronaldApi.class);
 
         AuthRequest authRequest = new AuthRequest();
-        authRequest.setUsername(email);
+        authRequest.setUsername(username);
         authRequest.setPassword(password);
 
-        api.obtenerToken(authRequest).enqueue(new Callback<AuthResponse>() {
+        Call<AuthResponse> call = api.obtenerToken(authRequest);
+        call.enqueue(new Callback<AuthResponse>() {
             @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+            public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
                 if (!response.isSuccessful()) {
-
-                    if (response.code() == 401 || response.code() == 400) {
-                        showDialog("Credenciales incorrectas",
-                                "El correo o la contraseña no son válidos. Inténtalo nuevamente.");
-                    } else {
-                        showDialog("No se pudo iniciar sesión",
-                                "Código de error: " + response.code());
-                    }
+                    Toast.makeText(requireContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 AuthResponse authResponse = response.body();
                 if (authResponse != null && authResponse.getAccess_token() != null) {
-                    String token = authResponse.getAccess_token();
+                    // Guardamos datos en SharedPreferences
+                    SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("SP_USAT", getContext().MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("username", username);
+                    editor.putString("tokenJWT", authResponse.getAccess_token());
+                    editor.apply();
 
-                    // Guardar token
-                    SharedPreferences prefs = requireActivity()
-                            .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-                    prefs.edit().putString("tokenJWT", token).apply();
-
-                    Toast.makeText(getContext(), "Token JWT: " + token, Toast.LENGTH_LONG).show();
-
-                    // navegar después del login, descomentar:
-                    // NavHostFragment.findNavController(FirstFragment.this)
-                    //        .navigate(R.id.action_FirstFragment_to_BilleteraMetodoPagoFragment);
+                    // Navegar a la siguiente pantalla (Billetera o MainActivity)
                     NavHostFragment.findNavController(FirstFragment.this)
-                            .navigate(R.id.agregarDirecciones);
+                            .navigate(R.id.action_FirstFragment_to_BilleteraMetodoPagoFragment);
                 } else {
-                    showDialog("Respuesta inválida",
-                            "No se recibió el token de autenticación.");
+                    Toast.makeText(requireContext(), "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
-                showDialog("Error de conexión",
-                        "No fue posible conectarse con el servidor.\n" + t.getMessage());
+            public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
+                Toast.makeText(requireContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-    private void showDialog(String title, String message) {
-        if (getContext() == null) return;
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("OK", null)
-                .setCancelable(true)
-                .show();
+    private boolean isPasswordValid(String text) {
+        return text != null && text.length() >= 5;
     }
 
     @Override
@@ -129,4 +123,5 @@ public class FirstFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
 }
