@@ -16,9 +16,6 @@
             app:destination="@id/SecondFragment" />
 
         <action
-            android:id="@+id/action_FirstFragment_to_CrearCuenta"
-            app:destination="@id/CrearCuentaFragment" />
-        <action
             android:id="@+id/action_FirstFragment_to_BilleteraMetodoPagoFragment"
             app:destination="@id/paymentWalletFragment" />
     </fragment>
@@ -33,24 +30,14 @@
             app:destination="@id/FirstFragment" />
     </fragment>
     <fragment
-        android:id="@+id/CrearCuentaFragment"
-        android:name="com.example.juicy.CrearCuenta"
-        android:label="@string/crear_cuenta"
-        tools:layout="@layout/fragment_crear_cuenta">
-
-        <action
-            android:id="@+id/action_CrearCuentaFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/paymentMethodFragment"
         android:name="com.example.juicy.MpagoFragment"
-        android:label="@string/payment_method_title"
+        android:label="Método de pago"
         tools:layout="@layout/fragment_mpago" />
     <fragment
         android:id="@+id/paymentWalletFragment"
         android:name="com.example.juicy.BilleteraMetodoPagoFragment"
-        android:label="@string/payment_wallet_title"
+        android:label="Billetera digital"
         tools:layout="@layout/fragment_billetera_metodo_pago">
         <action
             android:id="@+id/action_paymentWalletFragment_to_addPaymentMethodFragment"
@@ -59,27 +46,27 @@
     <fragment
         android:id="@+id/addPaymentMethodFragment"
         android:name="com.example.juicy.AgregarMetodoPagoFragment"
-        android:label="@string/payment_add_title"
+        android:label=""
         tools:layout="@layout/fragment_agregar_metodo_pago" />
     <fragment
         android:id="@+id/agregarDirecciones"
         android:name="com.example.juicy.AgregarDirecciones"
-        android:label="fragment_agregar_direcciones"
+        android:label=""
         tools:layout="@layout/fragment_agregar_direcciones" />
     <fragment
         android:id="@+id/buscarMapa"
         android:name="com.example.juicy.BuscarMapa"
-        android:label="fragment_buscar_mapa"
+        android:label=""
         tools:layout="@layout/fragment_buscar_mapa" />
     <fragment
         android:id="@+id/direccionesFragment"
         android:name="com.example.juicy.direccionesFragment"
-        android:label="fragment_direcciones"
+        android:label=""
         tools:layout="@layout/fragment_direcciones" />
     <fragment
         android:id="@+id/perfilUsuario"
         android:name="com.example.juicy.PerfilUsuario.PerfilUsuario"
-        android:label="fragment_perfil_usuario"
+        android:label=""
         tools:layout="@layout/fragment_perfil_usuario">
         <action
             android:id="@+id/action_perfilUsuario_to_editarPerfil"
@@ -88,6 +75,6 @@
     <fragment
         android:id="@+id/editarPerfil"
         android:name="com.example.juicy.PerfilUsuario.editarPerfil"
-        android:label="fragment_editar_perfil"
+        android:label=""
         tools:layout="@layout/fragment_editar_perfil" />
 </navigation>

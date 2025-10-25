@@ -69,7 +69,6 @@ android:background="@android:color/white">
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:hint="email_example@gmail.com"
                 android:importantForAutofill="yes" />
         </com.google.android.material.textfield.TextInputLayout>
 
