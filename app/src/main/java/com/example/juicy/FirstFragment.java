@@ -16,6 +16,7 @@ import com.example.juicy.Interface.DambJuiceApi;
 import com.example.juicy.databinding.FragmentFirstBinding;
 import com.example.juicy.model.AuthRequest;
 import com.example.juicy.model.AuthResponse;
+import com.example.juicy.model.MeResponse;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import retrofit2.Call;
@@ -88,22 +89,59 @@ public class FirstFragment extends Fragment {
                 if (authResponse != null && authResponse.getAccess_token() != null) {
                     String token = authResponse.getAccess_token();
 
-                    // Guardar token
+
                     SharedPreferences prefs = requireActivity()
                             .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
                     prefs.edit().putString("tokenJWT", token).apply();
 
-                    Toast.makeText(getContext(), "Token JWT: " + token, Toast.LENGTH_LONG).show();
 
-                    // navegar después del login, descomentar:
-                    // NavHostFragment.findNavController(FirstFragment.this)
-                    //        .navigate(R.id.action_FirstFragment_to_BilleteraMetodoPagoFragment);
-                    NavHostFragment.findNavController(FirstFragment.this)
-                            .navigate(R.id.agregarDirecciones);
+                    Toast.makeText(getContext(), "Token JWT obtenido", Toast.LENGTH_SHORT).show();
+
+
+                    String authHeader = "JWT " + token;
+                    api.me(authHeader).enqueue(new Callback<MeResponse>() {
+                        @Override
+                        public void onResponse(Call<MeResponse> call, Response<MeResponse> resp) {
+                            if (resp.isSuccessful() && resp.body() != null && resp.body().getCode() == 1) {
+                                MeResponse me = resp.body();
+                                int idCliente = me.getId_cliente();
+                                String nombre = me.getNombre();
+
+
+                                prefs.edit()
+                                        .putInt("idCliente", idCliente)
+                                        .putString("nombreCliente", nombre)
+                                        .apply();
+
+
+                                Toast.makeText(
+                                        getContext(),
+                                        "Bienvenido, " + nombre + " (ID: " + idCliente + ")",
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            } else {
+                                Toast.makeText(getContext(),
+                                        "Error al obtener datos del cliente",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+
+
+                            NavHostFragment.findNavController(FirstFragment.this)
+                                    .navigate(R.id.agregarDirecciones);
+                        }
+
+                        @Override
+                        public void onFailure(Call<MeResponse> call, Throwable t) {
+                            Toast.makeText(getContext(),
+                                    "Error de conexión: " + t.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     showDialog("Respuesta inválida",
                             "No se recibió el token de autenticación.");
                 }
+
             }
 
             @Override
