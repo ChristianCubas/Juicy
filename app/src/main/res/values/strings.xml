@@ -100,5 +100,6 @@
     <string name="payment_delete_question">¿Estás seguro que deseas eliminar esta tarjeta?</string>
     <string name="payment_delete_cancel">Cancelar</string>
     <string name="payment_delete_confirm">Sí, seguro</string>
+    <string name="m_todos_de_pago">Métodos de Pago</string>
 
 </resources>
