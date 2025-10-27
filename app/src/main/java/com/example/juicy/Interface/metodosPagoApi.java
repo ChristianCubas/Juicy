@@ -1,9 +1,9 @@
 package com.example.juicy.Interface;
 
-import com.example.juicy.model.EliminarMetodoPagoRequest;
-import com.example.juicy.model.GuardarMetodoPagoRequest;
-import com.example.juicy.model.MetodoPagoVentaRequest;
-import com.example.juicy.model.RptaGeneral;
+import com.example.juicy.Model.EliminarMetodoPagoRequest;
+import com.example.juicy.Model.GuardarMetodoPagoRequest;
+import com.example.juicy.Model.MetodoPagoVentaRequest;
+import com.example.juicy.Model.RptaGeneral;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

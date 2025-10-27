@@ -14,9 +14,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.DambJuiceApi;
 import com.example.juicy.databinding.FragmentFirstBinding;
-import com.example.juicy.model.AuthRequest;
-import com.example.juicy.model.AuthResponse;
-import com.example.juicy.model.MeResponse;
+import com.example.juicy.Model.AuthRequest;
+import com.example.juicy.Model.AuthResponse;
+import com.example.juicy.Model.MeResponse;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import retrofit2.Call;

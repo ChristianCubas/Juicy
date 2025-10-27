@@ -1,4 +1,4 @@
-package com.example.juicy.model;
+package com.example.juicy.Model;
 
 public class MeResponse {
     private int code;
