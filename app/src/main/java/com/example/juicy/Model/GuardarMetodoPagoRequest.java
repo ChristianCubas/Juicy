@@ -1,4 +1,4 @@
-package com.example.juicy.Model;
+package com.example.juicy.model;
 
 public class GuardarMetodoPagoRequest {
     private int id_cliente;
