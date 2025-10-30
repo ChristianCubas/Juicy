@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,9 +33,8 @@ import java.util.Map;
 public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private LinearLayout layoutLoading;
     private ProductoAdapter adapter;
-    private List<Producto> listaProductos = new ArrayList<>();
+    private final List<Producto> listaProductos = new ArrayList<>();
 
     private static final String URL_API = "https://grupotres20252.pythonanywhere.com/api_menu_inicio";
 
@@ -45,11 +43,10 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
+
         recyclerView = v.findViewById(R.id.recyclerProductos);
-
-
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        adapter = new ProductoAdapter(getContext(), listaProductos);
+        adapter = new ProductoAdapter(requireContext(), listaProductos);
         recyclerView.setAdapter(adapter);
 
         cargarProductos();
@@ -62,62 +59,81 @@ public class HomeFragment extends Fragment {
         SharedPreferences prefs = requireActivity()
                 .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         String token = prefs.getString("tokenJWT", null);
+        int idCliente = prefs.getInt("idCliente", 0);
 
-        if (token == null) {
-            Toast.makeText(getContext(), "Token no disponible. Inicie sesión.", Toast.LENGTH_SHORT).show();
-            layoutLoading.setVisibility(View.GONE);
+        if (token == null || idCliente == 0) {
+            Toast.makeText(requireContext(), "Token o id_cliente no disponible. Inicie sesión.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         JSONObject body = new JSONObject();
         try {
-            body.put("id_cliente", prefs.getInt("idCliente", 0));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            body.put("id_cliente", idCliente);
+        } catch (JSONException ignored) {}
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 URL_API,
                 body,
                 response -> {
-                    layoutLoading.setVisibility(View.GONE);
                     try {
-                        if (response.getInt("code") == 1) {
-                            JSONArray productos = response.getJSONArray("data");
-                            for (int i = 0; i < productos.length(); i++) {
-                                JSONObject obj = productos.getJSONObject(i);
-                                Producto p = new Producto();
-                                p.setId_producto(obj.getInt("id"));
-                                p.setNombre(obj.getString("nombre"));
-                                p.setDescripcion(obj.getString("descripcion"));
-                                p.setImagen_url(obj.getString("imagen"));
-                                p.setPrecio(obj.getDouble("precio"));
-                                listaProductos.add(p);
-                            }
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            Toast.makeText(getContext(), "No se encontraron productos.", Toast.LENGTH_SHORT).show();
+                        if (response.optInt("code", 0) != 1) {
+                            Toast.makeText(requireContext(), "Respuesta no OK del servidor.", Toast.LENGTH_SHORT).show();
+                            return;
                         }
+
+                        // data es un OBJETO: { cliente, grupos, categorias[] }
+                        JSONObject data = response.getJSONObject("data");
+                        JSONArray categorias = data.optJSONArray("categorias");
+
+                        if (categorias != null) {
+                            for (int c = 0; c < categorias.length(); c++) {
+                                JSONObject cat = categorias.getJSONObject(c);
+                                JSONArray productos = cat.optJSONArray("productos");
+                                if (productos == null) continue;
+
+                                for (int i = 0; i < productos.length(); i++) {
+                                    JSONObject obj = productos.getJSONObject(i);
+
+                                    Producto p = new Producto();
+                                    p.setId_producto(obj.getInt("id_producto"));
+                                    p.setNombre(obj.getString("nombre_producto"));
+                                    p.setDescripcion(obj.optString("descripcion", ""));
+
+                                    String img = obj.optString("imagen", null);
+                                    if (img != null && !img.startsWith("http")) {
+                                        img = "https://grupotres20252.pythonanywhere.com/" + img.replaceFirst("^/+", "");
+                                    }
+                                    p.setImagen_url(img);
+
+                                    p.setPrecio(obj.getDouble("precio_base"));
+                                    listaProductos.add(p);
+                                }
+                            }
+                        }
+
+                        adapter.notifyDataSetChanged();
                     } catch (JSONException e) {
-                        e.printStackTrace();
-                        Toast.makeText(getContext(), "Error al procesar datos.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "Error al procesar datos.", Toast.LENGTH_SHORT).show();
                     }
                 },
                 error -> {
-                    layoutLoading.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Error de conexión con el servidor.", Toast.LENGTH_SHORT).show();
+                    String msg = "Error de conexión con el servidor.";
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        msg = "HTTP " + error.networkResponse.statusCode + ": " + new String(error.networkResponse.data);
+                    }
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
                 }
         ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "JWT " + token);
+                headers.put("Authorization", "JWT " + token); // Flask-JWT
                 headers.put("Content-Type", "application/json");
                 return headers;
             }
         };
 
-        VolleySingleton.getInstance(requireContext()).getRequestQueue();
+        VolleySingleton.getInstance(requireContext()).getRequestQueue().add(request);
     }
 }
