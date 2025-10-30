@@ -1,8 +1,8 @@
 package com.example.juicy.Interface;
 
-import com.example.juicy.model.ActualizarDireccionRequest;
-import com.example.juicy.model.AgregarDireccionRequest;
-import com.example.juicy.model.RptaGeneral;
+import com.example.juicy.Model.ActualizarDireccionRequest;
+import com.example.juicy.Model.AgregarDireccionRequest;
+import com.example.juicy.Model.RptaGeneral;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
