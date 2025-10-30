@@ -37,6 +37,7 @@ public class BilleteraMetodoPagoFragment extends Fragment {
 
     private String authHeader;
     private int idCliente;
+
     private static final String BASE_URL = "https://grupotres20252.pythonanywhere.com/";
 
     private enum SelectedCard {
@@ -59,16 +60,15 @@ public class BilleteraMetodoPagoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // === Token e id_cliente desde SharedPreferences (mismo patrón de clase) ===
-        SharedPreferences sp = requireActivity().getSharedPreferences("SP_USAT", Context.MODE_PRIVATE);
-        String token = sp.getString("tokenJWT", "");
-        idCliente = sp.getInt("id_cliente", 0); // guarda esto al iniciar sesión
 
-        if (token == null || token.trim().isEmpty() || idCliente <= 0) {
+        SharedPreferences sp = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        String token = sp.getString("tokenJWT", "");
+        this.idCliente = sp.getInt("idCliente", 0);
+        if (token == null || token.trim().isEmpty() || this.idCliente <= 0) {
             Toast.makeText(requireContext(), "Debe autenticarse", Toast.LENGTH_SHORT).show();
             return;
         }
-        authHeader = "JWT " + token.trim();
+        this.authHeader = "JWT " + token.trim();
 
         // === Retrofit ===
         Retrofit retrofit = new Retrofit.Builder()
@@ -124,51 +124,37 @@ public class BilleteraMetodoPagoFragment extends Fragment {
     }
 
     private void listar() {
-        api.listarMetodos(authHeader, idCliente).enqueue(new Callback<RptaGeneral>() {
+        api.listarMetodos(this.authHeader, this.idCliente).enqueue(new Callback<RptaGeneral>() {
             @Override public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> resp) {
                 if (!resp.isSuccessful() || resp.body() == null) {
                     Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 RptaGeneral r = resp.body();
-                if (r.getCode() != 1) {
-                    Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // === parsear Object data con Gson dentro del onResponse (como en clase) ===
+                if (r.getCode() != 1) { Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show(); return; }
+
                 Gson gson = new Gson();
                 Type t = new TypeToken<List<MetodoPagoEntry>>(){}.getType();
                 List<MetodoPagoEntry> lista = gson.fromJson(gson.toJson(r.getData()), t);
                 adapter.setData(lista);
             }
-            @Override public void onFailure(Call<RptaGeneral> call, Throwable t) {
-                Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show();
-            }
+            @Override public void onFailure(Call<RptaGeneral> call, Throwable t) { Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show(); }
         });
     }
 
     private void eliminar(int idMetodo) {
-        // usar la clase de request SEPARADA
         EliminarMetodoPagoRequest body = new EliminarMetodoPagoRequest();
         body.setId_metodo_pago(idMetodo);
-        body.setId_cliente(idCliente);
+        body.setId_cliente(this.idCliente);
 
-        api.eliminarMetodo(authHeader, body).enqueue(new Callback<RptaGeneral>() {
-            @Override
-            public void onResponse(@NonNull Call<RptaGeneral> call, @NonNull Response<RptaGeneral> resp) {
-                if (!resp.isSuccessful() || resp.body() == null) {
-                    Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        api.eliminarMetodo(this.authHeader, body).enqueue(new Callback<RptaGeneral>() {
+            @Override public void onResponse(@NonNull Call<RptaGeneral> call, @NonNull Response<RptaGeneral> resp) {
+                if (!resp.isSuccessful() || resp.body() == null) { Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show(); return; }
                 RptaGeneral r = resp.body();
                 Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
-                if (r.getCode() == 1) listar(); // refrescar
+                if (r.getCode() == 1) listar();
             }
-
-            @Override
-            public void onFailure(@NonNull Call<RptaGeneral> call, @NonNull Throwable t) {
-                Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show();
-            }
+            @Override public void onFailure(@NonNull Call<RptaGeneral> call, @NonNull Throwable t) { Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show(); }
         });
     }
 
