@@ -14,8 +14,8 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.DambJuiceApi;
 import com.example.juicy.databinding.FragmentSecondBinding;
-import com.example.juicy.model.RegistrarClienteRequest;
-import com.example.juicy.model.RptaGeneral;
+import com.example.juicy.Model.RegistrarClienteRequest;
+import com.example.juicy.Model.RptaGeneral;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import retrofit2.Call;
