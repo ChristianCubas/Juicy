@@ -14,9 +14,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.DambJuiceApi;
 import com.example.juicy.databinding.FragmentFirstBinding;
-import com.example.juicy.model.AuthRequest;
-import com.example.juicy.model.AuthResponse;
-import com.example.juicy.model.MeResponse;
+import com.example.juicy.Model.AuthRequest;
+import com.example.juicy.Model.AuthResponse;
+import com.example.juicy.Model.MeResponse;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import retrofit2.Call;
@@ -41,12 +41,12 @@ public class FirstFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        binding.tvRegistrarme.setOnClickListener(v -> {
+        /*
+        binding.btnIniciarSesion.setOnClickListener(v -> {
             NavHostFragment.findNavController(FirstFragment.this)
                     .navigate(R.id.action_FirstFragment_to_SecondFragment);
         });
-
+*/
         binding.btnIniciarSesion.setOnClickListener(v -> iniciarSesion());
     }
 
@@ -119,15 +119,20 @@ public class FirstFragment extends Fragment {
                                         "Bienvenido, " + nombre + " (ID: " + idCliente + ")",
                                         Toast.LENGTH_LONG
                                 ).show();
+
+                                NavHostFragment.findNavController(FirstFragment.this)
+                                        .navigate(R.id.action_FirstFragment_to_HomeFragment);
                             } else {
                                 Toast.makeText(getContext(),
                                         "Error al obtener datos del cliente",
                                         Toast.LENGTH_SHORT).show();
                             }
 
-
+/*
                             NavHostFragment.findNavController(FirstFragment.this)
                                     .navigate(R.id.agregarDirecciones);
+*/
+
                         }
 
                         @Override
