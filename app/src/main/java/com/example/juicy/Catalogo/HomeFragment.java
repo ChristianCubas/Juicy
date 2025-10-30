@@ -57,7 +57,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void cargarProductos() {
-        layoutLoading.setVisibility(View.VISIBLE);
         listaProductos.clear();
 
         SharedPreferences prefs = requireActivity()
