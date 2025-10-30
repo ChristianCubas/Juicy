@@ -1,20 +1,19 @@
-package com.example.juicy.model;
+package com.example.juicy.Model;
 
 public class RptaGeneral {
     private int code;
-    private String message;
     private Object data;
+    private String message;
 
     public int getCode() {
         return code;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public Object getData() {
         return data;
     }
 
+    public String getMessage() {
+        return message;
+    }
 }

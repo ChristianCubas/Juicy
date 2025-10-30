@@ -1,4 +1,4 @@
-package com.example.juicy.model;
+package com.example.juicy.Model;
 
 public class AuthRequest {
     private String username;
@@ -11,5 +11,4 @@ public class AuthRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-
 }
