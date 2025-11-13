@@ -82,15 +82,17 @@
             android:id="@+id/action_perfilUsuario_to_editarPerfil"
             app:destination="@id/perfilUsuario" />
     </fragment>
+
+    <fragment
+        android:id="@+id/carritoFragment"
+        android:name="com.example.juicy.carrito_producto"
+        android:label=""
+        tools:layout="@layout/fragment_carrito_producto" />
+
     <fragment
         android:id="@+id/editarPerfil"
         android:name="com.example.juicy.PerfilUsuario.editarPerfil"
         android:label=""
         tools:layout="@layout/fragment_editar_perfil" />
 
-    <fragment
-        android:id="@+id/carrito"
-        android:name="com.example.juicy.Carrito_producto"
-        android:label=""
-        tools:layout="@layout/fragment_carrito_producto" />
 </navigation>

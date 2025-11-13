@@ -58,9 +58,8 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_buscarmapa)       { navController.navigate(R.id.buscarMapa);              return true; }
         if (id == R.id.action_perfilUsuario)    { navController.navigate(R.id.perfilUsuario);           return true; }
         if (id == R.id.action_editorPerfil)     { navController.navigate(R.id.editarPerfil);            return true; }
-        if (id == R.id.nav_carrito)             { navController.navigate(R.id.carrito);                 return true; }
         if (id == R.id.nav_home)                { navController.navigate(R.id.homeFragment);            return true; }
-
+        //if (id == R.id.nav_carrito)             { navController.navigate(R.id.carritoFragment);         return true; };
         return super.onOptionsItemSelected(item);
     }
 

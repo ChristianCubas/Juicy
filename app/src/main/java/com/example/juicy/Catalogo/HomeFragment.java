@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -52,7 +53,16 @@ public class HomeFragment extends Fragment {
             Toast.makeText(getActivity(),"Producto agregado",Toast.LENGTH_SHORT).show();
         });
 
-        ;
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+
+        String token = prefs.getString("tokenJWT", null);
+        int idCliente = prefs.getInt("idCliente", -1);
+        String nombreCliente = prefs.getString("nombreCliente", "Invitado");
+
+        TextView tvUsuario = v.findViewById(R.id.tvUsuario);
+        tvUsuario.setText(nombreCliente);
+
         recyclerView.setAdapter(adapter);
 
         cargarProductos();
