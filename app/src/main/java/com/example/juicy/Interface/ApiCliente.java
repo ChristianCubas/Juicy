@@ -1,6 +1,6 @@
 package com.example.juicy.Interface;
 
-import com.example.juicy.model.Cliente;
+import com.example.juicy.Model.Cliente;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
