@@ -15,8 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.metodosPagoApi;
-import com.example.juicy.Model.GuardarMetodoPagoRequest;
 import com.example.juicy.Model.RptaGeneral;
+import com.example.juicy.Model.GuardarMetodoPagoRequest;
 import com.example.juicy.databinding.FragmentAgregarMetodoPagoBinding;
 
 import retrofit2.Call;

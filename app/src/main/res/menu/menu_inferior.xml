@@ -1,0 +1,5 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_favoritos" android:icon="@drawable/ic_favoritos" android:title="Favoritos"/>
+    <item android:id="@+id/nav_home" android:icon="@drawable/ic_home" android:title="Home" android:checked="true"/>
+    <item android:id="@+id/nav_carrito" android:icon="@drawable/ic_carrito" android:title="Carrito" android:actionLayout="@layout/fragment_carrito_producto"/>
+</menu>

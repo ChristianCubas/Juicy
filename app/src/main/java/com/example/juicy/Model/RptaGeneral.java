@@ -2,18 +2,21 @@ package com.example.juicy.Model;
 
 public class RptaGeneral {
     private int code;
-    private Object data;
     private String message;
 
     public int getCode() {
         return code;
     }
 
-    public Object getData() {
-        return data;
+    public void setCode(int code) {
+        this.code = code;
     }
 
     public String getMessage() {
         return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

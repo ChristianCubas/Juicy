@@ -41,12 +41,12 @@ public class FirstFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        binding.tvRegistrarme.setOnClickListener(v -> {
+        /*
+        binding.btnIniciarSesion.setOnClickListener(v -> {
             NavHostFragment.findNavController(FirstFragment.this)
                     .navigate(R.id.action_FirstFragment_to_SecondFragment);
         });
-
+*/
         binding.btnIniciarSesion.setOnClickListener(v -> iniciarSesion());
     }
 
@@ -119,15 +119,20 @@ public class FirstFragment extends Fragment {
                                         "Bienvenido, " + nombre + " (ID: " + idCliente + ")",
                                         Toast.LENGTH_LONG
                                 ).show();
+
+                                NavHostFragment.findNavController(FirstFragment.this)
+                                        .navigate(R.id.action_FirstFragment_to_HomeFragment);
                             } else {
                                 Toast.makeText(getContext(),
                                         "Error al obtener datos del cliente",
                                         Toast.LENGTH_SHORT).show();
                             }
 
-
+/*
                             NavHostFragment.findNavController(FirstFragment.this)
                                     .navigate(R.id.agregarDirecciones);
+*/
+
                         }
 
                         @Override

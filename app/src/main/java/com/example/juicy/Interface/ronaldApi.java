@@ -2,7 +2,7 @@ package com.example.juicy.Interface;
 
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
-import com.example.juicy.Model.GuardarDireccionesRequest;
+import com.example.juicy.model.GuardarDireccionesRequest;
 import com.example.juicy.Model.RptaGeneral;
 
 import retrofit2.Call;
