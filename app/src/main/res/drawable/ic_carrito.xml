@@ -1,0 +1,26 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Cesta y estructura -->
+    <path
+        android:strokeColor="#fff"
+        android:strokeWidth="2"
+        android:fillColor="#fff"
+        android:pathData="M3,6h2l2.2,8.5c0.13,0.5,0.58,0.85,1.09,0.85h7.9c0.51,0,0.96-0.35,1.09-0.85L20,7H6"/>
+    <!-- Manija -->
+    <path
+        android:strokeColor="#fff"
+        android:strokeWidth="2"
+        android:fillColor="#fff"
+        android:pathData="M3,6c0-1 1-2 2-2"/>
+    <!-- Rueda izquierda -->
+    <path
+        android:fillColor="#fff"
+        android:pathData="M7,20a2,2 0 1 1 0,-4a2,2 0 1 1 0,4"/>
+    <!-- Rueda derecha -->
+    <path
+        android:fillColor="#fff"
+        android:pathData="M17,20a2,2 0 1 1 0,-4a2,2 0 1 1 0,4"/>
+</vector>

@@ -4,12 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.juicy.Interface.OnProductoClickListener;
 import com.example.juicy.R;
 import com.example.juicy.Model.Producto;
 import com.example.juicy.network.VolleySingleton;
@@ -20,10 +22,12 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
 
     private final Context context;
     private final List<Producto> lista;
+    private final OnProductoClickListener listener;
 
-    public ProductoAdapter(Context context, List<Producto> lista) {
+    public ProductoAdapter(Context context, List<Producto> lista,OnProductoClickListener listener) {
         this.context = context;
         this.lista = lista;
+        this.listener = listener;
     }
 
     @NonNull
@@ -42,6 +46,12 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
                 p.getImagen_url(),
                 VolleySingleton.getInstance(context).getImageLoader()
         );
+
+        holder.ImgBtnCarrito.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onProductoClick(p);
+            }
+        });
     }
 
     @Override
@@ -52,12 +62,14 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvPrecio;
         NetworkImageView imgProducto;
+        ImageButton ImgBtnCarrito;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombre = itemView.findViewById(R.id.tvNombreProducto);
             tvPrecio = itemView.findViewById(R.id.tvPrecioProducto);
             imgProducto = itemView.findViewById(R.id.imgProducto);
+            ImgBtnCarrito = itemView.findViewById(R.id.btnAgregarProductoCarrito);
         }
     }
 }

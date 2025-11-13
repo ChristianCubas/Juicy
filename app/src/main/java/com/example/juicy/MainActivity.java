@@ -3,9 +3,11 @@ package com.example.juicy;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -38,7 +40,9 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_inferior, menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -54,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_buscarmapa)       { navController.navigate(R.id.buscarMapa);              return true; }
         if (id == R.id.action_perfilUsuario)    { navController.navigate(R.id.perfilUsuario);           return true; }
         if (id == R.id.action_editorPerfil)     { navController.navigate(R.id.editarPerfil);            return true; }
+        if (id == R.id.nav_carrito)             { navController.navigate(R.id.carrito);                 return true; }
+        if (id == R.id.nav_home)                { navController.navigate(R.id.homeFragment);            return true; }
 
         return super.onOptionsItemSelected(item);
     }

@@ -138,8 +138,8 @@ public class BilleteraMetodoPagoFragment extends Fragment {
                 // === parsear Object data con Gson dentro del onResponse (como en clase) ===
                 Gson gson = new Gson();
                 Type t = new TypeToken<List<MetodoPagoEntry>>(){}.getType();
-                List<MetodoPagoEntry> lista = gson.fromJson(gson.toJson(r.getData()), t);
-                adapter.setData(lista);
+                //List<MetodoPagoEntry> lista = gson.fromJson(gson.toJson(r.getData()), t);
+                //adapter.setData(lista);
             }
             @Override public void onFailure(Call<RptaGeneral> call, Throwable t) {
                 Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show();
