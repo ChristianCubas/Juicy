@@ -124,22 +124,39 @@ public class BilleteraMetodoPagoFragment extends Fragment {
     }
 
     private void listar() {
-        api.listarMetodos(this.authHeader, this.idCliente).enqueue(new Callback<RptaGeneral>() {
-            @Override public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> resp) {
-                if (!resp.isSuccessful() || resp.body() == null) {
-                    Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                RptaGeneral r = resp.body();
-                if (r.getCode() != 1) { Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show(); return; }
+        api.listarMetodos(this.authHeader, this.idCliente)
+                .enqueue(new Callback<RptaGeneral>() {
+                    @Override
+                    public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> resp) {
+                        if (!resp.isSuccessful() || resp.body() == null) {
+                            Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                Gson gson = new Gson();
-                Type t = new TypeToken<List<MetodoPagoEntry>>(){}.getType();
-                //List<MetodoPagoEntry> lista = gson.fromJson(gson.toJson(r.getData()), t);
-                //adapter.setData(lista);
-            }
-            @Override public void onFailure(Call<RptaGeneral> call, Throwable t) { Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show(); }
-        });
+                        RptaGeneral r = resp.body();
+
+                        if (r.getCode() != 1) {
+                            Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
+                            adapter.setData(java.util.Collections.emptyList());
+                            return;
+                        }
+
+
+                        Gson gson = new Gson();
+                        java.lang.reflect.Type t = new com.google.gson.reflect.TypeToken<
+                                java.util.List<MetodoPagoEntry>>() {}.getType();
+
+                        java.util.List<MetodoPagoEntry> lista =
+                                gson.fromJson(gson.toJson(r.getData()), t);
+
+                        adapter.setData(lista);
+                    }
+
+                    @Override
+                    public void onFailure(Call<RptaGeneral> call, Throwable t) {
+                        Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void eliminar(int idMetodo) {
