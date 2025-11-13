@@ -162,7 +162,6 @@ public class HomeFragment extends Fragment {
 
         try {
             JSONArray carritoArray = new JSONArray(carritoJson);
-
             // Creamos un objeto JSON para el nuevo producto
             JSONObject nuevoProducto = new JSONObject();
             nuevoProducto.put("id_producto", producto.getId_producto());

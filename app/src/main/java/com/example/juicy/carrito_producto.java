@@ -1,5 +1,7 @@
 package com.example.juicy;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +13,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.juicy.Model.Producto;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
 public class carrito_producto extends Fragment {
 
     private RecyclerView recyclerView;
+    private CarritoAdapter adapter;
+    private ArrayList<Producto> carritoList;
 
     public carrito_producto() {
         // Constructor vacío requerido
@@ -30,7 +42,38 @@ public class carrito_producto extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerCarrito);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // (Por ahora no se cargan productos, solo se muestra la interfaz)
+        // Recuperamos los productos del carrito
+        carritoList = recuperarCarrito();
+
+        // Configuramos el adapter
+        adapter = new CarritoAdapter(carritoList);
+        recyclerView.setAdapter(adapter);
+
         return view;
+    }
+
+    private ArrayList<Producto> recuperarCarrito() {
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("CARRITO_JUICY", Context.MODE_PRIVATE);
+
+        String carritoJson = prefs.getString("carrito", "[]");
+        ArrayList<Producto> lista = new ArrayList<>();
+
+        try {
+            JSONArray array = new JSONArray(carritoJson);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                Producto p = new Producto();
+                p.setId_producto(obj.getInt("id_producto"));
+                p.setNombre(obj.getString("nombre"));
+                p.setPrecio(obj.getDouble("precio"));
+                p.setImagen_url(obj.getString("imagen_url"));
+                lista.add(p);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return lista;
     }
 }

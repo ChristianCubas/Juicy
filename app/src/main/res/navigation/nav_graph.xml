@@ -63,6 +63,7 @@
         android:name="com.example.juicy.AgregarDirecciones"
         android:label=""
         tools:layout="@layout/fragment_agregar_direcciones" />
+
     <fragment
         android:id="@+id/buscarMapa"
         android:name="com.example.juicy.BuscarMapa"
