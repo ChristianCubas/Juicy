@@ -52,17 +52,22 @@ public class MpagoFragment extends Fragment {
         setupListeners();
         updateSelectionUI();
 
-        // Token + id_cliente desde SP (como en tus otros fragments)
-        SharedPreferences sp = requireActivity().getSharedPreferences("SP_USAT", Context.MODE_PRIVATE);
+        // 1) Leer SP y ASIGNAR A CAMPOS
+        SharedPreferences sp = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         String token = sp.getString("tokenJWT", "");
-        idCliente = sp.getInt("id_cliente", 0);
-        authHeader = "JWT " + (token == null ? "" : token.trim());
+        this.idCliente = sp.getInt("idCliente", 0);
+        if (token == null || token.trim().isEmpty() || this.idCliente <= 0) {
+            Toast.makeText(requireContext(), "Debe autenticarse", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        this.authHeader = "JWT " + token.trim();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://grupotres20252.pythonanywhere.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         api = retrofit.create(metodosPagoApi.class);
+
 
         // Continuar
         binding.continueButton.setOnClickListener(v -> onContinuar());
@@ -75,10 +80,16 @@ public class MpagoFragment extends Fragment {
             return;
         }
         MetodoPagoVentaRequest body = new MetodoPagoVentaRequest();
-        body.setId_cliente(idCliente);
+        body.setId_cliente(this.idCliente);
         body.setId_metodo_pago(idMetodo);
 
-        api.setMetodoPagoVenta(authHeader, body).enqueue(new Callback<RptaGeneral>() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://grupotres20252.pythonanywhere.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        api = retrofit.create(metodosPagoApi.class);
+
+        api.setMetodoPagoVenta(this.authHeader, body).enqueue(new Callback<RptaGeneral>() {
             @Override public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> resp) {
                 if (!resp.isSuccessful() || resp.body() == null) {
                     Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show();
@@ -87,7 +98,7 @@ public class MpagoFragment extends Fragment {
                 RptaGeneral r = resp.body();
                 Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
                 if (r.getCode() == 1) {
-                    // continuar flujo (navegar a confirmar/checkout, etc.)
+                    //TODO: navegar al siguiente paso
                 }
             }
             @Override public void onFailure(Call<RptaGeneral> call, Throwable t) {
