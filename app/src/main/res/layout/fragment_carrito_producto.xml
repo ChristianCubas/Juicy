@@ -27,7 +27,17 @@
         android:layout_weight="1"
         android:paddingTop="8dp"
         android:clipToPadding="false" />
-
+    <!-- Botón Finalizar compra -->
+    <Button
+        android:id="@+id/btnFinalizarCompra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finalizar compra"
+        android:textSize="18sp"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        android:elevation="2dp" />
     <!-- Barra de navegación inferior -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

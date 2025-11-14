@@ -15,7 +15,8 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content">
 
         <TextView
@@ -37,6 +38,37 @@
             android:textColor="@android:color/holo_green_dark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-
     </LinearLayout>
+
+    <!-- CONTADOR DE CANTIDAD -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/btnRestar"
+            android:text="-"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_boton_restar"/>
+
+        <TextView
+            android:id="@+id/txtCantidad"
+            android:text="0"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+        <ImageButton
+            android:id="@+id/btnSumar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_boton_agregar"/>
+    </LinearLayout>
+
 </LinearLayout>

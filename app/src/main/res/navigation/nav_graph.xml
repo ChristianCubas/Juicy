@@ -88,7 +88,12 @@
         android:id="@+id/carritoFragment"
         android:name="com.example.juicy.carrito_producto"
         android:label=""
-        tools:layout="@layout/fragment_carrito_producto" />
+        tools:layout="@layout/fragment_carrito_producto" >
+        <action
+            android:id="@+id/action_carrito_to_payment"
+            app:destination="@id/paymentMethodFragment"/>
+
+    </fragment>
 
     <fragment
         android:id="@+id/editarPerfil"

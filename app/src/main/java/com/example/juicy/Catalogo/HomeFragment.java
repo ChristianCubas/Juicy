@@ -66,6 +66,16 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         cargarProductos();
+
+        //Retirar despues de pruebas
+        SharedPreferences sfs = requireActivity().getSharedPreferences("CARRITO_JUICY", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sfs.edit();
+
+        editor.putString("carrito", "[]"); // Carrito vacío
+        editor.apply();
+
+        Toast.makeText(requireActivity(), "Carrito vaciado 🗑️", Toast.LENGTH_SHORT).show();
+        //end pruebas
         return v;
     }
 
@@ -153,6 +163,7 @@ public class HomeFragment extends Fragment {
         VolleySingleton.getInstance(requireContext()).getRequestQueue().add(request);
     }
 
+    /*
     private void agregarAlCarrito(Producto producto) {
         SharedPreferences prefs = requireActivity().getSharedPreferences("CARRITO_JUICY", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -181,6 +192,67 @@ public class HomeFragment extends Fragment {
         } catch (JSONException e) {
             Toast.makeText(requireContext(), "Error al agregar al carrito", Toast.LENGTH_SHORT).show();
         }
+    }*/
+
+    private void agregarAlCarrito(Producto producto) {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("CARRITO_JUICY", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        String carritoJson = prefs.getString("carrito", "[]");
+
+        try {
+            JSONArray carritoArray = new JSONArray(carritoJson);
+
+            boolean encontrado = false;
+
+            // 1. BUSCAR si ya existe
+            for (int i = 0; i < carritoArray.length(); i++) {
+                JSONObject obj = carritoArray.getJSONObject(i);
+
+                if (obj.getInt("id_producto") == producto.getId_producto()) {
+
+                    int cantidadActual = obj.optInt("cantidad", 1);
+                    obj.put("cantidad", cantidadActual + 1);
+
+                    // ⭐ IMPORTANTE: reinsertar el objeto
+                    carritoArray.put(i, obj);
+
+                    encontrado = true;
+                    break;
+                }
+            }
+
+            // 2. Si NO existe, agregarlo con cantidad = 1
+            if (!encontrado) {
+                JSONObject nuevoProducto = new JSONObject();
+                nuevoProducto.put("id_producto", producto.getId_producto());
+                nuevoProducto.put("nombre", producto.getNombre());
+                nuevoProducto.put("precio", producto.getPrecio());
+                nuevoProducto.put("imagen_url", producto.getImagen_url());
+                nuevoProducto.put("cantidad", 1);
+
+                carritoArray.put(nuevoProducto);
+            }
+
+            // 3. Guardar carrito
+            editor.putString("carrito", carritoArray.toString());
+            editor.apply();
+
+            Toast.makeText(
+                    requireActivity(),
+                    producto.getNombre() + " agregado al carrito 🛒",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(
+                    requireActivity(),
+                    "Error al agregar al carrito",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
+
 
 }
