@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) return true;
 
         if (id == R.id.action_mpago)            { navController.navigate(R.id.paymentMethodFragment);  return true; }
-        if (id == R.id.action_billetera)        { navController.navigate(R.id.paymentWalletFragment);   return true; }
+        //if (id == R.id.action_billetera)        { navController.navigate(R.id.paymentWalletFragment);   return true; }
         if (id == R.id.action_agregardirecciones){ navController.navigate(R.id.agregarDirecciones);     return true; }
         if (id == R.id.action_direcciones)      { navController.navigate(R.id.direccionesFragment);     return true; }
         if (id == R.id.action_buscarmapa)       { navController.navigate(R.id.buscarMapa);              return true; }

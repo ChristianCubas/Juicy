@@ -54,6 +54,7 @@
         <action
             android:id="@+id/action_paymentWalletFragment_to_addPaymentMethodFragment"
             app:destination="@id/addPaymentMethodFragment" />
+
     </fragment>
 
 
@@ -118,5 +119,6 @@
             android:id="@+id/action_direcciones_to_metodoPago"
             app:destination="@id/paymentMethodFragment" />
     </fragment>
+
 
 </navigation>

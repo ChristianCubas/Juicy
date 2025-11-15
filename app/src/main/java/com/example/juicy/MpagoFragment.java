@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.metodosPagoApi;
 import com.example.juicy.Model.ApiMetodosPagoRequest;
@@ -243,7 +245,16 @@ public class MpagoFragment extends Fragment {
                 RptaGeneral r = resp.body();
                 Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
                 if (r.getCode() == 1) {
-                    // navegar al siguiente paso
+                    // Obtener el id_metodo guardado en SharedPreferences
+                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("MiPreferencia", Context.MODE_PRIVATE);
+                    int idMetodo = sharedPreferences.getInt("id_metodo_pago", -1);  // Ajusta el nombre de la clave según como lo hayas guardado
+
+                    // Crear el Bundle y agregar los datos a pasar al ResumenFragment
+                    Bundle bundle = new Bundle();
+                    bundle.putString("metodo_pago", "Método de pago que quieras pasar");  // Ejemplo de método de pago
+                    bundle.putInt("id_metodo_pago", idMetodo);  // Pasar el id_metodo
+
+
                 }
             }
 
