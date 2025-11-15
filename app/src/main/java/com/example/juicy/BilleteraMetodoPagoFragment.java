@@ -16,12 +16,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.juicy.Interface.metodosPagoApi;
 import com.example.juicy.Model.EliminarMetodoPagoRequest;
+import com.example.juicy.Model.MetodoPagoEntry;
 import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.databinding.FragmentBilleteraMetodoPagoBinding;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -31,6 +33,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class BilleteraMetodoPagoFragment extends Fragment {
+
     private FragmentBilleteraMetodoPagoBinding binding;
     private metodosPagoApi api;
     private MetodosPagoAdapter adapter;
@@ -40,30 +43,26 @@ public class BilleteraMetodoPagoFragment extends Fragment {
 
     private static final String BASE_URL = "https://grupotres20252.pythonanywhere.com/";
 
-    private enum SelectedCard {
-        PRIMARY,
-        SECONDARY
-    }
-
-
-    private SelectedCard selectedCard = SelectedCard.PRIMARY;
-
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentBilleteraMetodoPagoBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        SharedPreferences sp = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        // === Token + idCliente desde SharedPreferences ===
+        SharedPreferences sp = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         String token = sp.getString("tokenJWT", "");
         this.idCliente = sp.getInt("idCliente", 0);
+
         if (token == null || token.trim().isEmpty() || this.idCliente <= 0) {
             Toast.makeText(requireContext(), "Debe autenticarse", Toast.LENGTH_SHORT).show();
             return;
@@ -95,12 +94,14 @@ public class BilleteraMetodoPagoFragment extends Fragment {
 
                     @Override
                     public void onSelect(@NonNull MetodoPagoEntry m) {
-                        // Opcional: resaltar seleccionado si lo implementaste en el adapter
-                        // adapter.setSelectedId(m.getId_metodo_pago());
+                        // Si quisieras marcar uno como seleccionado, aquí lo manejarías.
+                        // De momento no hacemos nada especial.
                     }
                 }
         );
-        binding.recyclerMetodos.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        binding.recyclerMetodos.setLayoutManager(
+                new LinearLayoutManager(requireContext()));
         binding.recyclerMetodos.setAdapter(adapter);
 
         // === Fragment Result: recibe confirmación desde el BottomSheet ===
@@ -113,7 +114,7 @@ public class BilleteraMetodoPagoFragment extends Fragment {
                 }
         );
 
-        // === Botón Agregar (navega a tu formulario) ===
+        // === Botón Agregar (navega al formulario para agregar método) ===
         binding.btnAgregar.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.addPaymentMethodFragment)
@@ -127,34 +128,39 @@ public class BilleteraMetodoPagoFragment extends Fragment {
         api.listarMetodos(this.authHeader, this.idCliente)
                 .enqueue(new Callback<RptaGeneral>() {
                     @Override
-                    public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> resp) {
+                    public void onResponse(@NonNull Call<RptaGeneral> call,
+                                           @NonNull Response<RptaGeneral> resp) {
                         if (!resp.isSuccessful() || resp.body() == null) {
-                            Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(),
+                                    "Código: " + resp.code(),
+                                    Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         RptaGeneral r = resp.body();
-
                         if (r.getCode() != 1) {
-                            Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
-                            adapter.setData(java.util.Collections.emptyList());
+                            Toast.makeText(requireContext(),
+                                    r.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                            adapter.setData(Collections.emptyList());
                             return;
                         }
 
-
+                        // data viene como lista de métodos -> parseamos a List<MetodoPagoEntry>
                         Gson gson = new Gson();
-                        java.lang.reflect.Type t = new com.google.gson.reflect.TypeToken<
-                                java.util.List<MetodoPagoEntry>>() {}.getType();
-
-                        java.util.List<MetodoPagoEntry> lista =
+                        Type t = new TypeToken<List<MetodoPagoEntry>>() {}.getType();
+                        List<MetodoPagoEntry> lista =
                                 gson.fromJson(gson.toJson(r.getData()), t);
 
                         adapter.setData(lista);
                     }
 
                     @Override
-                    public void onFailure(Call<RptaGeneral> call, Throwable t) {
-                        Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                    public void onFailure(@NonNull Call<RptaGeneral> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(requireContext(),
+                                "Error de red",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -164,18 +170,35 @@ public class BilleteraMetodoPagoFragment extends Fragment {
         body.setId_metodo_pago(idMetodo);
         body.setId_cliente(this.idCliente);
 
-        api.eliminarMetodo(this.authHeader, body).enqueue(new Callback<RptaGeneral>() {
-            @Override public void onResponse(@NonNull Call<RptaGeneral> call, @NonNull Response<RptaGeneral> resp) {
-                if (!resp.isSuccessful() || resp.body() == null) { Toast.makeText(requireContext(), "Código: " + resp.code(), Toast.LENGTH_SHORT).show(); return; }
-                RptaGeneral r = resp.body();
-                Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
-                if (r.getCode() == 1) listar();
-            }
-            @Override public void onFailure(@NonNull Call<RptaGeneral> call, @NonNull Throwable t) { Toast.makeText(requireContext(), "Error de red", Toast.LENGTH_SHORT).show(); }
-        });
+        api.eliminarMetodo(this.authHeader, body)
+                .enqueue(new Callback<RptaGeneral>() {
+                    @Override
+                    public void onResponse(@NonNull Call<RptaGeneral> call,
+                                           @NonNull Response<RptaGeneral> resp) {
+                        if (!resp.isSuccessful() || resp.body() == null) {
+                            Toast.makeText(requireContext(),
+                                    "Código: " + resp.code(),
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        RptaGeneral r = resp.body();
+                        Toast.makeText(requireContext(),
+                                r.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        if (r.getCode() == 1) {
+                            listar(); // refrescar lista después de borrar
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<RptaGeneral> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(requireContext(),
+                                "Error de red",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
-
-
 
     @Override
     public void onDestroyView() {
