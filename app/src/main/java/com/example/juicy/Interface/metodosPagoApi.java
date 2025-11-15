@@ -1,5 +1,7 @@
 package com.example.juicy.Interface;
 
+import com.example.juicy.Model.ApiMetodosPagoRequest;
+import com.example.juicy.Model.ApiMetodosPagoResponse;
 import com.example.juicy.Model.EliminarMetodoPagoRequest;
 import com.example.juicy.Model.GuardarMetodoPagoRequest;
 import com.example.juicy.Model.MetodoPagoVentaRequest;
@@ -30,5 +32,12 @@ public interface metodosPagoApi {
             @Header("Authorization") String authorization,
             @Body MetodoPagoVentaRequest body
     );
+
+    @POST("api_metodos_pago")
+    Call<ApiMetodosPagoResponse> apiMetodosPago(
+            @Header("Authorization") String authorization,
+            @Body ApiMetodosPagoRequest body
+    );
+
 
 }
