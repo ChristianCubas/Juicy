@@ -1,9 +1,12 @@
 package com.example.juicy.Model;
 
+import java.util.List;
+
 public class ApiMetodosPagoResponse {
+
     private int code;
     private String message;
-    private ApiMetodosPagoData data;
+    private Data data;
 
     public int getCode() {
         return code;
@@ -13,7 +16,20 @@ public class ApiMetodosPagoResponse {
         return message;
     }
 
-    public ApiMetodosPagoData getData() {
+    public Data getData() {
         return data;
+    }
+
+    public static class Data {
+        private boolean guardado;
+        private List<MetodoPagoEntry> metodos;
+
+        public boolean isGuardado() {
+            return guardado;
+        }
+
+        public List<MetodoPagoEntry> getMetodos() {
+            return metodos;
+        }
     }
 }
