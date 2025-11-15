@@ -5,12 +5,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/FirstFragment">
 
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.juicy.Catalogo.HomeFragment"
-        android:label="Inicio"
-        tools:layout="@layout/fragment_home" />
-
+    <!-- Primer Fragmento -->
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.example.juicy.FirstFragment"
@@ -25,17 +20,44 @@
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
 
+        <!-- Acción para navegar a Billetera -->
+        <action
+            android:id="@+id/action_FirstFragment_toBilleteraMetodoPagoFragment"
+            app:destination="@id/paymentWalletFragment"/> <!-- Aquí debes usar @id/paymentWalletFragment -->
+
     </fragment>
+
+    <!-- Fragmento Home -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.juicy.Catalogo.HomeFragment"
+        android:label="Inicio"
+        tools:layout="@layout/fragment_home" />
+
+    <!-- Segundo Fragmento -->
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.juicy.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
-
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
+
+    <!-- Fragmento Billetera -->
+    <fragment
+        android:id="@+id/paymentWalletFragment"
+        android:name="com.example.juicy.BilleteraMetodoPagoFragment"
+        android:label="Billetera digital"
+        tools:layout="@layout/fragment_billetera_metodo_pago">
+        <action
+            android:id="@+id/action_paymentWalletFragment_to_addPaymentMethodFragment"
+            app:destination="@id/addPaymentMethodFragment" />
+    </fragment>
+
+
+    <!-- Otros fragmentos -->
     <fragment
         android:id="@+id/paymentMethodFragment"
         android:name="com.example.juicy.MpagoFragment"
@@ -92,8 +114,9 @@
         android:name="com.example.juicy.Catalogo.DireccionesFragment"
         android:label="Direcciones"
         tools:layout="@layout/fragment_direcciones">
-    <action
-        android:id="@+id/action_direcciones_to_metodoPago"
-        app:destination="@id/paymentMethodFragment" />
+        <action
+            android:id="@+id/action_direcciones_to_metodoPago"
+            app:destination="@id/paymentMethodFragment" />
     </fragment>
+
 </navigation>

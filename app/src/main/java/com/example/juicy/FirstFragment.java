@@ -29,9 +29,6 @@ public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
 
-    private static final String BASE_URL =
-            "https://grupotres20252.pythonanywhere.com/";   // MUY IMPORTANTE LA BARRA FINAL
-
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -39,13 +36,17 @@ public class FirstFragment extends Fragment {
     ) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
-
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        /*
+        binding.btnIniciarSesion.setOnClickListener(v -> {
+            NavHostFragment.findNavController(FirstFragment.this)
+                    .navigate(R.id.action_FirstFragment_to_SecondFragment);
+        });
+*/
         binding.btnIniciarSesion.setOnClickListener(v -> iniciarSesion());
     }
 
@@ -58,101 +59,100 @@ public class FirstFragment extends Fragment {
             return;
         }
 
-        // CREAR RETROFIT
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)  // URL CORRECTA CON SLASH FINAL
+                .baseUrl("https://grupotres20252.pythonanywhere.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         DambJuiceApi api = retrofit.create(DambJuiceApi.class);
 
-        // CREAR REQUEST
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername(email);
         authRequest.setPassword(password);
 
-        // PETICIÓN LOGIN /auth
         api.obtenerToken(authRequest).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-
                 if (!response.isSuccessful()) {
+
                     if (response.code() == 401 || response.code() == 400) {
                         showDialog("Credenciales incorrectas",
-                                "El correo o la contraseña no son válidos.");
+                                "El correo o la contraseña no son válidos. Inténtalo nuevamente.");
                     } else {
                         showDialog("No se pudo iniciar sesión",
-                                "Error: " + response.code());
+                                "Código de error: " + response.code());
                     }
                     return;
                 }
 
                 AuthResponse authResponse = response.body();
-
                 if (authResponse != null && authResponse.getAccess_token() != null) {
-
                     String token = authResponse.getAccess_token();
 
-                    // GUARDAR TOKEN LOCAL
+
                     SharedPreferences prefs = requireActivity()
                             .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-
                     prefs.edit().putString("tokenJWT", token).apply();
+
 
                     Toast.makeText(getContext(), "Token JWT obtenido", Toast.LENGTH_SHORT).show();
 
-                    // LLAMAR /api_me PARA OBTENER ID Y NOMBRE
-                    String authHeader = "JWT " + token;
 
+                    String authHeader = "JWT " + token;
                     api.me(authHeader).enqueue(new Callback<MeResponse>() {
                         @Override
                         public void onResponse(Call<MeResponse> call, Response<MeResponse> resp) {
-
-                            if (resp.isSuccessful()
-                                    && resp.body() != null
-                                    && resp.body().getCode() == 1) {
-
+                            if (resp.isSuccessful() && resp.body() != null && resp.body().getCode() == 1) {
                                 MeResponse me = resp.body();
-
                                 int idCliente = me.getId_cliente();
                                 String nombre = me.getNombre();
+
 
                                 prefs.edit()
                                         .putInt("idCliente", idCliente)
                                         .putString("nombreCliente", nombre)
                                         .apply();
 
+
                                 Toast.makeText(
                                         getContext(),
-                                        "Bienvenido, " + nombre,
+                                        "Bienvenido, " + nombre + " (ID: " + idCliente + ")",
                                         Toast.LENGTH_LONG
                                 ).show();
 
-                                // IR AL HOME
                                 NavHostFragment.findNavController(FirstFragment.this)
                                         .navigate(R.id.action_FirstFragment_to_HomeFragment);
                             } else {
-                                showDialog("Error",
-                                        "No se pudo obtener los datos del cliente.");
+                                Toast.makeText(getContext(),
+                                        "Error al obtener datos del cliente",
+                                        Toast.LENGTH_SHORT).show();
                             }
+
+/*
+                            NavHostFragment.findNavController(FirstFragment.this)
+                                    .navigate(R.id.agregarDirecciones);
+*/
+
                         }
 
                         @Override
                         public void onFailure(Call<MeResponse> call, Throwable t) {
-                            showDialog("Error de conexión", t.getMessage());
+                            Toast.makeText(getContext(),
+                                    "Error de conexión: " + t.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     });
-
                 } else {
                     showDialog("Respuesta inválida",
-                            "El servidor no devolvió un token.");
+                            "No se recibió el token de autenticación.");
                 }
+
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 showDialog("Error de conexión",
-                        "No fue posible conectarse.\n" + t.getMessage());
+                        "No fue posible conectarse con el servidor.\n" + t.getMessage());
             }
         });
     }

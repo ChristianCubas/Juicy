@@ -1,14 +1,11 @@
 package com.example.juicy.Interface;
 
-import com.example.juicy.Catalogo.MetodoPago;
+import com.example.juicy.Catalogo.Direccion;
 import com.example.juicy.Catalogo.ResponseDirecciones;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
-import com.example.juicy.Model.EliminarMetodoPagoRequest;
-import com.example.juicy.Model.GuardarMetodoPagoRequest;
 import com.example.juicy.Model.MenuInicioResponse;
 import com.example.juicy.Model.MeResponse;
-import com.example.juicy.Model.MetodoPagoVentaRequest;
 import com.example.juicy.Model.RegistrarClienteRequest;
 import com.example.juicy.Model.RptaGeneral;
 
@@ -41,23 +38,5 @@ public interface DambJuiceApi {
     Call<ResponseDirecciones> listarDirecciones(
             @Header("Authorization") String token,
             @Body Map<String, Integer> body
-    );
-
-    @POST("api_listarMetodosPagoXId_cliente")
-    Call<RptaGeneral> listarMetodosPago(@Header("Authorization") String authHeader, @Body Map<String, Integer> body);
-
-
-    @POST("api_guardarMetodoPago")
-    Call<RptaGeneral> guardarMetodo(@Header("Authorization") String authorization,
-                                    @Body GuardarMetodoPagoRequest body);
-
-    @POST("api_eliminarMetodoPago")
-    Call<RptaGeneral> eliminarMetodo(@Header("Authorization") String authorization,
-                                     @Body EliminarMetodoPagoRequest body);
-
-    @POST("api_metodo_pago_venta")
-    Call<RptaGeneral> setMetodoPagoVenta(
-            @Header("Authorization") String authorization,
-            @Body MetodoPagoVentaRequest body
     );
 }

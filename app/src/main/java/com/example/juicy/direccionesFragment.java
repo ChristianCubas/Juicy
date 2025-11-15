@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 
 import com.google.android.material.button.MaterialButton;
 
+import java.util.zip.Inflater;
+
 
 public class direccionesFragment extends Fragment {
 
@@ -20,7 +22,7 @@ public class direccionesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view=inflater.inflate(R.layout.fragment_direccionescrd, container, false);
+        View view=inflater.inflate(R.layout.fragment_direcciones, container, false);
         MaterialButton btnAgregar = view.findViewById(R.id.btnAgregarDireccion);
 
         btnAgregar.setOnClickListener(new View.OnClickListener() {
