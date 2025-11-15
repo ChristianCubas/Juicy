@@ -15,14 +15,13 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.juicy.Interface.metodosPagoApi;
+import com.example.juicy.Model.ApiMetodosPagoRequest;
+import com.example.juicy.Model.ApiMetodosPagoResponse;
 import com.example.juicy.Model.EliminarMetodoPagoRequest;
 import com.example.juicy.Model.MetodoPagoEntry;
 import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.databinding.FragmentBilleteraMetodoPagoBinding;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
@@ -95,7 +94,7 @@ public class BilleteraMetodoPagoFragment extends Fragment {
                     @Override
                     public void onSelect(@NonNull MetodoPagoEntry m) {
                         // Si quisieras marcar uno como seleccionado, aquí lo manejarías.
-                        // De momento no hacemos nada especial.
+                        // Por ahora solo mostramos la lista.
                     }
                 }
         );
@@ -124,12 +123,25 @@ public class BilleteraMetodoPagoFragment extends Fragment {
         listar();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Al volver desde Agregar / eliminar, refrescamos
+        listar();
+    }
+
     private void listar() {
-        api.listarMetodos(this.authHeader, this.idCliente)
-                .enqueue(new Callback<RptaGeneral>() {
+        // Usamos la MISMA API nueva que en MpagoFragment: /api_metodos_pago
+        ApiMetodosPagoRequest body = new ApiMetodosPagoRequest();
+        body.setId_cliente(this.idCliente);
+        body.setGuardar(false);          // solo listar
+        body.setNuevo_metodo(null);      // no estamos creando aquí
+
+        api.apiMetodosPago(this.authHeader, body)
+                .enqueue(new Callback<ApiMetodosPagoResponse>() {
                     @Override
-                    public void onResponse(@NonNull Call<RptaGeneral> call,
-                                           @NonNull Response<RptaGeneral> resp) {
+                    public void onResponse(@NonNull Call<ApiMetodosPagoResponse> call,
+                                           @NonNull Response<ApiMetodosPagoResponse> resp) {
                         if (!resp.isSuccessful() || resp.body() == null) {
                             Toast.makeText(requireContext(),
                                     "Código: " + resp.code(),
@@ -137,7 +149,7 @@ public class BilleteraMetodoPagoFragment extends Fragment {
                             return;
                         }
 
-                        RptaGeneral r = resp.body();
+                        ApiMetodosPagoResponse r = resp.body();
                         if (r.getCode() != 1) {
                             Toast.makeText(requireContext(),
                                     r.getMessage(),
@@ -146,17 +158,18 @@ public class BilleteraMetodoPagoFragment extends Fragment {
                             return;
                         }
 
-                        // data viene como lista de métodos -> parseamos a List<MetodoPagoEntry>
-                        Gson gson = new Gson();
-                        Type t = new TypeToken<List<MetodoPagoEntry>>() {}.getType();
-                        List<MetodoPagoEntry> lista =
-                                gson.fromJson(gson.toJson(r.getData()), t);
+                        ApiMetodosPagoResponse.Data data = r.getData();
+                        if (data == null || data.getMetodos() == null) {
+                            adapter.setData(Collections.emptyList());
+                            return;
+                        }
 
+                        List<MetodoPagoEntry> lista = data.getMetodos();
                         adapter.setData(lista);
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<RptaGeneral> call,
+                    public void onFailure(@NonNull Call<ApiMetodosPagoResponse> call,
                                           @NonNull Throwable t) {
                         Toast.makeText(requireContext(),
                                 "Error de red",
