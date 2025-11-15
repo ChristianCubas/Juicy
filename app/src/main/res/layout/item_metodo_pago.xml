@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp">
+
+    <!-- Número de tarjeta -->
+    <TextView
+        android:id="@+id/idNumeroTarjeta1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="**** **** **** 1234"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Marca de la tarjeta -->
+    <TextView
+        android:id="@+id/primaryCardBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Visa"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Titular de la tarjeta -->
+    <TextView
+        android:id="@+id/primaryCardHolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Titular"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/idNumeroTarjeta1"/>
+
+    <!-- Expiración de la tarjeta -->
+    <TextView
+        android:id="@+id/primaryCardExp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12/23"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/primaryCardHolder" />
+
+    <!-- Estado de la tarjeta (Icono de check o sin check) -->
+    <ImageView
+        android:id="@+id/primaryCardStatus"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_check_circle_file"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

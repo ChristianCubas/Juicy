@@ -1,0 +1,54 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.juicy.MainActivity">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_mpago"
+        android:orderInCategory="200"
+        android:title="@string/metodo_pago"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_billetera"
+        android:orderInCategory="200"
+        android:title="@string/payment_wallet_title"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_buscarmapa"
+        android:orderInCategory="200"
+        android:title="Buscar Mapa"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_agregardirecciones"
+        android:orderInCategory="200"
+        android:title="Agregar Direcciones"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_direcciones"
+        android:orderInCategory="200"
+        android:title="Mis direcciones"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_perfilUsuario"
+        android:orderInCategory="200"
+        android:title="Perfil"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_editorPerfil"
+        android:orderInCategory="200"
+        android:title="editar perfil"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_carrito"
+        android:orderInCategory="300"
+        android:title="Listado de productos"
+
+        app:showAsAction="never" />
+
+
+
+</menu>
