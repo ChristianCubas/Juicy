@@ -71,17 +71,25 @@ public class DireccionesFragment extends Fragment {
         // Botón para continuar
         Button btnContinuar = rootView.findViewById(R.id.btnContinuar);
         btnContinuar.setOnClickListener(v -> {
-            // Verificar que se haya seleccionado una dirección
-            int idDireccionSeleccionada = prefs.getInt("direccionSeleccionada", -1);  // -1 es el valor por defecto
-
-            if (idDireccionSeleccionada != -1) {
-                // Si una dirección ha sido seleccionada, navegar al siguiente fragmento
-                NavController navController = Navigation.findNavController(v);
-                navController.navigate(R.id.action_direcciones_to_metodoPago); // Asegúrate de usar el ID correcto
-            } else {
-                // Si no se seleccionó una dirección, mostrar un mensaje de error
+            Direccion seleccionada = direccionesAdapter.getDireccionSeleccionada();
+            if (seleccionada == null) {
                 Toast.makeText(getContext(), "Por favor, selecciona una dirección.", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            SharedPreferences prefsLocal = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefsLocal.edit();
+            editor.putInt("direccionSeleccionada", seleccionada.getIdDireccion());
+
+            String direccionTexto = seleccionada.getDireccion();
+            if (seleccionada.getReferencia() != null && !seleccionada.getReferencia().isEmpty()) {
+                direccionTexto += " (" + seleccionada.getReferencia() + ")";
+            }
+            editor.putString("direccionTexto", direccionTexto);
+            editor.apply();
+
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_direcciones_to_metodoPago);
         });
 
         return rootView;
@@ -123,6 +131,10 @@ public class DireccionesFragment extends Fragment {
 
                     // Notificar al adaptador que los datos han cambiado
                     direccionesAdapter.notifyDataSetChanged();
+
+                    SharedPreferences prefsLocal = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                    int idSeleccionado = prefsLocal.getInt("direccionSeleccionada", -1);
+                    direccionesAdapter.setSelectedDireccionId(idSeleccionado);
                 } else {
                     Log.e("DireccionesFragment", "Error en la respuesta: " + response.message());
                     Toast.makeText(getContext(), "Error al obtener direcciones", Toast.LENGTH_SHORT).show();

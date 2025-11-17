@@ -1,15 +1,19 @@
 package com.example.juicy.Catalogo;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Direccion {
+    @SerializedName("id_direccion")
     private int idDireccion;
     private String categoria;
     private String direccion;
     private String referencia;
     private String ciudad;
+    @SerializedName("codigo_postal")
     private String codigoPostal;
-    private boolean esPrincipal;
+    @SerializedName("es_principal")
+    private int esPrincipalRaw;
 
-    // Getters y setters
     public int getIdDireccion() {
         return idDireccion;
     }
@@ -59,11 +63,18 @@ public class Direccion {
     }
 
     public boolean isEsPrincipal() {
-        return esPrincipal;
+        return esPrincipalRaw == 1;
     }
 
     public void setEsPrincipal(boolean esPrincipal) {
-        this.esPrincipal = esPrincipal;
+        this.esPrincipalRaw = esPrincipal ? 1 : 0;
+    }
+
+    public int getEsPrincipalRaw() {
+        return esPrincipalRaw;
+    }
+
+    public void setEsPrincipalRaw(int esPrincipalRaw) {
+        this.esPrincipalRaw = esPrincipalRaw;
     }
 }
-

@@ -102,6 +102,14 @@ public class CarritoFragment extends Fragment {
                     try {
                         JSONArray productos = response.optJSONArray("productos");
                         double totalGeneral = response.optDouble("total_general", 0);
+                        int idVenta = response.optInt("id_venta", 0);
+
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putFloat("totalCarrito", (float) totalGeneral);
+                        if (idVenta > 0) {
+                            editor.putInt("idVenta", idVenta);
+                        }
+                        editor.apply();
 
                         if (productos != null) {
                             for (int i = 0; i < productos.length(); i++) {

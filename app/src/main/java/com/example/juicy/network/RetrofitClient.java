@@ -20,4 +20,8 @@ public class RetrofitClient {
 
         return retrofit.create(DambJuiceApi.class);
     }
+
+    public static String getBaseUrl() {
+        return BASE_URL;
+    }
 }

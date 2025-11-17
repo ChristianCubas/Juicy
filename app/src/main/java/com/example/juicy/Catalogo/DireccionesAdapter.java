@@ -56,6 +56,11 @@ public class DireccionesAdapter extends RecyclerView.Adapter<DireccionesAdapter.
             SharedPreferences prefs = context.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putInt("direccionSeleccionada", direccion.getIdDireccion());  // Guarda el ID de la dirección
+            String direccionCompleta = direccion.getDireccion();
+            if (direccion.getReferencia() != null && !direccion.getReferencia().isEmpty()) {
+                direccionCompleta += " (" + direccion.getReferencia() + ")";
+            }
+            editor.putString("direccionTexto", direccionCompleta);
             editor.apply();  // Asegúrate de guardar
             notifyDataSetChanged();  // Actualiza el RecyclerView
         });
@@ -65,6 +70,28 @@ public class DireccionesAdapter extends RecyclerView.Adapter<DireccionesAdapter.
     @Override
     public int getItemCount() {
         return direccionList.size();
+    }
+
+    public Direccion getDireccionSeleccionada() {
+        if (selectedPosition >= 0 && selectedPosition < direccionList.size()) {
+            return direccionList.get(selectedPosition);
+        }
+        return null;
+    }
+
+    public void setSelectedDireccionId(int idDireccion) {
+        if (idDireccion <= 0) {
+            selectedPosition = -1;
+            notifyDataSetChanged();
+            return;
+        }
+        for (int i = 0; i < direccionList.size(); i++) {
+            if (direccionList.get(i).getIdDireccion() == idDireccion) {
+                selectedPosition = i;
+                notifyDataSetChanged();
+                return;
+            }
+        }
     }
 
     public static class DireccionViewHolder extends RecyclerView.ViewHolder {

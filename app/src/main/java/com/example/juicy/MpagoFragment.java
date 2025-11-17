@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.metodosPagoApi;
 import com.example.juicy.Model.ApiMetodosPagoRequest;
@@ -139,6 +140,9 @@ public class MpagoFragment extends Fragment {
     }
 
     private void mostrarMetodosGuardados(@NonNull List<MetodoPagoEntry> lista) {
+        if (!isBindingReady()) {
+            return;
+        }
         metodosGuardados.clear();
         metodosGuardados.addAll(lista);
 
@@ -186,6 +190,9 @@ public class MpagoFragment extends Fragment {
     }
 
     private void updateSavedCardsUI() {
+        if (!isBindingReady()) {
+            return;
+        }
         int checkedIcon = R.drawable.ic_check_circle_file;
         int uncheckedIcon = R.drawable.ic_uncheck_circle;
 
@@ -249,9 +256,14 @@ public class MpagoFragment extends Fragment {
                     return;
                 }
                 RptaGeneral r = resp.body();
-                Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
+                String mensaje = r.getMessage();
+                if (mensaje == null || mensaje.trim().isEmpty()) {
+                    mensaje = resp.code() == 200 ? "Operación exitosa" : "Ocurrió un problema";
+                }
+                Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show();
 
-                if (r.getCode() == 1) {
+                boolean operacionExitosa = r.getCode() == 1 || resp.code() == 200;
+                if (operacionExitosa) {
                     // 🔹 Guardar el id_metodo_pago en SharedPreferences
                     SharedPreferences sp = requireActivity()
                             .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
@@ -262,6 +274,7 @@ public class MpagoFragment extends Fragment {
                     // Aquí tu equipo ya puede navegar a RESUMEN PEDIDO
                     // NavHostFragment.findNavController(MpagoFragment.this)
                     //        .navigate(R.id.resumenPedidoFragment);
+                    irAResumen(getSelectedMetodoText());
                 }
             }
 
@@ -368,9 +381,17 @@ public class MpagoFragment extends Fragment {
                             return;
                         }
                         RptaGeneral rg = resp.body();
-                        toast(rg.getMessage());
-                        if (rg.getCode() == 1) {
+                        String mensaje = rg.getMessage();
+                        if (mensaje == null || mensaje.trim().isEmpty()) {
+                            mensaje = resp.code() == 200 ? "Operación exitosa" : "Ocurrió un problema";
+                        }
+                        toast(mensaje);
+
+                        boolean operacionExitosa = rg.getCode() == 1 || resp.code() == 200;
+                        if (operacionExitosa) {
                             // Aquí podrían navegar a RESUMEN PEDIDO
+                            irAResumen(ultimo.getNum_tarjeta_mask());
+
                         }
                     }
 
@@ -397,6 +418,32 @@ public class MpagoFragment extends Fragment {
             return metodosGuardados.get(selectedSavedPosition).getId_metodo_pago();
         }
         return null;
+    }
+
+    @Nullable
+    private String getSelectedMetodoText() {
+        if (selectedSavedPosition >= 0 &&
+                selectedSavedPosition < metodosGuardados.size()) {
+            MetodoPagoEntry entry = metodosGuardados.get(selectedSavedPosition);
+            return entry.getNum_tarjeta_mask();
+        }
+        return null;
+    }
+
+    private void irAResumen(@Nullable String metodoTexto) {
+        if (!isAdded()) {
+            return;
+        }
+        Bundle args = new Bundle();
+        if (!TextUtils.isEmpty(metodoTexto)) {
+            args.putString("metodo_pago", metodoTexto);
+        }
+        NavHostFragment.findNavController(this)
+                .navigate(R.id.action_paymentMethodFragment_to_resumenFragment, args);
+    }
+
+    private boolean isBindingReady() {
+        return binding != null && isAdded();
     }
 
     // ===================== Listeners de “Otros métodos” =====================
@@ -454,3 +501,4 @@ public class MpagoFragment extends Fragment {
         binding = null;
     }
 }
+

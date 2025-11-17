@@ -79,6 +79,7 @@
 
     <!-- Botón confirmar pago -->
     <Button
+        android:id="@+id/btnConfirmarPago"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Confirmar pago"

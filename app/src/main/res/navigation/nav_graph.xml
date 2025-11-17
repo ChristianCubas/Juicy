@@ -63,7 +63,11 @@
         android:id="@+id/paymentMethodFragment"
         android:name="com.example.juicy.MpagoFragment"
         android:label="Método de pago"
-        tools:layout="@layout/fragment_mpago" />
+        tools:layout="@layout/fragment_mpago">
+        <action
+            android:id="@+id/action_paymentMethodFragment_to_resumenFragment"
+            app:destination="@id/resumenFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/addPaymentMethodFragment"
@@ -119,6 +123,24 @@
             android:id="@+id/action_direcciones_to_metodoPago"
             app:destination="@id/paymentMethodFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/resumenFragment"
+        android:name="com.example.juicy.Catalogo.ResumenFragment"
+        android:label="Resumen"
+        tools:layout="@layout/fragment_resumen">
+        <action
+            android:id="@+id/action_resumenFragment_to_confirmacionPedidoFragment"
+            app:destination="@id/confirmacionPedidoFragment"
+            app:popUpTo="@id/carritoFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/confirmacionPedidoFragment"
+        android:name="com.example.juicy.Catalogo.ConfirmacionPedidoFragment"
+        android:label="Pedido confirmado"
+        tools:layout="@layout/fragment_confirmacion_pedido" />
 
 
 </navigation>
