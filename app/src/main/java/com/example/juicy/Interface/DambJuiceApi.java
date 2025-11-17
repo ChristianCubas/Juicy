@@ -74,4 +74,10 @@ public interface DambJuiceApi {
             @Header("Authorization") String token,
             @Body Map<String, Object> body
     );
+
+    @POST("/eliminar_direccion/{id}")
+    Call<RptaGeneral> eliminarDireccion(
+            @Header("Authorization") String token,
+            @Path("id") int idDireccion
+    );
 }

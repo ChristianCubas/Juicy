@@ -64,7 +64,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
                 listener.onProductoClick(p); // Llama a la acción principal
             }
         });
-
+        holder.btnAgregar.setOnClickListener(v -> agregarAlCarrito(p.getIdProducto()));
     }
 
 
@@ -93,16 +93,17 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
     // ================================
     //   MÉTODO AGREGAR AL CARRITO
     // ================================
-    private void agregarAlCarrito(int idCliente, int idProducto) {
+    private void agregarAlCarrito(int idProducto) {
 
         String url = "https://grupotres20252.pythonanywhere.com/api_agregar_al_carrito";
 
         // Obtener token
         SharedPreferences prefs = context.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         String token = prefs.getString("tokenJWT", null);
+        int idCliente = prefs.getInt("idCliente", 0);
 
-        if (token == null) {
-            Toast.makeText(context, "Token no disponible. Inicie sesión.", Toast.LENGTH_SHORT).show();
+        if (token == null || idCliente == 0) {
+            Toast.makeText(context, "Debe iniciar sesion para agregar productos.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -138,3 +139,6 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
         VolleySingleton.getInstance(context).addToRequestQueue(request);
     }
 }
+
+
+

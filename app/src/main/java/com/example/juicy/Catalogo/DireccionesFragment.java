@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.juicy.Catalogo.ResponseDirecciones;
 import com.example.juicy.Catalogo.Direccion;
 import com.example.juicy.Interface.DambJuiceApi;
+import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.R;
 import com.example.juicy.network.RetrofitClient;
 import com.google.gson.JsonObject;
@@ -33,7 +35,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DireccionesFragment extends Fragment {
+public class DireccionesFragment extends Fragment implements DireccionesAdapter.OnDireccionListener {
 
     private RecyclerView recyclerView;
     private DireccionesAdapter direccionesAdapter;
@@ -53,7 +55,7 @@ public class DireccionesFragment extends Fragment {
         recyclerView = rootView.findViewById(R.id.recyclerViewDirecciones);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        direccionesAdapter = new DireccionesAdapter(direccionList, getContext());
+        direccionesAdapter = new DireccionesAdapter(direccionList, getContext(), this);
         recyclerView.setAdapter(direccionesAdapter);
 
         // Obtener el idUsuario desde SharedPreferences
@@ -95,6 +97,49 @@ public class DireccionesFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onEliminarDireccion(Direccion direccion) {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        String token = prefs.getString("tokenJWT", null);
+        if (token == null) {
+            Toast.makeText(getContext(), "Sesión inválida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        RetrofitClient.getApiService()
+                .eliminarDireccion("JWT " + token.trim(), direccion.getIdDireccion())
+                .enqueue(new Callback<RptaGeneral>() {
+                    @Override
+                    public void onResponse(@NonNull Call<RptaGeneral> call,
+                                           @NonNull Response<RptaGeneral> response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(getContext(),
+                                    "Error al eliminar (" + response.code() + ")",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        RptaGeneral rpta = response.body();
+                        Toast.makeText(getContext(), rpta.getMessage(), Toast.LENGTH_SHORT).show();
+                        if (rpta.getCode() == 1) {
+                            direccionList.remove(direccion);
+                            direccionesAdapter.notifyDataSetChanged();
+                            int seleccionada = prefs.getInt("direccionSeleccionada", -1);
+                            if (seleccionada == direccion.getIdDireccion()) {
+                                prefs.edit().remove("direccionSeleccionada").remove("direccionTexto").apply();
+                                direccionesAdapter.setSelectedDireccionId(-1);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<RptaGeneral> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(getContext(),
+                                "No se pudo eliminar: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void obtenerDirecciones(int idUsuario) {
