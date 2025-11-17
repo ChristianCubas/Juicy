@@ -68,7 +68,10 @@ public class DireccionesFragment extends Fragment {
             Toast.makeText(getContext(), "No se pudo obtener el ID del usuario.", Toast.LENGTH_SHORT).show();
         }
 
-        // Botón para continuar
+        Button btnAgregar = rootView.findViewById(R.id.btnAgregarDireccion);
+        btnAgregar.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.agregarDirecciones));
+
         Button btnContinuar = rootView.findViewById(R.id.btnContinuar);
         btnContinuar.setOnClickListener(v -> {
             Direccion seleccionada = direccionesAdapter.getDireccionSeleccionada();
@@ -88,8 +91,7 @@ public class DireccionesFragment extends Fragment {
             editor.putString("direccionTexto", direccionTexto);
             editor.apply();
 
-            NavController navController = Navigation.findNavController(v);
-            navController.navigate(R.id.action_direcciones_to_metodoPago);
+            Navigation.findNavController(v).navigate(R.id.action_direcciones_to_metodoPago);
         });
 
         return rootView;

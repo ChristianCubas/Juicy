@@ -68,4 +68,10 @@ public interface DambJuiceApi {
             @Header("Authorization") String token,
             @Path("id") int idVenta
     );
+
+    @POST("/agregar_direccion")
+    Call<RptaGeneral> agregarDireccion(
+            @Header("Authorization") String token,
+            @Body Map<String, Object> body
+    );
 }

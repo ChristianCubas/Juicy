@@ -13,6 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Juicy">
+
         <activity
             android:name=".Catalogo.DetalleProductoActivity"
             android:exported="false" />
@@ -26,6 +27,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCl9B7aX8NOZ1kKs5nYeLyIXHNSVaZ0ltE"/>
     </application>
 
 </manifest>
