@@ -17,6 +17,7 @@ import com.android.volley.toolbox.NetworkImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.juicy.Interface.OnProductoClickListener;
 import com.example.juicy.R;
 import com.example.juicy.Model.Producto;
 import com.example.juicy.network.VolleySingleton;
@@ -32,10 +33,12 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
 
     private final Context context;
     private final List<Producto> lista;
+    private final OnProductoClickListener listener;
 
-    public ProductoAdapter(Context context, List<Producto> lista) {
+    public ProductoAdapter(Context context, List<Producto> lista, OnProductoClickListener listener) {
         this.context = context;
         this.lista = lista;
+        this.listener = listener;
     }
 
     @NonNull
@@ -45,34 +48,25 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
         return new ViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
         Producto p = lista.get(position);
-
         holder.tvNombre.setText(p.getNombre());
         holder.tvPrecio.setText("S/ " + p.getPrecio());
-
         holder.imgProducto.setImageUrl(
                 p.getImagen_url(),
                 VolleySingleton.getInstance(context).getImageLoader()
         );
 
-        // BOTÓN AGREGAR
-        holder.btnAgregar.setOnClickListener(v -> {
-
-            // Obtener idCliente desde SharedPreferences
-            SharedPreferences prefs = context.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-            int idCliente = prefs.getInt("idCliente", 0);
-
-            if (idCliente == 0) {
-                Toast.makeText(context, "Debe iniciar sesión nuevamente.", Toast.LENGTH_SHORT).show();
-                return;
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onProductoClick(p); // Llama a la acción principal
             }
-
-            agregarAlCarrito(idCliente, p.getId_producto());
         });
+
     }
+
 
     @Override
     public int getItemCount() {

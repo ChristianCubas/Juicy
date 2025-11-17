@@ -2,6 +2,7 @@ package com.example.juicy.Catalogo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -69,7 +70,14 @@ public class HomeFragment extends Fragment {
         textNombre = v.findViewById(R.id.usuario);
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        adapter = new ProductoAdapter(requireContext(), listaProductos);
+
+        adapter = new ProductoAdapter(requireContext(), listaProductos, producto -> {
+            Intent intent = new Intent(getActivity(), DetalleProductoActivity.class);
+
+            intent.putExtra("ID_PRODUCTO", producto.getIdProducto());
+
+            startActivity(intent);
+        });
         recyclerView.setAdapter(adapter);
 
         cargarProductos();
