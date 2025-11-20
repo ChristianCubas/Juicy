@@ -16,6 +16,7 @@ retrofitVersion = "2.5.0"
 squareupRetrofit = "3.0.0"
 volley = "1.2.1"
 volleyVersion = "1.1.1"
+activity = "1.11.0"
 
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
@@ -34,6 +35,7 @@ retrofit-v250 = { module = "com.squareup.retrofit2:retrofit", version.ref = "ret
 retrofit-v300 = { module = "com.squareup.retrofit2:retrofit", version.ref = "squareupRetrofit" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
 volley-v111 = { module = "com.android.volley:volley", version.ref = "volleyVersion" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -47,6 +47,12 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
                 VolleySingleton.getInstance(context).getImageLoader()
         );
 
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onProductoClick(p); // Llama a la acción principal
+            }
+        });
+
         holder.ImgBtnCarrito.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onProductoClick(p);

@@ -2,6 +2,7 @@ package com.example.juicy.Catalogo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -48,8 +49,11 @@ public class HomeFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerProductos);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         adapter = new ProductoAdapter(requireContext(), listaProductos, producto -> {
-            agregarAlCarrito(producto);
-            Toast.makeText(getActivity(),"Producto agregado",Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), DetalleProductoActivity.class);
+
+            intent.putExtra("ID_PRODUCTO", producto.getId_producto());
+
+            startActivity(intent);
         });
 
         ;
@@ -173,5 +177,4 @@ public class HomeFragment extends Fragment {
             Toast.makeText(requireContext(), "Error al agregar al carrito", Toast.LENGTH_SHORT).show();
         }
     }
-
 }
