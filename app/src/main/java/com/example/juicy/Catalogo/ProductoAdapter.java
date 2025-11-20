@@ -91,8 +91,8 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
 
 
     // ================================
-    //   MÉTODO AGREGAR AL CARRITO
-    // ================================
+    //   Metodo agregar carrito
+    // ===============================
     private void agregarAlCarrito(int idProducto) {
 
         String url = "https://grupotres20252.pythonanywhere.com/api_agregar_al_carrito";

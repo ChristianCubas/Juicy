@@ -45,7 +45,7 @@ public class MpagoFragment extends Fragment {
     // Lista de métodos que vienen de la API
     private final List<MetodoPagoEntry> metodosGuardados = new ArrayList<>();
 
-    // índice del método guardado seleccionado
+    // índice del metodo guardado seleccionado
     private int selectedSavedPosition = -1;
 
     private enum SelectedMethod {
@@ -230,7 +230,7 @@ public class MpagoFragment extends Fragment {
         }
     }
 
-    // ---------- 1) Pagar con método guardado ----------
+    // ---------- 1) Pagar con metodo guardado
 
     private void pagarConMetodoGuardado() {
         Integer idMetodo = resolveMetodoGuardado();

@@ -54,7 +54,7 @@ public class VolleySingleton {
         return imageLoader;
     }
 
-    // 🚀 MÉTODO QUE FALTABA PARA ENVIAR PETICIONES
+    // Metodo que faltaba para enviar peticiones
     public <T> void addToRequestQueue(Request<T> request) {
         requestQueue.add(request);
     }
