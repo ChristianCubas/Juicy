@@ -28,7 +28,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="4dp"
             android:contentDescription="Eliminar dirección"
-            android:src="@android:drawable/ic_delete" />
+            android:src="@drawable/ic_delete"/>
     </LinearLayout>
 
     <TextView

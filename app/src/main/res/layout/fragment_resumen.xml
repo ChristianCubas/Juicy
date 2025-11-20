@@ -84,7 +84,7 @@
         android:layout_height="wrap_content"
         android:text="Confirmar pago"
         android:textColor="@android:color/white"
-        android:background="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimary"
         android:layout_marginTop="32dp"
         android:padding="16dp"/>
 </LinearLayout>

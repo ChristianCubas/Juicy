@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -17,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -49,7 +45,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);   // 👉 Habilitar menú en Fragment
+
     }
 
     @Override
@@ -84,30 +80,6 @@ public class HomeFragment extends Fragment {
 
         return v;
     }
-
-    // -------------------------------------------------------------------
-    //  🔥 BOTÓN "Carrito" en el menú (arriba derecha)
-    // -------------------------------------------------------------------
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);  // tu menú
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_carrito) {
-            // Navegar al fragmento del carrito
-            NavHostFragment.findNavController(this)
-                    .navigate(R.id.carritoFragment);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     // -------------------------------------------------------------------
     // 🔥 CARGAR PRODUCTOS DESDE EL API
     // -------------------------------------------------------------------

@@ -46,7 +46,6 @@
         android:id="@+id/action_carrito"
         android:orderInCategory="300"
         android:title="Listado de productos"
-
         app:showAsAction="never" />
 
 
