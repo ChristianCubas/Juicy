@@ -6,10 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.juicy.R;
-import com.example.juicy.MetodoPagoEntry;
+
+import com.example.juicy.Model.MetodoPagoEntry;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
@@ -17,11 +18,12 @@ import java.util.List;
 
 public class MetodosPagoAdapter extends RecyclerView.Adapter<MetodosPagoAdapter.ViewHolder> {
 
-    // Acciones por ítem: seleccionar (opcional) y solicitar borrado
+    // Acciones por ítem: seleccionar y solicitar borrado
     public interface OnItemActionListener {
         void onRequestDelete(@NonNull MetodoPagoEntry metodo);
         void onSelect(@NonNull MetodoPagoEntry metodo);
     }
+
     private final Context context;
     private final OnItemActionListener listener;
 
@@ -33,8 +35,6 @@ public class MetodosPagoAdapter extends RecyclerView.Adapter<MetodosPagoAdapter.
         this.context = context;
         this.listener = listener;
     }
-
-
 
     // Reemplaza el dataset completo
     public void setData(List<MetodoPagoEntry> data) {
@@ -63,13 +63,15 @@ public class MetodosPagoAdapter extends RecyclerView.Adapter<MetodosPagoAdapter.
     public void onBindViewHolder(@NonNull MetodosPagoAdapter.ViewHolder h, int position) {
         MetodoPagoEntry m = items.get(position);
 
+        // Mejor mostrar el número enmascarado
         h.txtNumero.setText(m.getNum_tarjeta_mask());
         h.txtTitular.setText(m.getTitular());
         h.txtExp.setText("Vence " + m.getFecha_expiracion());
 
         // Resaltado opcional del seleccionado con stroke
         MaterialCardView card = (MaterialCardView) h.itemView;
-        int stroke = h.itemView.getResources().getDimensionPixelSize(R.dimen.payment_card_stroke);
+        int stroke = h.itemView.getResources()
+                .getDimensionPixelSize(R.dimen.payment_card_stroke);
         boolean isSelected = (selectedId != null && selectedId == m.getId_metodo_pago());
         card.setStrokeWidth(isSelected ? stroke : 0);
 
@@ -101,6 +103,4 @@ public class MetodosPagoAdapter extends RecyclerView.Adapter<MetodosPagoAdapter.
             btnEliminar = v.findViewById(R.id.btnEli);
         }
     }
-
-
 }

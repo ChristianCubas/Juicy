@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="resumenFragment" type="id"/>
+    <item name="action_paymentMethodFragment_to_resumenFragment" type="id"/>
+    <item name="action_resumenFragment_to_confirmacionPedidoFragment" type="id"/>
+</resources>

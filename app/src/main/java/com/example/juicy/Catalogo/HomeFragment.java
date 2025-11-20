@@ -8,9 +8,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,8 +39,24 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ProductoAdapter adapter;
+    TextView textNombre;
     private final List<Producto> listaProductos = new ArrayList<>();
+
     private static final String URL_API = "https://grupotres20252.pythonanywhere.com/api_menu_inicio";
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Oculta la flecha de regresar
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -47,11 +65,14 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         recyclerView = v.findViewById(R.id.recyclerProductos);
+        textNombre = v.findViewById(R.id.usuario);
+
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+
         adapter = new ProductoAdapter(requireContext(), listaProductos, producto -> {
             Intent intent = new Intent(getActivity(), DetalleProductoActivity.class);
 
-            intent.putExtra("ID_PRODUCTO", producto.getId_producto());
+            intent.putExtra("ID_PRODUCTO", producto.getIdProducto());
 
             startActivity(intent);
         });
@@ -60,16 +81,21 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         cargarProductos();
+
         return v;
     }
-
+    // -------------------------------------------------------------------
+    // 🔥 CARGAR PRODUCTOS DESDE EL API
+    // -------------------------------------------------------------------
     private void cargarProductos() {
         listaProductos.clear();
 
         SharedPreferences prefs = requireActivity()
                 .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         String token = prefs.getString("tokenJWT", null);
+        String nombre = prefs.getString("nombreCliente", null);
         int idCliente = prefs.getInt("idCliente", 0);
+        textNombre.setText(nombre);
 
         if (token == null || idCliente == 0) {
             Toast.makeText(requireContext(), "Token o id_cliente no disponible. Inicie sesión.", Toast.LENGTH_SHORT).show();
@@ -145,36 +171,5 @@ public class HomeFragment extends Fragment {
         };
 
         VolleySingleton.getInstance(requireContext()).getRequestQueue().add(request);
-    }
-
-    private void agregarAlCarrito(Producto producto) {
-        SharedPreferences prefs = requireActivity().getSharedPreferences("CARRITO_JUICY", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-
-        // Obtenemos el carrito actual
-        String carritoJson = prefs.getString("carrito", "[]");
-
-        try {
-            JSONArray carritoArray = new JSONArray(carritoJson);
-
-            // Creamos un objeto JSON para el nuevo producto
-            JSONObject nuevoProducto = new JSONObject();
-            nuevoProducto.put("id_producto", producto.getId_producto());
-            nuevoProducto.put("nombre", producto.getNombre());
-            nuevoProducto.put("precio", producto.getPrecio());
-            nuevoProducto.put("imagen_url", producto.getImagen_url());
-
-            // Agregamos el producto al carrito
-            carritoArray.put(nuevoProducto);
-
-            // Guardamos el nuevo carrito
-            editor.putString("carrito", carritoArray.toString());
-            editor.apply();
-
-            Toast.makeText(requireContext(), producto.getNombre() + " agregado al carrito 🛒", Toast.LENGTH_SHORT).show();
-
-        } catch (JSONException e) {
-            Toast.makeText(requireContext(), "Error al agregar al carrito", Toast.LENGTH_SHORT).show();
-        }
     }
 }

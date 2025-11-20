@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <!-- Número de tarjeta -->
+    <TextView
+        android:id="@+id/idNumeroTarjeta1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/payment_saved_primary_number"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Marca de la tarjeta -->
+    <TextView
+        android:id="@+id/primaryCardBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/payment_saved_primary_title"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Titular de la tarjeta -->
+    <TextView
+        android:id="@+id/primaryCardHolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/payment_saved_primary_cardholder"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Expiración de la tarjeta -->
+    <TextView
+        android:id="@+id/primaryCardExp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/payment_saved_primary_exp"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Estado de la tarjeta (Icono de check o sin check) -->
+    <ImageView
+        android:id="@+id/primaryCardStatus"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/payment_method_selected"
+        android:src="@drawable/ic_check_circle_file"
+        android:layout_gravity="end" />
+
+</LinearLayout>
