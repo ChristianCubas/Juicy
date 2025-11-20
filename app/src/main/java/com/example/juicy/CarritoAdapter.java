@@ -77,7 +77,7 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
         }
     }
 
-    // ⭐ Actualiza SharedPreferences al cambiar cantidad
+    //  Actualiza SharedPreferences al cambiar cantidad
     private void actualizarCantidadEnShared(ViewHolder holder, Producto producto) {
         SharedPreferences prefs = holder.itemView.getContext()
                 .getSharedPreferences("CARRITO_JUICY", Context.MODE_PRIVATE);

@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CarritoFragment extends Fragment {
@@ -57,7 +58,13 @@ public class CarritoFragment extends Fragment {
 
         // Configuración del RecyclerView
         rvCarrito.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CarritoAdapter(requireContext(), listaCarrito);
+        adapter = new CarritoAdapter(requireContext(), listaCarrito, total -> {
+            tvSubtotal.setText(String.format(Locale.getDefault(), "Subtotal: S/ %.2f", total));
+
+            SharedPreferences prefs = requireActivity()
+                    .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+            prefs.edit().putFloat("totalCarrito", (float) total).apply();
+        });
         rvCarrito.setAdapter(adapter);
 
         // Acción del botón "Confirmar compra"

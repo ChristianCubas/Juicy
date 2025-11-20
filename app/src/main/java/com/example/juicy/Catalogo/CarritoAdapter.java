@@ -20,10 +20,13 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
 
     private final Context context;
     private final List<CarritoItem> lista;
+    private final OnCarritoChangeListener changeListener;
 
-    public CarritoAdapter(Context context, List<CarritoItem> lista) {
+    public CarritoAdapter(Context context, List<CarritoItem> lista,
+                          OnCarritoChangeListener changeListener) {
         this.context = context;
         this.lista = lista;
+        this.changeListener = changeListener;
     }
 
     @NonNull
@@ -42,20 +45,67 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
         holder.tvCantidad.setText(String.format("%02d", item.getCantidad()));
         holder.tvPrecio.setText(String.format("S/ %.2f", item.getPrecioTotal()));
 
-        // Por ahora solo mostramos Toast, luego conectamos con las APIs de actualizar / eliminar
-        holder.btnMas.setOnClickListener(v ->
-                Toast.makeText(context, "Aquí iría + cantidad", Toast.LENGTH_SHORT).show());
-
-        holder.btnMenos.setOnClickListener(v ->
-                Toast.makeText(context, "Aquí iría - cantidad", Toast.LENGTH_SHORT).show());
-
-        holder.btnEliminar.setOnClickListener(v ->
-                Toast.makeText(context, "Aquí iría eliminar producto", Toast.LENGTH_SHORT).show());
+        holder.btnMas.setOnClickListener(v -> incrementarCantidad(holder.getBindingAdapterPosition()));
+        holder.btnMenos.setOnClickListener(v -> decrementarCantidad(holder.getBindingAdapterPosition()));
+        holder.btnEliminar.setOnClickListener(v -> eliminarItem(holder.getBindingAdapterPosition()));
     }
 
     @Override
     public int getItemCount() {
         return lista.size();
+    }
+
+    private void incrementarCantidad(int position) {
+        if (position == RecyclerView.NO_POSITION) return;
+        CarritoItem item = lista.get(position);
+
+        double precioUnitario = item.getCantidad() > 0
+                ? item.getPrecioTotal() / item.getCantidad()
+                : 0;
+
+        item.setCantidad(item.getCantidad() + 1);
+        item.setPrecioTotal(precioUnitario * item.getCantidad());
+
+        notifyItemChanged(position);
+        notificarTotal();
+    }
+
+    private void decrementarCantidad(int position) {
+        if (position == RecyclerView.NO_POSITION) return;
+        CarritoItem item = lista.get(position);
+        if (item.getCantidad() <= 1) {
+            Toast.makeText(context, "La cantidad no puede ser menor a 1", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double precioUnitario = item.getCantidad() > 0
+                ? item.getPrecioTotal() / item.getCantidad()
+                : 0;
+        item.setCantidad(item.getCantidad() - 1);
+        item.setPrecioTotal(precioUnitario * item.getCantidad());
+
+        notifyItemChanged(position);
+        notificarTotal();
+    }
+
+    private void eliminarItem(int position) {
+        if (position == RecyclerView.NO_POSITION) return;
+        lista.remove(position);
+        notifyItemRemoved(position);
+        notificarTotal();
+    }
+
+    private void notificarTotal() {
+        if (changeListener == null) return;
+        double total = 0;
+        for (CarritoItem item : lista) {
+            total += item.getPrecioTotal();
+        }
+        changeListener.onCarritoTotalChanged(total);
+    }
+
+    public interface OnCarritoChangeListener {
+        void onCarritoTotalChanged(double nuevoTotal);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

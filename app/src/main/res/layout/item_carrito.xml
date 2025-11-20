@@ -32,6 +32,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="?selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete"
                  />
         </LinearLayout>
 
@@ -56,6 +57,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="?selectableItemBackgroundBorderless"
+                android:src="@drawable/bg_boton_restar"
                  />
 
             <TextView
@@ -70,7 +72,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="?selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_add" />
+                android:src="@drawable/bg_boton_agregar" />
 
             <TextView
                 android:id="@+id/tvPrecioItem"
