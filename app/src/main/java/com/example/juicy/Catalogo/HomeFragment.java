@@ -14,12 +14,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.juicy.AgregarAlCarrito;
+import com.example.juicy.Interface.CarritoService;
+import com.example.juicy.Model.CarritoItem;
+import com.example.juicy.Model.CarritoResponse;
 import com.example.juicy.R;
 import com.example.juicy.Model.Producto;
 import com.example.juicy.network.VolleySingleton;
@@ -29,13 +36,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private RecyclerView recyclerCarrito;
     private ProductoAdapter adapter;
     TextView textNombre;
     private final List<Producto> listaProductos = new ArrayList<>();
@@ -54,6 +69,7 @@ public class HomeFragment extends Fragment {
 
         // Oculta la flecha de regresar
         ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        setupBottomNavigation(view);
     }
 
     @SuppressLint("MissingInflatedId")
@@ -64,7 +80,7 @@ public class HomeFragment extends Fragment {
 
         recyclerView = v.findViewById(R.id.recyclerProductos);
         textNombre = v.findViewById(R.id.usuario);
-
+        recyclerCarrito = v.findViewById(R.id.recyclerCarrito);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         adapter = new ProductoAdapter(requireContext(), listaProductos, producto -> {
@@ -79,6 +95,33 @@ public class HomeFragment extends Fragment {
         cargarProductos();
 
         return v;
+    }
+
+    private void setupBottomNavigation(View root) {
+        BottomNavigationView bottomNav = root.findViewById(R.id.bottom_navigation);
+        if (bottomNav == null) return;
+
+        bottomNav.setSelectedItemId(R.id.nav_home);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int targetDest;
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                targetDest = R.id.homeFragment;
+            } else if (id == R.id.nav_carrito) {
+                targetDest = R.id.carritoFragment;
+            } else if (id == R.id.nav_opciones) {
+                targetDest = R.id.opcionesFragment;
+            } else {
+                return false;
+            }
+
+            androidx.navigation.NavController navController = NavHostFragment.findNavController(this);
+            androidx.navigation.NavDestination current = navController.getCurrentDestination();
+            if (current != null && current.getId() == targetDest) return true;
+
+            navController.navigate(targetDest);
+            return true;
+        });
     }
     // -------------------------------------------------------------------
     // 🔥 CARGAR PRODUCTOS DESDE EL API

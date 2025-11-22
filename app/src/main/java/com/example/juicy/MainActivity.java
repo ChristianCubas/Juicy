@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_editorPerfil)     { navController.navigate(R.id.editarPerfil);            return true; }
         if (id == R.id.nav_home)                { navController.navigate(R.id.homeFragment);            return true; }
         if (id == R.id.nav_carrito)             { navController.navigate(R.id.carritoFragment);         return true; }
-        if (id == R.id.action_carrito)          { navController.navigate(R.id.carritoFragment);         return true; }
         return super.onOptionsItemSelected(item);
     }
 
