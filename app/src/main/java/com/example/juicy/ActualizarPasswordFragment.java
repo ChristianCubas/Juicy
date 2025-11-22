@@ -78,14 +78,14 @@ public class ActualizarPasswordFragment extends Fragment {
             DambJuiceApi api = retrofit.create(DambJuiceApi.class);
             ActualizarPasswordRequest req = new ActualizarPasswordRequest(email, pass1);
 
-            api.actualizarPassword(req).enqueue(new Callback<RptaGeneral>() {
+            api.actualizarPassword(req).enqueue(new Callback<com.example.juicy.Model.RptaGeneral>() {
                 @Override
-                public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> response) {
+                public void onResponse(Call<com.example.juicy.Model.RptaGeneral> call, Response<com.example.juicy.Model.RptaGeneral> response) {
                     if (!response.isSuccessful() || response.body() == null) {
                         Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    RptaGeneral r = response.body();
+                    com.example.juicy.Model.RptaGeneral r = response.body();
                     if (r.getCode() == 1) {
                         // MODAL DE ÉXITO
                         new MaterialAlertDialogBuilder(requireContext())
@@ -104,7 +104,7 @@ public class ActualizarPasswordFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Call<RptaGeneral> call, Throwable t) {
+                public void onFailure(Call<com.example.juicy.Model.RptaGeneral> call, Throwable t) {
                     Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
