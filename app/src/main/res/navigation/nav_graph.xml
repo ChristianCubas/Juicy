@@ -25,6 +25,9 @@
             android:id="@+id/action_FirstFragment_toBilleteraMetodoPagoFragment"
             app:destination="@id/paymentWalletFragment"/> <!-- Aquí debes usar @id/paymentWalletFragment -->
 
+        <action
+            android:id="@+id/action_FirstFragment_to_recuperarCorreoFragment"
+            app:destination="@id/recuperarCorreoFragment" />
     </fragment>
 
     <!-- Fragmento Home -->
@@ -141,6 +144,33 @@
         android:name="com.example.juicy.Catalogo.ConfirmacionPedidoFragment"
         android:label="Pedido confirmado"
         tools:layout="@layout/fragment_confirmacion_pedido" />
+
+    <fragment
+        android:id="@+id/recuperarCorreoFragment"
+        android:name="com.example.juicy.RecuperarCorreoFragment"
+        android:label="Recuperar contraseña"
+        tools:layout="@layout/fragment_recuperar_correo">
+        <action
+            android:id="@+id/action_recuperarCorreoFragment_to_validarCodigoFragment"
+            app:destination="@id/validarCodigoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/validarCodigoFragment"
+        android:name="com.example.juicy.ValidarCodigoFragment"
+        android:label="Validar código"
+        tools:layout="@layout/fragment_validar_codigo">
+        <action
+            android:id="@+id/action_validarCodigoFragment_to_actualizarPasswordFragment"
+            app:destination="@id/actualizarPasswordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/actualizarPasswordFragment"
+        android:name="com.example.juicy.ActualizarPasswordFragment"
+        android:label="Actualizar contraseña"
+        tools:layout="@layout/fragment_actualizar_password" />
+
 
 
 </navigation>

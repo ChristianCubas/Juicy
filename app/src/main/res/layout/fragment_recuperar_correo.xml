@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@android:color/white"
+    tools:context=".RecuperarCorreoFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recuperar contraseña"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ingresa el correo con el que te registraste. Te enviaremos un código de 4 dígitos."
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/etCorreoRecuperar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Correo electrónico"
+            android:inputType="textEmailAddress" />
+
+        <Button
+            android:id="@+id/btnEnviarCodigo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enviar código"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#FFA54C"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+</ScrollView>
