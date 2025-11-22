@@ -19,6 +19,8 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.NetworkImageView;
+import com.example.juicy.AgregarAlCarrito;
+import com.example.juicy.Interface.CarritoService;
 import com.example.juicy.Model.Producto;
 import com.example.juicy.R;
 import com.example.juicy.network.VolleySingleton;
@@ -27,8 +29,16 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DetalleProductoActivity extends AppCompatActivity {
 
@@ -242,6 +252,54 @@ public class DetalleProductoActivity extends AppCompatActivity {
         });
     }
 
+    private void agregarAlCarrito(int idProducto, int cantidad, List<String> agregados, String presentacion) {
+        SharedPreferences prefs = this.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        String token = prefs.getString("tokenJWT", null);
+        int idCliente = prefs.getInt("idCliente", 0);
+
+        if (token == null || idCliente == 0) {
+            Toast.makeText(this, "Debe iniciar sesión para agregar productos.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Si agregados viene null, lo reemplazamos por lista vacía
+        if (agregados == null) {
+            agregados = Arrays.asList(); // o new ArrayList<>()
+        }
+
+        AgregarAlCarrito request = new AgregarAlCarrito(
+                String.valueOf(idCliente),
+                String.valueOf(idProducto),
+                cantidad,
+                agregados,
+                presentacion
+        );
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://grupotres20252.pythonanywhere.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        CarritoService carrito = retrofit.create(CarritoService.class);
+        Call<AgregarAlCarrito> call = carrito.agregarAlCarrito(token,request);
+
+        call.enqueue(new Callback<AgregarAlCarrito>() {
+            @Override
+            public void onResponse(Call<AgregarAlCarrito> call, Response<AgregarAlCarrito> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getBaseContext(), "Producto agregado satisfactoriamente", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getBaseContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AgregarAlCarrito> call, Throwable t) {
+                Toast.makeText(getBaseContext(), "Error al consumir la API", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void actualizarPrecio() {
         if (productoActual == null) {
             Log.e(TAG, "actualizarPrecio() llamado pero productoActual es nulo.");
@@ -306,5 +364,8 @@ public class DetalleProductoActivity extends AppCompatActivity {
                 "Total: S/ " + String.format("%.2f", precioCalculado);
 
         Toast.makeText(this, resumen, Toast.LENGTH_LONG).show();
+        // Por ejemplo, en el botón de agregar:
+        agregarAlCarrito(idProducto, cantidadActual, null, null);
+
     }
 }

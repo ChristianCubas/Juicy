@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.juicy.Interface.CarritoService;
 import com.example.juicy.Model.CarritoItem;
 import com.example.juicy.R;
 import com.example.juicy.network.VolleySingleton;
@@ -33,6 +34,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CarritoFragment extends Fragment {
 
@@ -81,6 +88,40 @@ public class CarritoFragment extends Fragment {
     }
 
 
+    private void cargarCarrito() {
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        String token = prefs.getString("tokenJWT", null);
+        int idCliente = prefs.getInt("idCliente", 0);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://grupotres20252.pythonanywhere.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        CarritoService service = retrofit.create(CarritoService.class);
+        CarritoItem body = new CarritoItem(String.valueOf(idCliente));
+
+        service.listarCarrito(token,body).enqueue(new Callback<CarritoItem>() {
+            @Override
+            public void onResponse(Call<CarritoItem> call, Response<CarritoItem> response) {
+                listaCarrito.clear();
+                CarritoItem item = response.body();
+                if (item != null) {
+                    listaCarrito.add(item);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<CarritoItem> call, Throwable t) {
+                Toast.makeText(getContext(),"Error al lsitar carrito desde API",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    /*
     private void cargarCarrito() {
         listaCarrito.clear();
 
@@ -160,5 +201,5 @@ public class CarritoFragment extends Fragment {
 
         VolleySingleton.getInstance(requireContext())
                 .getRequestQueue().add(request);
-    }
+    }*/
 }
