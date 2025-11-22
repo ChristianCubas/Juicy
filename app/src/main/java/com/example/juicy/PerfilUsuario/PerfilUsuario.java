@@ -1,6 +1,5 @@
 package com.example.juicy.PerfilUsuario;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.juicy.R;
 
 /**
@@ -21,12 +21,12 @@ import com.example.juicy.R;
  */
 public class PerfilUsuario extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+
     private String mParam1;
     private String mParam2;
 
@@ -42,7 +42,7 @@ public class PerfilUsuario extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment PerfilUsuario.
      */
-    // TODO: Rename and change types and number of parameters
+
     public static PerfilUsuario newInstance(String param1, String param2) {
         PerfilUsuario fragment = new PerfilUsuario();
         Bundle args = new Bundle();
@@ -67,6 +67,7 @@ public class PerfilUsuario extends Fragment {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_perfil_usuario, container, false);
 
+        setupBottomNavigation(root);
         Button btnEditar = root.findViewById(R.id.btnEditarPerfil);
 
         if (btnEditar != null) {
@@ -81,4 +82,30 @@ public class PerfilUsuario extends Fragment {
         return root;
     }
 
+    private void setupBottomNavigation(View root) {
+        BottomNavigationView bottomNav = root.findViewById(R.id.bottom_navigation);
+        if (bottomNav == null) return;
+
+        bottomNav.setSelectedItemId(R.id.nav_opciones);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int targetDest;
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                targetDest = R.id.homeFragment;
+            } else if (id == R.id.nav_carrito) {
+                targetDest = R.id.carritoFragment;
+            } else if (id == R.id.nav_opciones) {
+                targetDest = R.id.opcionesFragment;
+            } else {
+                return false;
+            }
+
+            androidx.navigation.NavController navController = NavHostFragment.findNavController(this);
+            androidx.navigation.NavDestination current = navController.getCurrentDestination();
+            if (current != null && current.getId() == targetDest) return true;
+
+            navController.navigate(targetDest);
+            return true;
+        });
+    }
 }

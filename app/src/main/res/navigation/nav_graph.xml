@@ -5,12 +5,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/FirstFragment">
 
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.juicy.Catalogo.HomeFragment"
-        android:label="Inicio"
-        tools:layout="@layout/fragment_home" />
-
+    <!-- Primer Fragmento -->
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.example.juicy.FirstFragment"
@@ -25,25 +20,38 @@
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
 
+        <!-- Acción para navegar a Billetera -->
         <action
-            android:id="@+id/action_FirstFragment_to_BilleteraMetodoPagoFragment"
-            app:destination="@id/paymentWalletFragment" />
+            android:id="@+id/action_FirstFragment_toBilleteraMetodoPagoFragment"
+            app:destination="@id/paymentWalletFragment"/> <!-- Aquí debes usar @id/paymentWalletFragment -->
+
     </fragment>
+
+    <!-- Fragmento Home -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.juicy.Catalogo.HomeFragment"
+        android:label="Inicio"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/opcionesFragment"
+        android:name="com.example.juicy.Catalogo.OpcionesFragment"
+        android:label="Menú"
+        tools:layout="@layout/fragment_opciones" />
+
+    <!-- Segundo Fragmento -->
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.juicy.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
-
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/paymentMethodFragment"
-        android:name="com.example.juicy.MpagoFragment"
-        android:label="Método de pago"
-        tools:layout="@layout/fragment_mpago" />
+
+    <!-- Fragmento Billetera -->
     <fragment
         android:id="@+id/paymentWalletFragment"
         android:name="com.example.juicy.BilleteraMetodoPagoFragment"
@@ -52,7 +60,21 @@
         <action
             android:id="@+id/action_paymentWalletFragment_to_addPaymentMethodFragment"
             app:destination="@id/addPaymentMethodFragment" />
+
     </fragment>
+
+
+    <!-- Otros fragmentos -->
+    <fragment
+        android:id="@+id/paymentMethodFragment"
+        android:name="com.example.juicy.MpagoFragment"
+        android:label="Método de pago"
+        tools:layout="@layout/fragment_mpago">
+        <action
+            android:id="@+id/action_paymentMethodFragment_to_resumenFragment"
+            app:destination="@id/resumenFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/addPaymentMethodFragment"
         android:name="com.example.juicy.AgregarMetodoPagoFragment"
@@ -63,17 +85,11 @@
         android:name="com.example.juicy.AgregarDirecciones"
         android:label=""
         tools:layout="@layout/fragment_agregar_direcciones" />
-
     <fragment
         android:id="@+id/buscarMapa"
         android:name="com.example.juicy.BuscarMapa"
         android:label=""
         tools:layout="@layout/fragment_buscar_mapa" />
-    <fragment
-        android:id="@+id/direccionesFragment"
-        android:name="com.example.juicy.direccionesFragment"
-        android:label=""
-        tools:layout="@layout/fragment_direcciones" />
     <fragment
         android:id="@+id/perfilUsuario"
         android:name="com.example.juicy.PerfilUsuario.PerfilUsuario"
@@ -83,22 +99,49 @@
             android:id="@+id/action_perfilUsuario_to_editarPerfil"
             app:destination="@id/perfilUsuario" />
     </fragment>
-
-    <fragment
-        android:id="@+id/carritoFragment"
-        android:name="com.example.juicy.carrito_producto"
-        android:label=""
-        tools:layout="@layout/fragment_carrito_producto" >
-        <action
-            android:id="@+id/action_carrito_to_payment"
-            app:destination="@id/paymentMethodFragment"/>
-
-    </fragment>
-
     <fragment
         android:id="@+id/editarPerfil"
         android:name="com.example.juicy.PerfilUsuario.editarPerfil"
         android:label=""
         tools:layout="@layout/fragment_editar_perfil" />
+
+    <fragment
+        android:id="@+id/carritoFragment"
+        android:name="com.example.juicy.Catalogo.CarritoFragment"
+        android:label="Carrito"
+        tools:layout="@layout/fragment_carrito">
+        <action
+            android:id="@+id/action_carrito_to_direcciones"
+            app:destination="@id/direccionesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/direccionesFragment"
+        android:name="com.example.juicy.Catalogo.DireccionesFragment"
+        android:label="Direcciones"
+        tools:layout="@layout/fragment_direcciones">
+        <action
+            android:id="@+id/action_direcciones_to_metodoPago"
+            app:destination="@id/paymentMethodFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/resumenFragment"
+        android:name="com.example.juicy.Catalogo.ResumenFragment"
+        android:label="Resumen"
+        tools:layout="@layout/fragment_resumen">
+        <action
+            android:id="@+id/action_resumenFragment_to_confirmacionPedidoFragment"
+            app:destination="@id/confirmacionPedidoFragment"
+            app:popUpTo="@id/carritoFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/confirmacionPedidoFragment"
+        android:name="com.example.juicy.Catalogo.ConfirmacionPedidoFragment"
+        android:label="Pedido confirmado"
+        tools:layout="@layout/fragment_confirmacion_pedido" />
+
 
 </navigation>

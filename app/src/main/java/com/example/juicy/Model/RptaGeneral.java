@@ -1,7 +1,11 @@
 package com.example.juicy.Model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class RptaGeneral {
+    @SerializedName(value = "code", alternate = {"status"})
     private int code;
+    @SerializedName(value = "message", alternate = {"mensaje", "error"})
     private String message;
     private Object data;
 

@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.metodosPagoApi;
 import com.example.juicy.Model.ApiMetodosPagoRequest;
@@ -44,6 +45,7 @@ public class MpagoFragment extends Fragment {
     // Lista de métodos que vienen de la API
     private final List<MetodoPagoEntry> metodosGuardados = new ArrayList<>();
 
+    // índice del metodo guardado seleccionado
     private int selectedSavedPosition = -1;
 
     private enum SelectedMethod {
@@ -99,6 +101,8 @@ public class MpagoFragment extends Fragment {
         updateSelectionUI();
     }
 
+    // ===================== API: listar métodos guardados =====================
+
     private void cargarMetodosGuardados() {
         ApiMetodosPagoRequest body = new ApiMetodosPagoRequest();
         body.setId_cliente(idCliente);
@@ -136,6 +140,9 @@ public class MpagoFragment extends Fragment {
     }
 
     private void mostrarMetodosGuardados(@NonNull List<MetodoPagoEntry> lista) {
+        if (!isBindingReady()) {
+            return;
+        }
         metodosGuardados.clear();
         metodosGuardados.addAll(lista);
 
@@ -174,7 +181,6 @@ public class MpagoFragment extends Fragment {
             container.addView(card);
         }
 
-
         if (!metodosGuardados.isEmpty()) {
             selectedMethod = SelectedMethod.SAVED;
             selectedSavedPosition = 0;
@@ -184,6 +190,9 @@ public class MpagoFragment extends Fragment {
     }
 
     private void updateSavedCardsUI() {
+        if (!isBindingReady()) {
+            return;
+        }
         int checkedIcon = R.drawable.ic_check_circle_file;
         int uncheckedIcon = R.drawable.ic_uncheck_circle;
 
@@ -201,6 +210,7 @@ public class MpagoFragment extends Fragment {
         }
     }
 
+    // ===================== Flujo al pulsar CONTINUAR =====================
 
     private void onContinuar() {
         switch (selectedMethod) {
@@ -220,6 +230,8 @@ public class MpagoFragment extends Fragment {
         }
     }
 
+    // ---------- 1) Pagar con metodo guardado
+
     private void pagarConMetodoGuardado() {
         Integer idMetodo = resolveMetodoGuardado();
         if (idMetodo == null || idMetodo <= 0) {
@@ -227,9 +239,12 @@ public class MpagoFragment extends Fragment {
             return;
         }
 
+        // lo dejamos final para usarlo dentro del callback
+        final int metodoSeleccionado = idMetodo;
+
         MetodoPagoVentaRequest body = new MetodoPagoVentaRequest();
         body.setId_cliente(idCliente);
-        body.setId_metodo_pago(idMetodo);
+        body.setId_metodo_pago(metodoSeleccionado);
 
         api.setMetodoPagoVenta(authHeader, body).enqueue(new Callback<RptaGeneral>() {
             @Override
@@ -241,9 +256,25 @@ public class MpagoFragment extends Fragment {
                     return;
                 }
                 RptaGeneral r = resp.body();
-                Toast.makeText(requireContext(), r.getMessage(), Toast.LENGTH_SHORT).show();
-                if (r.getCode() == 1) {
-                    // navegar al siguiente paso
+                String mensaje = r.getMessage();
+                if (mensaje == null || mensaje.trim().isEmpty()) {
+                    mensaje = resp.code() == 200 ? "Operación exitosa" : "Ocurrió un problema";
+                }
+                Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show();
+
+                boolean operacionExitosa = r.getCode() == 1 || resp.code() == 200;
+                if (operacionExitosa) {
+                    // 🔹 Guardar el id_metodo_pago en SharedPreferences
+                    SharedPreferences sp = requireActivity()
+                            .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                    sp.edit()
+                            .putInt("idMetodoPagoSeleccionado", metodoSeleccionado)
+                            .apply();
+
+                    // Aquí tu equipo ya puede navegar a RESUMEN PEDIDO
+                    // NavHostFragment.findNavController(MpagoFragment.this)
+                    //        .navigate(R.id.resumenPedidoFragment);
+                    irAResumen(getSelectedMetodoText());
                 }
             }
 
@@ -255,6 +286,7 @@ public class MpagoFragment extends Fragment {
         });
     }
 
+    // ---------- 2) Pagar con tarjeta nueva (OTHER_VISA) ----------
 
     private void pagarConTarjetaNuevaVisa() {
         String titular = textOf(binding.otherVisaHolderInput);
@@ -266,7 +298,7 @@ public class MpagoFragment extends Fragment {
         // Normalizar PAN
         pan = pan.replaceAll("\\s", "");
 
-        // Validaciones básicas (similar a AgregarMetodoPagoFragment)
+        // Validaciones básicas
         if (TextUtils.isEmpty(titular)) {
             toast("Ingrese el titular de la tarjeta");
             return;
@@ -285,9 +317,8 @@ public class MpagoFragment extends Fragment {
         }
 
         if (!guardar) {
-            // NO guardar en BD: aquí solo simulas que se usó esta tarjeta una sola vez.
-            // Si tu backend tiene un endpoint especial para "pago directo sin guardar",
-            // deberías llamarlo aquí. Por ahora, solo mostramos un mensaje.
+            // No se va a guardar en BD. Si tu backend tiene un endpoint para
+            // pago directo sin guardar, deberías llamarlo aquí.
             toast("Pago con tarjeta no guardada (solo simulación)");
             return;
         }
@@ -302,7 +333,7 @@ public class MpagoFragment extends Fragment {
 
         ApiMetodosPagoRequest body = new ApiMetodosPagoRequest();
         body.setId_cliente(idCliente);
-        body.setGuardar(true);          // indicar que se debe guardar
+        body.setGuardar(true);
         body.setNuevo_metodo(nuevo);
 
         api.apiMetodosPago(authHeader, body).enqueue(new Callback<ApiMetodosPagoResponse>() {
@@ -319,21 +350,27 @@ public class MpagoFragment extends Fragment {
                     return;
                 }
 
-                // La API devuelve { guardado: bool, metodos: [...] }
                 List<MetodoPagoEntry> lista = r.getData().getMetodos();
                 if (lista == null || lista.isEmpty()) {
                     toast("No se pudo recuperar la tarjeta guardada");
                     return;
                 }
 
-                // Suponemos que el último elemento es el recién insertado
+                // Asumimos que el último de la lista es el recién insertado
                 MetodoPagoEntry ultimo = lista.get(lista.size() - 1);
-                int idNuevo = ultimo.getId_metodo_pago();
+                final int idNuevoMetodo = ultimo.getId_metodo_pago();
+
+                // Guardamos ese id en SP para RESUMEN PEDIDO
+                SharedPreferences sp = requireActivity()
+                        .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                sp.edit()
+                        .putInt("idMetodoPagoSeleccionado", idNuevoMetodo)
+                        .apply();
 
                 // Ahora sí, usar ese id en api_metodo_pago_venta
                 MetodoPagoVentaRequest bodyVenta = new MetodoPagoVentaRequest();
                 bodyVenta.setId_cliente(idCliente);
-                bodyVenta.setId_metodo_pago(idNuevo);
+                bodyVenta.setId_metodo_pago(idNuevoMetodo);
 
                 api.setMetodoPagoVenta(authHeader, bodyVenta).enqueue(new Callback<RptaGeneral>() {
                     @Override
@@ -344,8 +381,17 @@ public class MpagoFragment extends Fragment {
                             return;
                         }
                         RptaGeneral rg = resp.body();
-                        toast(rg.getMessage());
-                        if (rg.getCode() == 1) {
+                        String mensaje = rg.getMessage();
+                        if (mensaje == null || mensaje.trim().isEmpty()) {
+                            mensaje = resp.code() == 200 ? "Operación exitosa" : "Ocurrió un problema";
+                        }
+                        toast(mensaje);
+
+                        boolean operacionExitosa = rg.getCode() == 1 || resp.code() == 200;
+                        if (operacionExitosa) {
+                            // Aquí podrían navegar a RESUMEN PEDIDO
+                            irAResumen(ultimo.getNum_tarjeta_mask());
+
                         }
                     }
 
@@ -372,6 +418,32 @@ public class MpagoFragment extends Fragment {
             return metodosGuardados.get(selectedSavedPosition).getId_metodo_pago();
         }
         return null;
+    }
+
+    @Nullable
+    private String getSelectedMetodoText() {
+        if (selectedSavedPosition >= 0 &&
+                selectedSavedPosition < metodosGuardados.size()) {
+            MetodoPagoEntry entry = metodosGuardados.get(selectedSavedPosition);
+            return entry.getNum_tarjeta_mask();
+        }
+        return null;
+    }
+
+    private void irAResumen(@Nullable String metodoTexto) {
+        if (!isAdded()) {
+            return;
+        }
+        Bundle args = new Bundle();
+        if (!TextUtils.isEmpty(metodoTexto)) {
+            args.putString("metodo_pago", metodoTexto);
+        }
+        NavHostFragment.findNavController(this)
+                .navigate(R.id.action_paymentMethodFragment_to_resumenFragment, args);
+    }
+
+    private boolean isBindingReady() {
+        return binding != null && isAdded();
     }
 
     // ===================== Listeners de “Otros métodos” =====================
@@ -429,3 +501,4 @@ public class MpagoFragment extends Fragment {
         binding = null;
     }
 }
+

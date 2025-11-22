@@ -113,7 +113,7 @@ public class BilleteraMetodoPagoFragment extends Fragment {
                 }
         );
 
-        // === Botón Agregar (navega al formulario para agregar método) ===
+        // === Botón Agregar (navega al formulario para agregar metodo
         binding.btnAgregar.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.addPaymentMethodFragment)
