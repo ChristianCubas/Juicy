@@ -17,17 +17,11 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.juicy.Interface.DambJuiceApi;
 import com.example.juicy.Model.CarritoItem;
+import com.example.juicy.Model.CarritoResponse;
 import com.example.juicy.R;
-import com.example.juicy.network.VolleySingleton;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.juicy.network.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,10 +29,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class CarritoFragment extends Fragment {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    private static final String URL_CARRITO =
-            "https://grupotres20252.pythonanywhere.com/api_lista_carrito";
+public class CarritoFragment extends Fragment {
 
     private RecyclerView rvCarrito;
     private TextView tvSubtotal;
@@ -110,76 +105,64 @@ public class CarritoFragment extends Fragment {
         String token = prefs.getString("tokenJWT", null);
         int idCliente = prefs.getInt("idCliente", 0);
 
-        if (token == null || idCliente == 0) {
+        if (token == null || token.trim().isEmpty() || idCliente == 0) {
             Toast.makeText(requireContext(),
                     "Debe iniciar sesión para ver el carrito",
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
-        JSONObject body = new JSONObject();
-        try {
-            body.put("id_cliente", idCliente);
-        } catch (JSONException ignored) { }
+        Map<String, Integer> body = new HashMap<>();
+        body.put("id_cliente", idCliente);
 
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                URL_CARRITO,
-                body,
-                response -> {
-                    try {
-                        JSONArray productos = response.optJSONArray("productos");
-                        double totalGeneral = response.optDouble("total_general", 0);
-                        int idVenta = response.optInt("id_venta", 0);
+        DambJuiceApi apiService = RetrofitClient.getApiService();
+        apiService.obtenerCarritoActual("JWT " + token.trim(), body)
+                .enqueue(new Callback<CarritoResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<CarritoResponse> call,
+                                           @NonNull Response<CarritoResponse> response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(requireContext(),
+                                    "Error al cargar carrito (" + response.code() + ")",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
+                        CarritoResponse data = response.body();
                         SharedPreferences.Editor editor = prefs.edit();
-                        editor.putFloat("totalCarrito", (float) totalGeneral);
-                        if (idVenta > 0) {
-                            editor.putInt("idVenta", idVenta);
+                        editor.putFloat("totalCarrito", (float) data.getTotalGeneral());
+                        if (data.getIdVenta() > 0) {
+                            editor.putInt("idVenta", data.getIdVenta());
                         }
                         editor.apply();
 
+                        List<CarritoResponse.Producto> productos = data.getProductos();
                         if (productos != null) {
-                            for (int i = 0; i < productos.length(); i++) {
-                                JSONObject obj = productos.getJSONObject(i);
-                                String nombre = obj.getString("nombre_producto");
-                                String tipo = obj.optString("tipo", "Regular");
-                                int cantidad = obj.getInt("cantidad");
-                                double precio = obj.getDouble("precio_total");
-
+                            for (CarritoResponse.Producto producto : productos) {
+                                String tipo = producto.getTipo();
                                 listaCarrito.add(
-                                        new CarritoItem(nombre, tipo, cantidad, precio)
+                                        new CarritoItem(
+                                                producto.getNombreProducto(),
+                                                tipo == null || tipo.isEmpty() ? "Regular" : tipo,
+                                                producto.getCantidad(),
+                                                producto.getPrecioTotal()
+                                        )
                                 );
                             }
                         }
 
-                        tvSubtotal.setText(String.format("Subtotal: S/ %.2f", totalGeneral));
+                        tvSubtotal.setText(String.format(Locale.getDefault(),
+                                "Subtotal: S/ %.2f", data.getTotalGeneral()));
                         adapter.notifyDataSetChanged();
+                    }
 
-                    } catch (JSONException e) {
+                    @Override
+                    public void onFailure(@NonNull Call<CarritoResponse> call,
+                                          @NonNull Throwable t) {
                         Toast.makeText(requireContext(),
-                                "Error al procesar carrito", Toast.LENGTH_SHORT).show();
+                                "Error al cargar carrito: " + t.getMessage(),
+                                Toast.LENGTH_LONG).show();
                     }
-                },
-                error -> {
-                    String msg = "Error al cargar carrito.";
-                    if (error.networkResponse != null && error.networkResponse.data != null) {
-                        msg = "HTTP " + error.networkResponse.statusCode + ": " +
-                                new String(error.networkResponse.data);
-                    }
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
-                }
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "JWT " + token);
-                headers.put("Content-Type", "application/json");
-                return headers;
-            }
-        };
-
-        VolleySingleton.getInstance(requireContext())
-                .getRequestQueue().add(request);
+                });
     }
 }
