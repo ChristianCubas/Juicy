@@ -1,4 +1,4 @@
-package com.example.juicy.Model;
+package com.example.juicy.model;
 
 import com.google.gson.annotations.SerializedName;
 
