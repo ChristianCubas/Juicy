@@ -2,6 +2,7 @@
 package com.example.juicy.Model;
 
 public class CarritoItem {
+    private String idCliente;
     private String nombreProducto;
     private String tipo;
     private int cantidad;
@@ -12,6 +13,10 @@ public class CarritoItem {
         this.tipo = tipo;
         this.cantidad = cantidad;
         this.precioTotal = precioTotal;
+    }
+
+    public CarritoItem(String idCliente) {
+        this.idCliente = idCliente;
     }
 
     public String getNombreProducto() { return nombreProducto; }

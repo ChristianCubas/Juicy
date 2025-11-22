@@ -61,6 +61,7 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvTipo, tvCantidad, tvPrecio;
         ImageButton btnMas, btnMenos, btnEliminar;
+        RecyclerView recyclerCarrito;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,6 +72,7 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
             btnMas     = itemView.findViewById(R.id.btnMas);
             btnMenos   = itemView.findViewById(R.id.btnMenos);
             btnEliminar= itemView.findViewById(R.id.btnEliminarItem);
+            recyclerCarrito = itemView.findViewById(R.id.recyclerCarrito);
         }
     }
 }
