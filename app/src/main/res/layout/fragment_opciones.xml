@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".Catalogo.OpcionesFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:text="Opciones"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:paddingVertical="8dp" />
+
+    <Button
+        android:id="@+id/btnBilletera"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Billetera / Métodos de pago"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnDirecciones"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mis direcciones"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnPerfil"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mi perfil"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

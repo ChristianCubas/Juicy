@@ -17,6 +17,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.juicy.Interface.DambJuiceApi;
 import com.example.juicy.Model.CarritoItem;
 import com.example.juicy.Model.CarritoResponse;
