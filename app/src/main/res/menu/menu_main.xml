@@ -42,11 +42,6 @@
         android:orderInCategory="200"
         android:title="editar perfil"
         app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_carrito"
-        android:orderInCategory="300"
-        android:title="Listado de productos"
-        app:showAsAction="never" />
 
 
 

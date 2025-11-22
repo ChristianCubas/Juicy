@@ -118,7 +118,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:backgroundTint="@color/black"
+            android:backgroundTint="@color/colorPrimary"
             android:text="@string/payment_delete_confirm"
             android:textAllCaps="false"
             android:textColor="@android:color/white" />

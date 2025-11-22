@@ -34,6 +34,12 @@
         android:label="Inicio"
         tools:layout="@layout/fragment_home" />
 
+    <fragment
+        android:id="@+id/opcionesFragment"
+        android:name="com.example.juicy.Catalogo.OpcionesFragment"
+        android:label="Menú"
+        tools:layout="@layout/fragment_opciones" />
+
     <!-- Segundo Fragmento -->
     <fragment
         android:id="@+id/SecondFragment"
@@ -84,11 +90,6 @@
         android:name="com.example.juicy.BuscarMapa"
         android:label=""
         tools:layout="@layout/fragment_buscar_mapa" />
-    <fragment
-        android:id="@+id/direccionesFragmentcrd"
-        android:name="com.example.juicy.direccionesFragment"
-        android:label=""
-        tools:layout="@layout/fragment_direccionescrd" />
     <fragment
         android:id="@+id/perfilUsuario"
         android:name="com.example.juicy.PerfilUsuario.PerfilUsuario"

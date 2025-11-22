@@ -13,17 +13,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.example.juicy.Interface.CarritoService;
 import com.example.juicy.Model.CarritoItem;
 import com.example.juicy.R;
 import com.example.juicy.network.VolleySingleton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,12 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CarritoFragment extends Fragment {
 
@@ -55,15 +49,13 @@ public class CarritoFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflar el layout para este fragmento
         View rootView = inflater.inflate(R.layout.fragment_carrito, container, false);
 
-        // Inicializar las vistas
         rvCarrito = rootView.findViewById(R.id.rvCarrito);
         tvSubtotal = rootView.findViewById(R.id.tvSubtotal);
         btnConfirmar = rootView.findViewById(R.id.btnConfirmarCompra);
+        setupBottomNavigation(rootView);
 
-        // Configuración del RecyclerView
         rvCarrito.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new CarritoAdapter(requireContext(), listaCarrito, total -> {
             tvSubtotal.setText(String.format(Locale.getDefault(), "Subtotal: S/ %.2f", total));
@@ -74,54 +66,42 @@ public class CarritoFragment extends Fragment {
         });
         rvCarrito.setAdapter(adapter);
 
-        // Acción del botón "Confirmar compra"
         btnConfirmar.setOnClickListener(v -> {
-            // Obtener el NavController de la vista raíz del fragmento y realizar la navegación
-            NavController navController = Navigation.findNavController(rootView); // Usamos rootView aquí
-            navController.navigate(R.id.action_carrito_to_direcciones);  // Navega a DireccionesFragment
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(R.id.action_carrito_to_direcciones);
         });
 
-        // Cargar los datos del carrito
         cargarCarrito();
-
         return rootView;
     }
 
+    private void setupBottomNavigation(View root) {
+        BottomNavigationView bottomNav = root.findViewById(R.id.bottom_navigation);
+        if (bottomNav == null) return;
 
-    private void cargarCarrito() {
-        SharedPreferences prefs = requireActivity()
-                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-        String token = prefs.getString("tokenJWT", null);
-        int idCliente = prefs.getInt("idCliente", 0);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://grupotres20252.pythonanywhere.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        CarritoService service = retrofit.create(CarritoService.class);
-        CarritoItem body = new CarritoItem(String.valueOf(idCliente));
-
-        service.listarCarrito(token,body).enqueue(new Callback<CarritoItem>() {
-            @Override
-            public void onResponse(Call<CarritoItem> call, Response<CarritoItem> response) {
-                listaCarrito.clear();
-                CarritoItem item = response.body();
-                if (item != null) {
-                    listaCarrito.add(item);
-                }
-                adapter.notifyDataSetChanged();
+        bottomNav.setSelectedItemId(R.id.nav_carrito);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int targetDest;
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                targetDest = R.id.homeFragment;
+            } else if (id == R.id.nav_carrito) {
+                targetDest = R.id.carritoFragment;
+            } else if (id == R.id.nav_opciones) {
+                targetDest = R.id.opcionesFragment;
+            } else {
+                return false;
             }
 
-            @Override
-            public void onFailure(Call<CarritoItem> call, Throwable t) {
-                Toast.makeText(getContext(),"Error al lsitar carrito desde API",Toast.LENGTH_SHORT).show();
-            }
+            NavController navController = NavHostFragment.findNavController(this);
+            androidx.navigation.NavDestination current = navController.getCurrentDestination();
+            if (current != null && current.getId() == targetDest) return true;
+
+            navController.navigate(targetDest);
+            return true;
         });
-
     }
 
-    /*
     private void cargarCarrito() {
         listaCarrito.clear();
 
@@ -140,7 +120,7 @@ public class CarritoFragment extends Fragment {
         JSONObject body = new JSONObject();
         try {
             body.put("id_cliente", idCliente);
-        } catch (JSONException ignored) {}
+        } catch (JSONException ignored) { }
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
@@ -163,8 +143,8 @@ public class CarritoFragment extends Fragment {
                             for (int i = 0; i < productos.length(); i++) {
                                 JSONObject obj = productos.getJSONObject(i);
                                 String nombre = obj.getString("nombre_producto");
-                                String tipo   = obj.optString("tipo", "Regular");
-                                int cantidad  = obj.getInt("cantidad");
+                                String tipo = obj.optString("tipo", "Regular");
+                                int cantidad = obj.getInt("cantidad");
                                 double precio = obj.getDouble("precio_total");
 
                                 listaCarrito.add(
@@ -193,7 +173,7 @@ public class CarritoFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "JWT " + token);   // igual que en HomeFragment
+                headers.put("Authorization", "JWT " + token);
                 headers.put("Content-Type", "application/json");
                 return headers;
             }
@@ -201,5 +181,5 @@ public class CarritoFragment extends Fragment {
 
         VolleySingleton.getInstance(requireContext())
                 .getRequestQueue().add(request);
-    }*/
+    }
 }

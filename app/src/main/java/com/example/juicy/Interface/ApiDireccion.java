@@ -1,7 +1,5 @@
 package com.example.juicy.Interface;
 
-import com.example.juicy.Model.ActualizarDireccionRequest;
-import com.example.juicy.Model.AgregarDireccionRequest;
 import com.example.juicy.Model.RptaGeneral;
 
 import retrofit2.Call;
@@ -19,18 +17,6 @@ public interface ApiDireccion {
             @Path("idUsuario") int idUsuario
     );
 
-    @POST("agregar_direccion")
-    Call<RptaGeneral> agregarDireccion(
-            @Header("Authorization") String authorization,
-            @Body AgregarDireccionRequest body
-    );
-
-    @POST("actualizar_direccion/{idDireccion}")
-    Call<RptaGeneral> actualizarDireccion(
-            @Header("Authorization") String authorization,
-            @Path("idDireccion") int idDireccion,
-            @Body ActualizarDireccionRequest body
-    );
 
     @POST("eliminar_direccion/{idDireccion}")
     Call<RptaGeneral> eliminarDireccion(
