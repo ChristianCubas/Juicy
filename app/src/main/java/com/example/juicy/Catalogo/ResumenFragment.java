@@ -91,6 +91,7 @@ public class ResumenFragment extends Fragment {
         int idDireccion = prefs.getInt("direccionSeleccionada", -1);
         int idMetodoPago = prefs.getInt("idMetodoPagoSeleccionado", -1);
         String token = prefs.getString("tokenJWT", null);
+        float total = prefs.getFloat("totalCarrito", 0f);
 
         if (token == null || token.trim().isEmpty()) {
             Toast.makeText(requireContext(), "No se encontro el token de sesion.", Toast.LENGTH_SHORT).show();
@@ -103,6 +104,10 @@ public class ResumenFragment extends Fragment {
                     + " direccion:" + idDireccion
                     + " metodo:" + idMetodoPago;
             Toast.makeText(requireContext(), missing, Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (total <= 0f) {
+            Toast.makeText(requireContext(), "No se puede confirmar una venta vacia.", Toast.LENGTH_SHORT).show();
             return;
         }
         if (idVenta <= 0) {

@@ -76,7 +76,7 @@ public class SecondFragment extends Fragment {
         }
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://grupotres20252.pythonanywhere.com/")
+                .baseUrl(com.example.juicy.network.ApiConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

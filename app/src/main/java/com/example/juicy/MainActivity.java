@@ -30,6 +30,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
+        // Fade-in del contenido tras el splash
+        binding.getRoot().setAlpha(0f);
+        binding.getRoot().animate()
+                .alpha(1f)
+                .setDuration(450L)
+                .setStartDelay(150L)
+                .start();
+
         // El id debe coincidir con el XML: nav_host_fragment
         NavHostFragment navHostFragment = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);

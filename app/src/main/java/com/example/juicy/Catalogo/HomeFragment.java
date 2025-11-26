@@ -55,7 +55,7 @@ public class HomeFragment extends Fragment {
     TextView textNombre;
     private final List<Producto> listaProductos = new ArrayList<>();
 
-    private static final String URL_API = "https://grupotres20252.pythonanywhere.com/api_menu_inicio";
+    private static final String URL_API = com.example.juicy.network.ApiConfig.BASE_URL + "api_menu_inicio";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -176,7 +176,7 @@ public class HomeFragment extends Fragment {
 
                                     String img = obj.optString("imagen", null);
                                     if (img != null && !img.startsWith("http")) {
-                                        img = "https://grupotres20252.pythonanywhere.com/" + img.replaceFirst("^/+", "");
+                                        img = com.example.juicy.network.ApiConfig.BASE_URL + img.replaceFirst("^/+", "");
                                     }
                                     p.setImagen_url(img);
 

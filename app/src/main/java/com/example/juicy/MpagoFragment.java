@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ import com.example.juicy.Model.MetodoPagoEntry;
 import com.example.juicy.Model.MetodoPagoVentaRequest;
 import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.databinding.FragmentMpagoBinding;
+import com.example.juicy.network.ApiConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +86,7 @@ public class MpagoFragment extends Fragment {
 
         // 2) Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://grupotres20252.pythonanywhere.com/")
+                .baseUrl(ApiConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         api = retrofit.create(metodosPagoApi.class);
@@ -462,6 +465,10 @@ public class MpagoFragment extends Fragment {
             updateSavedCardsUI();
             updateSelectionUI();
         });
+
+        if (binding.otherVisaExpInput != null) {
+            binding.otherVisaExpInput.addTextChangedListener(expiryWatcher(binding.otherVisaExpInput));
+        }
     }
 
     private void updateSelectionUI() {
@@ -493,6 +500,26 @@ public class MpagoFragment extends Fragment {
 
     private void toast(String m) {
         Toast.makeText(requireContext(), m, Toast.LENGTH_SHORT).show();
+    }
+
+    private TextWatcher expiryWatcher(@NonNull TextView target) {
+        return new TextWatcher() {
+            boolean editing;
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void afterTextChanged(Editable s) {
+                if (editing) return;
+                editing = true;
+                String digits = s.toString().replace("/", "");
+                if (digits.length() > 4) digits = digits.substring(0, 4);
+                if (digits.length() >= 3) {
+                    s.replace(0, s.length(), digits.substring(0, 2) + "/" + digits.substring(2));
+                } else {
+                    s.replace(0, s.length(), digits);
+                }
+                editing = false;
+            }
+        };
     }
 
     @Override

@@ -95,7 +95,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
     // ===============================
     private void agregarAlCarrito(int idProducto) {
 
-        String url = "https://grupotres20252.pythonanywhere.com/api_agregar_al_carrito";
+        String url = com.example.juicy.network.ApiConfig.BASE_URL + "api_agregar_al_carrito";
 
         // Obtener token
         SharedPreferences prefs = context.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);

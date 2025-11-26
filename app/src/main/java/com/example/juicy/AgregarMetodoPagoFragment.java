@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.juicy.Interface.metodosPagoApi;
 import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.Model.GuardarMetodoPagoRequest;
+import com.example.juicy.network.ApiConfig;
 import com.example.juicy.databinding.FragmentAgregarMetodoPagoBinding;
 
 import retrofit2.Call;
@@ -32,7 +35,6 @@ public class AgregarMetodoPagoFragment extends Fragment {
     private metodosPagoApi api;
     private String authHeader;
     private int idCliente;
-    private static final String BASE_URL = "https://grupotres20252.pythonanywhere.com/";
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -55,10 +57,14 @@ public class AgregarMetodoPagoFragment extends Fragment {
         this.authHeader = "JWT " + token.trim();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(ApiConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         api = retrofit.create(metodosPagoApi.class);
+
+        if (binding.expirationInput.getEditText() != null) {
+            binding.expirationInput.getEditText().addTextChangedListener(expiryWatcher(binding.expirationInput));
+        }
 
         binding.saveButton.setOnClickListener(v -> guardar());
     }
@@ -100,6 +106,26 @@ public class AgregarMetodoPagoFragment extends Fragment {
 
     private void toast(String m) {
         Toast.makeText(requireContext(), m, Toast.LENGTH_SHORT).show();
+    }
+
+    private TextWatcher expiryWatcher(@NonNull com.google.android.material.textfield.TextInputLayout til) {
+        return new TextWatcher() {
+            boolean editing;
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void afterTextChanged(Editable s) {
+                if (editing) return;
+                editing = true;
+                String digits = s.toString().replace("/", "");
+                if (digits.length() > 4) digits = digits.substring(0, 4);
+                if (digits.length() >= 3) {
+                    s.replace(0, s.length(), digits.substring(0, 2) + "/" + digits.substring(2));
+                } else {
+                    s.replace(0, s.length(), digits);
+                }
+                editing = false;
+            }
+        };
     }
 
 

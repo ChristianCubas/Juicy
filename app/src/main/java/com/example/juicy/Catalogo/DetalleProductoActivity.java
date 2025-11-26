@@ -106,7 +106,7 @@ public class DetalleProductoActivity extends AppCompatActivity {
     }
 
     private void cargarDetallesProducto() {
-        String URL_API = "https://grupotres20252.pythonanywhere.com/api_producto/" + idProducto;
+        String URL_API = com.example.juicy.network.ApiConfig.BASE_URL + "api_producto/" + idProducto;
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, URL_API, null,
@@ -276,7 +276,7 @@ public class DetalleProductoActivity extends AppCompatActivity {
         );
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://grupotres20252.pythonanywhere.com")
+                .baseUrl(com.example.juicy.network.ApiConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
