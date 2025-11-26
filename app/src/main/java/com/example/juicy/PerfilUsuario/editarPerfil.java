@@ -102,7 +102,7 @@ public class editarPerfil extends Fragment {
             body.put("celular", nuevoCelular);
         } catch (Exception e) { e.printStackTrace(); }
 
-        String URL = "https://grupotres20252.pythonanywhere.com/api_actualizar_cliente";
+        String URL = com.example.juicy.network.ApiConfig.BASE_URL + "api_actualizar_cliente";
 
         // 4. Enviar Petición
         btnGuardar.setEnabled(false); // Evitar doble clic

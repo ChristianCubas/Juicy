@@ -64,7 +64,11 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
                 listener.onProductoClick(p); // Llama a la acción principal
             }
         });
-        holder.btnAgregar.setOnClickListener(v -> agregarAlCarrito(p.getIdProducto()));
+        holder.btnAgregar.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onProductoClick(p); // Navegar al detalle
+            }
+        });
     }
 
 
@@ -90,54 +94,6 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.ViewHo
     }
 
 
-    // ================================
-    //   Metodo agregar carrito
-    // ===============================
-    private void agregarAlCarrito(int idProducto) {
-
-        String url = com.example.juicy.network.ApiConfig.BASE_URL + "api_agregar_al_carrito";
-
-        // Obtener token
-        SharedPreferences prefs = context.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-        String token = prefs.getString("tokenJWT", null);
-        int idCliente = prefs.getInt("idCliente", 0);
-
-        if (token == null || idCliente == 0) {
-            Toast.makeText(context, "Debe iniciar sesion para agregar productos.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        JSONObject body = new JSONObject();
-        try {
-            body.put("id_cliente", idCliente);
-            body.put("id_producto", idProducto);
-            body.put("cantidad", 1);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                url,
-                body,
-                response -> {
-                    Toast.makeText(context, "Producto agregado al carrito", Toast.LENGTH_SHORT).show();
-                },
-                error -> {
-                    Toast.makeText(context, "Error al agregar: " + error.toString(), Toast.LENGTH_LONG).show();
-                }
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "JWT " + token);
-                headers.put("Content-Type", "application/json");
-                return headers;
-            }
-        };
-
-        VolleySingleton.getInstance(context).addToRequestQueue(request);
-    }
 }
 
 
