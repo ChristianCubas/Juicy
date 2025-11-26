@@ -103,7 +103,7 @@ public class DetalleProductoActivity extends AppCompatActivity {
     }
 
     private void cargarDetallesProducto() {
-        String URL_API = "https://grupotres20252.pythonanywhere.com/api_producto/" + idProducto;
+        String URL_API = com.example.juicy.network.ApiConfig.BASE_URL + "api_producto/" + idProducto;
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, URL_API, null,
@@ -264,7 +264,7 @@ public class DetalleProductoActivity extends AppCompatActivity {
             body.put("personalizaciones", personalizaciones.toString());
         } catch (JSONException e) { e.printStackTrace(); }
 
-        String URL_ADD = "https://grupotres20252.pythonanywhere.com/api_agregar_carritoFCN";
+        String URL_ADD = com.example.juicy.network.ApiConfig.BASE_URL + "api_agregar_carritoFCN";
         Log.d(TAG, "Enviando carrito a: " + URL_ADD);
         Log.d(TAG, "Datos: " + body.toString());
 

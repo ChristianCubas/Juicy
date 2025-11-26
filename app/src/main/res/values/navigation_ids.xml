@@ -3,4 +3,6 @@
     <item name="resumenFragment" type="id"/>
     <item name="action_paymentMethodFragment_to_resumenFragment" type="id"/>
     <item name="action_resumenFragment_to_confirmacionPedidoFragment" type="id"/>
+    <item name="action_recuperarCorreoFragment_to_validarCodigoFragment" type="id"/>
+    <item name="action_validarCodigoFragment_to_actualizarPasswordFragment" type="id"/>
 </resources>

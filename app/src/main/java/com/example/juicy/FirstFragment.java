@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -57,6 +59,7 @@ public class FirstFragment extends Fragment {
                     .navigate(R.id.action_FirstFragment_to_SecondFragment);
         });
 
+        runEntranceAnimations();
     }
 
     private void iniciarSesion() {
@@ -69,7 +72,7 @@ public class FirstFragment extends Fragment {
         }
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://grupotres20252.pythonanywhere.com/")
+                .baseUrl(com.example.juicy.network.ApiConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -174,6 +177,45 @@ public class FirstFragment extends Fragment {
                 .setPositiveButton("OK", null)
                 .setCancelable(true)
                 .show();
+    }
+
+    private void runEntranceAnimations() {
+        if (binding == null) return;
+
+        // Logo pop
+        binding.imgLogo.setScaleX(0.7f);
+        binding.imgLogo.setScaleY(0.7f);
+        binding.imgLogo.setAlpha(0f);
+        binding.imgLogo.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(600L)
+                .setInterpolator(new OvershootInterpolator(1.2f))
+                .start();
+
+        View[] toAnimate = new View[]{
+                binding.tvBienvenido,
+                binding.tilCorreo,
+                binding.tilPassword,
+                binding.tvOlvidePassword,
+                binding.btnIniciarSesion,
+                binding.tvRegistrarme
+        };
+        long delay = 150L;
+        for (int i = 0; i < toAnimate.length; i++) {
+            View v = toAnimate[i];
+            if (v == null) continue;
+            v.setAlpha(0f);
+            v.setTranslationY(30f);
+            v.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setStartDelay(delay + i * 70L)
+                    .setDuration(400L)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
+        }
     }
 
     @Override

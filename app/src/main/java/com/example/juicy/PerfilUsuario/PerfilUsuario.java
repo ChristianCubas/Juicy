@@ -116,7 +116,7 @@ public class PerfilUsuario extends Fragment {
     }
 
     private void cargarDatosPerfil() {
-        String URL = "https://grupotres20252.pythonanywhere.com/api_obtener_cliente/" + idCliente;
+        String URL = com.example.juicy.network.ApiConfig.BASE_URL + "api_obtener_cliente/" + idCliente;
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, URL, null,
                 response -> {

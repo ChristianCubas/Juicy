@@ -1,43 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".Catalogo.OpcionesFragment">
 
-    <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Opciones"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:paddingVertical="8dp" />
+
+        <Button
+            android:id="@+id/btnBilletera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Billetera / Métodos de pago"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnDirecciones"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Mis direcciones"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnPerfil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Mi perfil"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:text="Opciones"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:paddingVertical="8dp" />
-
-    <Button
-        android:id="@+id/btnBilletera"
-        android:backgroundTint="@color/colorPrimary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Billetera / Métodos de pago"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/btnDirecciones"
-        android:backgroundTint="@color/colorPrimary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Mis direcciones"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/btnPerfil"
-        android:backgroundTint="@color/colorPrimary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Mi perfil"
-        android:layout_marginTop="8dp" />
+        android:background="@color/colorPrimary"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/menu_inferior" />
 
 </LinearLayout>

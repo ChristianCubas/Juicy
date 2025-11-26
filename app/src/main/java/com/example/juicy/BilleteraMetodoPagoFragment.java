@@ -30,6 +30,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import com.example.juicy.network.ApiConfig;
 
 public class BilleteraMetodoPagoFragment extends Fragment {
 
@@ -40,7 +41,6 @@ public class BilleteraMetodoPagoFragment extends Fragment {
     private String authHeader;
     private int idCliente;
 
-    private static final String BASE_URL = "https://grupotres20252.pythonanywhere.com/";
 
     @Nullable
     @Override
@@ -70,7 +70,7 @@ public class BilleteraMetodoPagoFragment extends Fragment {
 
         // === Retrofit ===
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(ApiConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         api = retrofit.create(metodosPagoApi.class);

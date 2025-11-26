@@ -41,7 +41,7 @@ import java.util.Map;
 public class CarritoFragment extends Fragment {
 
     private static final String URL_CARRITO =
-            "https://grupotres20252.pythonanywhere.com/api_lista_carrito";
+            com.example.juicy.network.ApiConfig.BASE_URL + "api_lista_carrito";
 
     private static final String TAG = "CarritoFragment"; // Para logs
 
@@ -142,7 +142,7 @@ public class CarritoFragment extends Fragment {
         JSONObject body = new JSONObject();
         try { body.put("id_cliente", idCliente); } catch (JSONException ignored) { }
 
-        String URL = "https://grupotres20252.pythonanywhere.com/api_lista_carrito";
+        String URL = com.example.juicy.network.ApiConfig.BASE_URL + "api_lista_carrito";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL, body,
                 response -> {
@@ -189,7 +189,7 @@ public class CarritoFragment extends Fragment {
     }
 
     private void eliminarItemDeBD(int idDetalle, int position) {
-        String URL_DELETE = "https://grupotres20252.pythonanywhere.com/api_eliminar_item_carritoFCN";
+        String URL_DELETE = com.example.juicy.network.ApiConfig.BASE_URL + "api_eliminar_item_carritoFCN";
 
         JSONObject body = new JSONObject();
         try { body.put("id_detalle", idDetalle); } catch (JSONException e) { e.printStackTrace(); }
