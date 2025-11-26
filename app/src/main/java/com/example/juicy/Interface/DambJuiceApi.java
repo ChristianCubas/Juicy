@@ -1,7 +1,7 @@
 package com.example.juicy.Interface;
 
-import com.example.juicy.Catalogo.Direccion;
 import com.example.juicy.Catalogo.ResponseDirecciones;
+import com.example.juicy.Model.ActualizarPasswordRequest;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
 import com.example.juicy.Model.CarritoResponse;
@@ -9,10 +9,11 @@ import com.example.juicy.Model.ConfirmarVentaRequest;
 import com.example.juicy.Model.ConfirmarVentaResponse;
 import com.example.juicy.Model.MenuInicioResponse;
 import com.example.juicy.Model.MeResponse;
+import com.example.juicy.Model.RecuperarRequest;
 import com.example.juicy.Model.RegistrarClienteRequest;
 import com.example.juicy.Model.RptaGeneral;
+import com.example.juicy.Model.ValidarCodigoRequest;
 
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -80,4 +81,12 @@ public interface DambJuiceApi {
             @Header("Authorization") String token,
             @Path("id") int idDireccion
     );
+    @POST("api_enviar_codigo")
+    Call<RptaGeneral> enviarCodigo(@Body RecuperarRequest request);
+
+    @POST("api_validar_codigo")
+    Call<RptaGeneral> validarCodigo(@Body ValidarCodigoRequest request);
+
+    @POST("api_actualizar_password")
+    Call<RptaGeneral> actualizarPassword(@Body ActualizarPasswordRequest request);
 }

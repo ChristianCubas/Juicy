@@ -48,6 +48,15 @@ public class FirstFragment extends Fragment {
         });
 */
         binding.btnIniciarSesion.setOnClickListener(v -> iniciarSesion());
+        binding.tvOlvidePassword.setOnClickListener(v -> {
+            NavHostFragment.findNavController(FirstFragment.this)
+                    .navigate(R.id.action_FirstFragment_to_recuperarCorreoFragment);
+        });
+        binding.tvRegistrarme.setOnClickListener(v -> {
+            NavHostFragment.findNavController(FirstFragment.this)
+                    .navigate(R.id.action_FirstFragment_to_SecondFragment);
+        });
+
     }
 
     private void iniciarSesion() {
