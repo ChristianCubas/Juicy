@@ -252,22 +252,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCambiarContrasena"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="6dp"
-                android:text="Cambiar contraseña"
-                android:textAllCaps="false"
-                android:textColor="#1B1B1B"
-                android:backgroundTint="#DDF2B8"
-                app:cornerRadius="14dp"
-                app:layout_constraintTop_toBottomOf="@id/btnEditarPerfil"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

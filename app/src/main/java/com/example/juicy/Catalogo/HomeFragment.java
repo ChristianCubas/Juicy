@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,8 +80,8 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         recyclerView = v.findViewById(R.id.recyclerProductos);
+        ImageView btnPerfil = v.findViewById(R.id.btnPerfilUsuario);
         textNombre = v.findViewById(R.id.usuario);
-        recyclerCarrito = v.findViewById(R.id.recyclerCarrito);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         adapter = new ProductoAdapter(requireContext(), listaProductos, producto -> {
@@ -93,6 +94,12 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         cargarProductos();
+
+        btnPerfil.setOnClickListener(view -> {
+            // Navegar al fragmento de Perfil
+            // Asegúrate de que R.id.perfilUsuario sea el ID de tu fragmento en el nav_graph
+            NavHostFragment.findNavController(this).navigate(R.id.perfilUsuario);
+        });
 
         return v;
     }

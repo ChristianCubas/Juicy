@@ -1,18 +1,27 @@
 package com.example.juicy.PerfilUsuario;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.juicy.network.VolleySingleton;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.juicy.R;
+import com.google.android.material.textfield.TextInputEditText;
+
+import org.json.JSONObject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,6 +29,12 @@ import com.example.juicy.R;
  * create an instance of this fragment.
  */
 public class PerfilUsuario extends Fragment {
+
+    private TextInputEditText etCorreo, etDni, etNombre, etApellidoP, etApellidoM, etCelular;
+    private int idCliente;
+
+    // Variables para guardar los datos actuales
+    private String currentNombre, currentApeP, currentApeM, currentDni, currentCelular, currentEmail;
 
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -64,22 +79,73 @@ public class PerfilUsuario extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_perfil_usuario, container, false);
 
-        setupBottomNavigation(root);
+        etCorreo = root.findViewById(R.id.etCorreo);
+        etDni = root.findViewById(R.id.etDni);
+        etNombre = root.findViewById(R.id.etNombre);
+        etApellidoP = root.findViewById(R.id.etApellidoP);
+        etApellidoM = root.findViewById(R.id.etApellidoM);
+        etCelular = root.findViewById(R.id.etCelular);
         Button btnEditar = root.findViewById(R.id.btnEditarPerfil);
+
+        SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        idCliente = prefs.getInt("idCliente", 0);
+
+        if (idCliente != 0) {
+            cargarDatosPerfil();
+        }
 
         if (btnEditar != null) {
             btnEditar.setOnClickListener(v -> {
-                Toast.makeText(requireContext(), "Abriendo edición de perfil...", Toast.LENGTH_SHORT).show();
+                Bundle args = new Bundle();
+                args.putString("nombre", currentNombre);
+                args.putString("apePaterno", currentApeP);
+                args.putString("apeMaterno", currentApeM);
+                args.putString("dni", currentDni);
+                args.putString("celular", currentCelular);
+                args.putString("email", currentEmail);
 
-                // Navegar al fragmento editarPerfil usando NavController
                 NavHostFragment.findNavController(PerfilUsuario.this)
-                        .navigate(R.id.editarPerfil);
+                        .navigate(R.id.editarPerfil, args);
             });
         }
+        setupBottomNavigation(root);
+
         return root;
+    }
+
+    private void cargarDatosPerfil() {
+        String URL = "https://grupotres20252.pythonanywhere.com/api_obtener_cliente/" + idCliente;
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, URL, null,
+                response -> {
+                    try {
+                        if (response.getInt("code") == 1) {
+                            JSONObject data = response.getJSONObject("data");
+
+                            currentEmail = data.optString("email");
+                            currentDni = data.optString("nro_dni");
+                            currentNombre = data.optString("nombre");
+                            currentApeP = data.optString("ape_paterno");
+                            currentApeM = data.optString("ape_materno");
+                            currentCelular = data.optString("celular");
+
+                            etCorreo.setText(currentEmail);
+                            etDni.setText(currentDni);
+                            etNombre.setText(currentNombre);
+                            etApellidoP.setText(currentApeP);
+                            etApellidoM.setText(currentApeM);
+                            etCelular.setText(currentCelular);
+                        }
+                    } catch (Exception e) {
+                        Log.e("Perfil", "Error parsing: " + e.getMessage());
+                    }
+                },
+                error -> Toast.makeText(getContext(), "Error cargando perfil", Toast.LENGTH_SHORT).show()
+        );
+
+        VolleySingleton.getInstance(requireContext()).getRequestQueue().add(request);
     }
 
     private void setupBottomNavigation(View root) {
