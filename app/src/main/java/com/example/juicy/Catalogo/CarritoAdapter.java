@@ -1,6 +1,7 @@
 package com.example.juicy.Catalogo;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import com.example.juicy.R;
 import java.util.List;
 
 public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHolder> {
+
+    private static final String TAG = "CarritoAdapter"; // Para logs
 
     private final Context context;
     private final List<CarritoItem> lista;
@@ -40,14 +43,25 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CarritoItem item = lista.get(position);
 
+        Log.d(TAG, "Binding pos " + position + ": " + item.getNombreProducto() + " - ID: " + item.getIdDetalle());
+
+
+        holder.tvTipo.setText(item.getDetallePersonalizacion());
         holder.tvNombre.setText(item.getNombreProducto());
-        holder.tvTipo.setText(item.getTipo());
         holder.tvCantidad.setText(String.format("%02d", item.getCantidad()));
         holder.tvPrecio.setText(String.format("S/ %.2f", item.getPrecioTotal()));
 
         holder.btnMas.setOnClickListener(v -> incrementarCantidad(holder.getBindingAdapterPosition()));
         holder.btnMenos.setOnClickListener(v -> decrementarCantidad(holder.getBindingAdapterPosition()));
-        holder.btnEliminar.setOnClickListener(v -> eliminarItem(holder.getBindingAdapterPosition()));
+
+        holder.btnEliminar.setOnClickListener(v -> {
+            int idParaBorrar = item.getIdDetalle();
+            Log.d(TAG, "Click Eliminar en pos " + holder.getBindingAdapterPosition() + ". ID a borrar: " + idParaBorrar);
+
+            if (changeListener != null) {
+                changeListener.onEliminarItem(idParaBorrar, holder.getBindingAdapterPosition());
+            }
+        });
     }
 
     @Override
@@ -88,12 +102,6 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
         notificarTotal();
     }
 
-    private void eliminarItem(int position) {
-        if (position == RecyclerView.NO_POSITION) return;
-        lista.remove(position);
-        notifyItemRemoved(position);
-        notificarTotal();
-    }
 
     private void notificarTotal() {
         if (changeListener == null) return;
@@ -106,12 +114,12 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
 
     public interface OnCarritoChangeListener {
         void onCarritoTotalChanged(double nuevoTotal);
+        void onEliminarItem(int idDetalle, int position);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvTipo, tvCantidad, tvPrecio;
         ImageButton btnMas, btnMenos, btnEliminar;
-        RecyclerView recyclerCarrito;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -122,7 +130,6 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.ViewHold
             btnMas     = itemView.findViewById(R.id.btnMas);
             btnMenos   = itemView.findViewById(R.id.btnMenos);
             btnEliminar= itemView.findViewById(R.id.btnEliminarItem);
-            recyclerCarrito = itemView.findViewById(R.id.recyclerCarrito);
         }
     }
 }

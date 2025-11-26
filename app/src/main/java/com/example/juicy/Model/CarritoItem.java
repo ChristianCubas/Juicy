@@ -1,26 +1,32 @@
-// com/example/juicy/Model/CarritoItem.java
 package com.example.juicy.Model;
 
 public class CarritoItem {
-    private String idCliente;
+
+    private int idDetalle;
     private String nombreProducto;
-    private String tipo;
+    private String personalizacionesJson;
     private int cantidad;
     private double precioTotal;
 
-    public CarritoItem(String nombreProducto, String tipo, int cantidad, double precioTotal) {
+    public CarritoItem(int idDetalle, String nombreProducto, String personalizacionesJson, int cantidad, double precioTotal) {
+        this.idDetalle = idDetalle;
         this.nombreProducto = nombreProducto;
-        this.tipo = tipo;
+        this.personalizacionesJson = personalizacionesJson;
         this.cantidad = cantidad;
         this.precioTotal = precioTotal;
     }
 
-    public CarritoItem(String idCliente) {
-        this.idCliente = idCliente;
-    }
+    public int getIdDetalle() { return idDetalle; }
 
     public String getNombreProducto() { return nombreProducto; }
-    public String getTipo() { return tipo; }
+
+    // Este getter procesará el JSON y devolverá texto bonito
+    public String getDetallePersonalizacion() {
+        return ProcesadorTexto.formatearPersonalizacion(personalizacionesJson);
+    }
+
+    public String getPersonalizacionesJson() { return personalizacionesJson; } // Getter crudo
+
     public int getCantidad() { return cantidad; }
     public double getPrecioTotal() { return precioTotal; }
 
