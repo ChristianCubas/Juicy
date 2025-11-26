@@ -81,6 +81,8 @@ public class CarritoFragment extends Fragment {
         });
         rvCarrito.setAdapter(adapter);
 
+        validarBotonCompra();
+
         btnConfirmar.setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.action_carrito_to_direcciones);
@@ -88,6 +90,18 @@ public class CarritoFragment extends Fragment {
 
         cargarCarrito();
         return rootView;
+    }
+
+    private void validarBotonCompra() {
+        if (listaCarrito.isEmpty()) {
+            btnConfirmar.setEnabled(false);
+            btnConfirmar.setAlpha(0.5f);
+            btnConfirmar.setText("Carrito vacío");
+        } else {
+            btnConfirmar.setEnabled(true);
+            btnConfirmar.setAlpha(1.0f);
+            btnConfirmar.setText("Confirmar compra");
+        }
     }
 
     private void setupBottomNavigation(View root) {
@@ -119,6 +133,7 @@ public class CarritoFragment extends Fragment {
 
     private void cargarCarrito() {
         listaCarrito.clear();
+        validarBotonCompra();
         SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         int idCliente = prefs.getInt("idCliente", 0);
 
@@ -161,6 +176,8 @@ public class CarritoFragment extends Fragment {
                         tvSubtotal.setText(String.format("Subtotal: S/ %.2f", totalGeneral));
                         adapter.notifyDataSetChanged();
 
+                        validarBotonCompra();
+
                     } catch (JSONException e) {
                         Toast.makeText(getContext(), "Error procesando datos", Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "JSON Error: " + e.getMessage());
@@ -191,6 +208,7 @@ public class CarritoFragment extends Fragment {
                             double nuevoTotal = response.getDouble("nuevo_total");
                             tvSubtotal.setText(String.format("Subtotal: S/ %.2f", nuevoTotal));
 
+                            validarBotonCompra();
                             Toast.makeText(getContext(), "Producto eliminado", Toast.LENGTH_SHORT).show();
                         } else {
                             String msg = response.optString("message", "Error desconocido");
