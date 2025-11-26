@@ -1,4 +1,4 @@
-package com.example.juicy.Catalogo; // Asegúrate que sea tu paquete correcto
+package com.example.juicy.Catalogo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,12 +15,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.NetworkImageView;
-import com.example.juicy.AgregarAlCarrito;
-import com.example.juicy.Interface.CarritoService;
 import com.example.juicy.Model.Producto;
 import com.example.juicy.R;
 import com.example.juicy.network.VolleySingleton;
@@ -29,25 +33,18 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DetalleProductoActivity extends AppCompatActivity {
 
-    private static final String TAG = "Depuracion"; // <-- TAG PARA DEPURACIÓN
+    private static final String TAG = "DetalleProducto";
 
     // --- Vistas de la UI ---
     private ImageButton btnAtras;
     private NetworkImageView imgProductoDetalle;
-    private TextView tvNombreDetalle, tvDescripcionDetalle, tvPrecioDetalle, tvCantidad, tvTotalFinal; // <-- tvTotalFinal AÑADIDO
+    private TextView tvNombreDetalle, tvDescripcionDetalle, tvPrecioDetalle, tvCantidad, tvTotalFinal;
     private LinearLayout triggerPersonalizacion, seccionPersonalizacion;
     private ImageView ivTogglePersonalizacion;
     private ImageButton btnRestarCantidad, btnSumarCantidad;
@@ -89,8 +86,8 @@ public class DetalleProductoActivity extends AppCompatActivity {
         imgProductoDetalle = findViewById(R.id.imgProductoDetalle);
         tvNombreDetalle = findViewById(R.id.tvNombreDetalle);
         tvDescripcionDetalle = findViewById(R.id.tvDescripcionDetalle);
-        tvPrecioDetalle = findViewById(R.id.tvPrecioDetalle); // <-- El de arriba (será estático)
-        tvTotalFinal = findViewById(R.id.tvTotalFinal);     // <-- El del footer (será dinámico)
+        tvPrecioDetalle = findViewById(R.id.tvPrecioDetalle);
+        tvTotalFinal = findViewById(R.id.tvTotalFinal);
         tvCantidad = findViewById(R.id.tvCantidad);
 
         btnRestarCantidad = findViewById(R.id.btnRestarCantidad);
@@ -106,20 +103,18 @@ public class DetalleProductoActivity extends AppCompatActivity {
     }
 
     private void cargarDetallesProducto() {
-        String URL_API = com.example.juicy.network.ApiConfig.BASE_URL + "api_producto/" + idProducto;
+        String URL_API = "https://grupotres20252.pythonanywhere.com/api_producto/" + idProducto;
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, URL_API, null,
                 response -> {
                     try {
                         if (response.getInt("code") != 1) {
-                            Log.e(TAG, "Respuesta no OK de la API: " + response.getString("message"));
-                            Toast.makeText(this, "Error del servidor", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Error del servidor al cargar producto", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         JSONObject data = response.getJSONObject("data");
-
                         productoActual = new Producto();
                         productoActual.setId_producto(data.getInt("id_producto"));
                         productoActual.setNombre(data.getString("nombre"));
@@ -133,21 +128,13 @@ public class DetalleProductoActivity extends AppCompatActivity {
                         productoActual.setPrecio_extra_alto(data.getDouble("precio_extra_alto"));
                         productoActual.setNivel_azucar_defecto(data.getString("nivel_azucar_defecto"));
 
-                        Log.d(TAG, "Producto cargado: " + productoActual.getNombre());
-                        Log.d(TAG, "Precio Regular: " + productoActual.getPrecio_extra_regular());
-                        Log.d(TAG, "Precio Alto: " + productoActual.getPrecio_extra_alto());
-
                         configurarUI();
 
                     } catch (Exception e) {
                         Log.e(TAG, "Error al parsear JSON: " + e.getMessage());
-                        Toast.makeText(this, "Error al procesar los datos.", Toast.LENGTH_SHORT).show();
                     }
                 },
-                error -> {
-                    Log.e(TAG, "Error de Volley: " + error.toString());
-                    Toast.makeText(this, "Error de conexión: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                }
+                error -> Toast.makeText(this, "Error de conexión", Toast.LENGTH_SHORT).show()
         ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -163,22 +150,16 @@ public class DetalleProductoActivity extends AppCompatActivity {
     private void configurarUI() {
         if (productoActual == null) return;
 
-        // --- 1. Llenar datos ---
         tvNombreDetalle.setText(productoActual.getNombre());
         tvDescripcionDetalle.setText(productoActual.getDescripcion());
         tvCantidad.setText(String.valueOf(cantidadActual));
-
-        // --- ¡CAMBIO IMPORTANTE! ---
-        // Fijamos el precio base en el TextView de arriba (como "Precio Regular S/ 10")
         tvPrecioDetalle.setText("S/ " + String.format("%.2f", productoActual.getPrecio()));
 
         ImageLoader imageLoader = VolleySingleton.getInstance(this).getImageLoader();
         imgProductoDetalle.setImageUrl(productoActual.getImagen_url(), imageLoader);
 
-        // --- 2. Lógica de Personalización ---
         if (productoActual.getPermite_personalizacion() == 1) {
             triggerPersonalizacion.setVisibility(View.VISIBLE);
-
             triggerPersonalizacion.setOnClickListener(v -> {
                 if (seccionPersonalizacion.getVisibility() == View.VISIBLE) {
                     seccionPersonalizacion.setVisibility(View.GONE);
@@ -189,36 +170,23 @@ public class DetalleProductoActivity extends AppCompatActivity {
                 }
             });
 
-            // --- 3. Opciones por Defecto ---
-            toggleGroupTamaño.check(R.id.btnTamañoRegular); // Esto disparará el listener
-
+            toggleGroupTamaño.check(R.id.btnTamañoRegular);
             String azucarDefecto = productoActual.getNivel_azucar_defecto();
-            if (azucarDefecto.equalsIgnoreCase("BAJO")) {
-                toggleGroupAzucar.check(R.id.btnAzucarBajo);
-            } else if (azucarDefecto.equalsIgnoreCase("CERO")) {
-                toggleGroupAzucar.check(R.id.btnAzucarCero);
-            } else {
-                toggleGroupAzucar.check(R.id.btnAzucarNormal);
-            }
+            if (azucarDefecto.equalsIgnoreCase("BAJO")) toggleGroupAzucar.check(R.id.btnAzucarBajo);
+            else if (azucarDefecto.equalsIgnoreCase("CERO")) toggleGroupAzucar.check(R.id.btnAzucarCero);
+            else toggleGroupAzucar.check(R.id.btnAzucarNormal);
 
         } else {
             triggerPersonalizacion.setVisibility(View.GONE);
             seccionPersonalizacion.setVisibility(View.GONE);
         }
 
-        // --- 4. Configurar Listeners ---
         configurarListenersDeCalculo();
-
-        // --- 5. Calcular precio inicial ---
-        // Se llamará automáticamente por el .check() de toggleGroupTamaño
-        // Pero lo llamamos de nuevo por si acaso y para la cantidad.
         actualizarPrecio();
     }
 
     private void configurarListenersDeCalculo() {
-
         btnRestarCantidad.setOnClickListener(v -> {
-            Log.d(TAG, "Botón Restar Clickeado"); // <-- LOG
             if (cantidadActual > 1) {
                 cantidadActual--;
                 tvCantidad.setText(String.valueOf(cantidadActual));
@@ -227,145 +195,143 @@ public class DetalleProductoActivity extends AppCompatActivity {
         });
 
         btnSumarCantidad.setOnClickListener(v -> {
-            Log.d(TAG, "Botón Sumar Clickeado"); // <-- LOG
             cantidadActual++;
             tvCantidad.setText(String.valueOf(cantidadActual));
             actualizarPrecio();
         });
 
         toggleGroupTamaño.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (isChecked) {
-                Log.d(TAG, "Botón Tamaño Cambiado"); // <-- LOG
-                actualizarPrecio();
-            }
+            if (isChecked) actualizarPrecio();
         });
 
-        toggleGroupAzucar.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (isChecked) {
-                Log.d(TAG, "Botón Azúcar Cambiado"); // <-- LOG
-                // No afecta el precio, no llamamos a actualizarPrecio()
-            }
-        });
-
-        btnAnadirCarrito.setOnClickListener(v -> {
-            prepararYAnadirAlCarrito();
-        });
-    }
-
-    private void agregarAlCarrito(int idProducto, int cantidad, List<String> agregados, String presentacion) {
-        SharedPreferences prefs = this.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-        String token = prefs.getString("tokenJWT", null);
-        int idCliente = prefs.getInt("idCliente", 0);
-
-        if (token == null || idCliente == 0) {
-            Toast.makeText(this, "Debe iniciar sesión para agregar productos.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Si agregados viene null, lo reemplazamos por lista vacía
-        if (agregados == null) {
-            agregados = Arrays.asList(); // o new ArrayList<>()
-        }
-
-        AgregarAlCarrito request = new AgregarAlCarrito(
-                String.valueOf(idCliente),
-                String.valueOf(idProducto),
-                cantidad,
-                agregados,
-                presentacion
-        );
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(com.example.juicy.network.ApiConfig.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        CarritoService carrito = retrofit.create(CarritoService.class);
-        Call<AgregarAlCarrito> call = carrito.agregarAlCarrito(token,request);
-
-        call.enqueue(new Callback<AgregarAlCarrito>() {
-            @Override
-            public void onResponse(Call<AgregarAlCarrito> call, Response<AgregarAlCarrito> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(getBaseContext(), "Producto agregado satisfactoriamente", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getBaseContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AgregarAlCarrito> call, Throwable t) {
-                Toast.makeText(getBaseContext(), "Error al consumir la API", Toast.LENGTH_SHORT).show();
-            }
-        });
+        btnAnadirCarrito.setOnClickListener(v -> enviarCarritoALaAPI());
     }
 
     private void actualizarPrecio() {
-        if (productoActual == null) {
-            Log.e(TAG, "actualizarPrecio() llamado pero productoActual es nulo.");
-            return;
-        }
+        if (productoActual == null) return;
 
         double precioBase = productoActual.getPrecio();
         double precioExtra = 0.0;
 
         int idTamañoSeleccionado = toggleGroupTamaño.getCheckedButtonId();
-
-        if (idTamañoSeleccionado == R.id.btnTamañoSmall) {
-            precioExtra = productoActual.getPrecio_extra_small();
-        } else if (idTamañoSeleccionado == R.id.btnTamañoRegular) {
-            precioExtra = productoActual.getPrecio_extra_regular();
-        } else if (idTamañoSeleccionado == R.id.btnTamañoAlto) {
-            precioExtra = productoActual.getPrecio_extra_alto();
-        }
+        if (idTamañoSeleccionado == R.id.btnTamañoSmall) precioExtra = productoActual.getPrecio_extra_small();
+        else if (idTamañoSeleccionado == R.id.btnTamañoRegular) precioExtra = productoActual.getPrecio_extra_regular();
+        else if (idTamañoSeleccionado == R.id.btnTamañoAlto) precioExtra = productoActual.getPrecio_extra_alto();
 
         double precioUnitario = precioBase + precioExtra;
         precioCalculado = precioUnitario * cantidadActual;
 
-        // --- ¡CAMBIO IMPORTANTE! ---
-        // Ya no tocamos tvPrecioDetalle (el de arriba)
-        // Solo actualizamos el TOTAL del footer
         tvTotalFinal.setText("S/ " + String.format("%.2f", precioCalculado));
-
-        // --- LOGS DE DEPURACIÓN ---
-        Log.d(TAG, "--- Cálculo de Precio ---");
-        Log.d(TAG, "Precio Base: " + precioBase);
-        Log.d(TAG, "ID Tamaño: " + idTamañoSeleccionado);
-        Log.d(TAG, "Precio Extra: " + precioExtra);
-        Log.d(TAG, "Precio Unitario: " + precioUnitario);
-        Log.d(TAG, "Cantidad: " + cantidadActual);
-        Log.d(TAG, "TOTAL CALCULADO: " + precioCalculado);
-        Log.d(TAG, "-------------------------");
     }
 
-    private void prepararYAnadirAlCarrito() {
+    private void enviarCarritoALaAPI() {
+        if (productoActual == null) return;
 
-        String tamañoSeleccionado = "";
+        SharedPreferences prefs = getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        int idCliente = prefs.getInt("idCliente", 0);
+
+        if (idCliente == 0) {
+            Toast.makeText(this, "Sesión no válida, inicie sesión nuevamente.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String tamañoSeleccionado = "Regular"; // Default
         int idTamaño = toggleGroupTamaño.getCheckedButtonId();
         if (idTamaño == R.id.btnTamañoSmall) tamañoSeleccionado = "Small";
-        else if (idTamaño == R.id.btnTamañoRegular) tamañoSeleccionado = "Regular";
         else if (idTamaño == R.id.btnTamañoAlto) tamañoSeleccionado = "Alto";
 
-        String azucarSeleccionado = "";
+        String azucarSeleccionado = "Normal"; // Default
         int idAzucar = toggleGroupAzucar.getCheckedButtonId();
         if (idAzucar == R.id.btnAzucarCero) azucarSeleccionado = "Cero";
         else if (idAzucar == R.id.btnAzucarBajo) azucarSeleccionado = "Bajo";
-        else if (idAzucar == R.id.btnAzucarNormal) azucarSeleccionado = "Normal";
+
+        JSONObject personalizaciones = new JSONObject();
+        try {
+            if (productoActual.getPermite_personalizacion() == 1) {
+                personalizaciones.put("Tamaño", tamañoSeleccionado);
+                personalizaciones.put("Azúcar", azucarSeleccionado);
+            }
+        } catch (JSONException e) { e.printStackTrace(); }
 
         double precioUnitarioFinal = precioCalculado / cantidadActual;
 
-        // Crear el JSON que se enviará a la API
+        JSONObject body = new JSONObject();
+        try {
+            body.put("id_cliente", idCliente);
+            body.put("id_producto", productoActual.getId_producto());
+            body.put("cantidad", cantidadActual);
+            body.put("precio_unitario_final", precioUnitarioFinal);
+            body.put("personalizaciones", personalizaciones.toString());
+        } catch (JSONException e) { e.printStackTrace(); }
 
-        // ... (Aquí irá la lógica para la API /api_anadir_carrito)
+        String URL_ADD = "https://grupotres20252.pythonanywhere.com/api_agregar_carritoFCN";
+        Log.d(TAG, "Enviando carrito a: " + URL_ADD);
+        Log.d(TAG, "Datos: " + body.toString());
 
-        String resumen = "Añadido:\n" +
-                "Producto: " + productoActual.getNombre() + "\n" +
-                "Cantidad: " + cantidadActual + "\n" +
-                "Total: S/ " + String.format("%.2f", precioCalculado);
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                URL_ADD,
+                body,
+                response -> {
+                    try {
+                        if (response.getInt("code") == 1) {
+                            Toast.makeText(this, "¡Producto agregado! 🛒", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            String msg = response.optString("message", "Error desconocido");
+                            Toast.makeText(this, "Error: " + msg, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(this, "Error de respuesta del servidor", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    String mensajeError = "Error de conexión desconocido";
 
-        Toast.makeText(this, resumen, Toast.LENGTH_LONG).show();
-        // Por ejemplo, en el botón de agregar:
-        agregarAlCarrito(idProducto, cantidadActual, null, null);
+                    if (error instanceof TimeoutError) {
+                        mensajeError = "Tiempo de espera agotado. Servidor lento.";
+                    } else if (error instanceof NoConnectionError) {
+                        mensajeError = "Sin conexión a Internet.";
+                    } else if (error instanceof AuthFailureError) {
+                        mensajeError = "Error de autenticación (Token).";
+                    } else if (error instanceof ServerError) {
+                        mensajeError = "Error interno del servidor (500).";
+                    } else if (error instanceof NetworkError) {
+                        mensajeError = "Error de red.";
+                    } else if (error instanceof ParseError) {
+                        mensajeError = "Error al leer respuesta del servidor.";
+                    }
 
+                    // Intentar obtener el error real del cuerpo de la respuesta
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String bodyError = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                            Log.e(TAG, "Error Volley Body: " + bodyError);
+                            mensajeError += " Detalle: " + bodyError;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    Log.e(TAG, "Error Volley: " + error.toString());
+                    Toast.makeText(this, mensajeError, Toast.LENGTH_LONG).show();
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                if (tokenJWT != null) {
+                    headers.put("Authorization", "JWT " + tokenJWT);
+                }
+                return headers;
+            }
+        };
+
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        VolleySingleton.getInstance(this).getRequestQueue().add(request);
     }
 }

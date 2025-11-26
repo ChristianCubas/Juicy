@@ -52,7 +52,6 @@ public class Producto {
         this.nivel_azucar_defecto = nivel_azucar_defecto;
     }
 
-
     public int getId_producto() { return id_producto; }
     public void setId_producto(int id_producto) { this.id_producto = id_producto; }
     public int getIdProducto() { return id_producto; }

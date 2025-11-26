@@ -75,20 +75,12 @@
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnGuardar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Guardar y continuar compra"
-            android:backgroundTint="#FFA857"
-            android:textColor="#FFFFFF"
-            app:cornerRadius="8dp"/>
 
         <Button
             android:id="@+id/btnAnadirCarrito"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Añadir al carrito y pagar"
+            android:text="Añadir al carrito"
             android:backgroundTint="#FFF48C"
             android:textColor="#333333"
             android:layout_marginTop="8dp"
