@@ -2,6 +2,7 @@ package com.example.juicy.Interface;
 
 import com.example.juicy.Catalogo.ResponseDirecciones;
 import com.example.juicy.Model.ActualizarPasswordRequest;
+import com.example.juicy.Model.PaypalComprobanteRequest;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
 import com.example.juicy.Model.CarritoResponse;
@@ -96,4 +97,9 @@ public interface DambJuiceApi {
 
     @POST("api_actualizar_password")
     Call<RptaGeneral> actualizarPassword(@Body ActualizarPasswordRequest request);
+    @POST("/PayPal_enviar_comprobante")
+    Call<RptaGeneral> enviarComprobantePaypal(
+            @Header("Authorization") String authHeader,
+            @Body PaypalComprobanteRequest body
+    );
 }
