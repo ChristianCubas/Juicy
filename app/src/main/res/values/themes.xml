@@ -9,8 +9,6 @@
 
     <!-- Tema de arranque (splash) -->
     <style name="Theme.Juicy.Splash" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_login</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 </resources>

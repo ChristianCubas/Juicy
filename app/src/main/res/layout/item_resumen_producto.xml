@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvNombreResumen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Producto"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPersonalizacionResumen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Personalización"
+            android:textColor="#666666"
+            android:textSize="13sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvCantidadResumen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        android:text="x1"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tvPrecioResumen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="S/. 0.00"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

@@ -182,7 +182,7 @@ public class FirstFragment extends Fragment {
     private void runEntranceAnimations() {
         if (binding == null) return;
 
-        // Logo pop
+        // Logo pop (imagen)
         binding.imgLogo.setScaleX(0.7f);
         binding.imgLogo.setScaleY(0.7f);
         binding.imgLogo.setAlpha(0f);

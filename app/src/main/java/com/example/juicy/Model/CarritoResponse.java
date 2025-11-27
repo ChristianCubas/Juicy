@@ -32,29 +32,47 @@ public class CarritoResponse {
     }
 
     public static class Producto {
+        @SerializedName("id_detalle")
+        private int idDetalle;
         @SerializedName("nombre_producto")
         private String nombreProducto;
-        @SerializedName("tipo")
-        private String tipo;
+        @SerializedName("personalizaciones")
+        private String personalizaciones;
         @SerializedName("cantidad")
         private int cantidad;
+        @SerializedName("precio_unitario")
+        private double precioUnitario;
         @SerializedName("precio_total")
         private double precioTotal;
+        @SerializedName("imagen_url")
+        private String imagenUrl;
+
+        public int getIdDetalle() {
+            return idDetalle;
+        }
 
         public String getNombreProducto() {
             return nombreProducto;
         }
 
-        public String getTipo() {
-            return tipo;
+        public String getPersonalizaciones() {
+            return personalizaciones;
         }
 
         public int getCantidad() {
             return cantidad;
         }
 
+        public double getPrecioUnitario() {
+            return precioUnitario;
+        }
+
         public double getPrecioTotal() {
             return precioTotal;
+        }
+
+        public String getImagenUrl() {
+            return imagenUrl;
         }
     }
 }

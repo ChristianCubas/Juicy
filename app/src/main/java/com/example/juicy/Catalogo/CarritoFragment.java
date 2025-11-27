@@ -85,7 +85,9 @@ public class CarritoFragment extends Fragment {
 
         btnConfirmar.setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(R.id.action_carrito_to_direcciones);
+            Bundle args = new Bundle();
+            args.putBoolean("mostrarContinuar", true);
+            navController.navigate(R.id.action_carrito_to_direcciones, args);
         });
 
         cargarCarrito();
@@ -134,6 +136,7 @@ public class CarritoFragment extends Fragment {
     private void cargarCarrito() {
         listaCarrito.clear();
         validarBotonCompra();
+        tvSubtotal.setText(String.format(Locale.getDefault(),"Subtotal: S/ %.2f", 0.0));
         SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         int idCliente = prefs.getInt("idCliente", 0);
 
@@ -151,8 +154,9 @@ public class CarritoFragment extends Fragment {
 
                         JSONArray productos = response.optJSONArray("productos");
                         double totalGeneral = response.optDouble("total_general", 0);
+                        int idVenta = response.optInt("id_venta", 0);
 
-                        if (productos != null) {
+                        if (productos != null && productos.length() > 0) {
                             for (int i = 0; i < productos.length(); i++) {
                                 JSONObject obj = productos.getJSONObject(i);
 
@@ -172,7 +176,17 @@ public class CarritoFragment extends Fragment {
                                 // Guardamos en la lista CON el ID correcto
                                 listaCarrito.add(new CarritoItem(idDetalle, nombre, personalizaciones, cantidad, precio));
                             }
+                        } else {
+                            // Si viene vacío, forzamos total en 0 y limpiamos venta
+                            totalGeneral = 0;
+                            idVenta = 0;
                         }
+
+                        prefs.edit()
+                                .putInt("idVenta", idVenta)
+                                .putFloat("totalCarrito", (float) totalGeneral)
+                                .apply();
+
                         tvSubtotal.setText(String.format("Subtotal: S/ %.2f", totalGeneral));
                         adapter.notifyDataSetChanged();
 
@@ -207,6 +221,9 @@ public class CarritoFragment extends Fragment {
                             // 2. Actualizamos el total
                             double nuevoTotal = response.getDouble("nuevo_total");
                             tvSubtotal.setText(String.format("Subtotal: S/ %.2f", nuevoTotal));
+
+                            SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                            prefs.edit().putFloat("totalCarrito", (float) nuevoTotal).apply();
 
                             validarBotonCompra();
                             Toast.makeText(getContext(), "Producto eliminado", Toast.LENGTH_SHORT).show();

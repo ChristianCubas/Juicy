@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.juicy.Model.CarritoResponse;
 import com.example.juicy.Model.ConfirmarVentaRequest;
@@ -33,6 +34,7 @@ public class ResumenFragment extends Fragment {
 
     private FragmentResumenBinding binding;
     private boolean sincronizandoVentaActiva = false;
+    private ResumenProductosAdapter resumenAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -47,7 +49,12 @@ public class ResumenFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        resumenAdapter = new ResumenProductosAdapter();
+        binding.recyclerViewProductos.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerViewProductos.setAdapter(resumenAdapter);
+
         fillSummary(getArguments());
+        cargarResumenDesdeApi();
         binding.btnConfirmarPago.setOnClickListener(v -> confirmarVenta());
     }
 
@@ -231,6 +238,15 @@ public class ResumenFragment extends Fragment {
                                 .putFloat("totalCarrito", (float) body.getTotalGeneral())
                                 .apply();
 
+                        if (binding != null) {
+                            binding.totalText.setText(
+                                    String.format(Locale.getDefault(), "S/. %.2f", body.getTotalGeneral())
+                            );
+                        }
+                        if (resumenAdapter != null) {
+                            resumenAdapter.setData(body.getProductos());
+                        }
+
                         fillSummary(getArguments());
                         confirmarVenta();
                     }
@@ -242,6 +258,60 @@ public class ResumenFragment extends Fragment {
                         toggleConfirmButton(true, false);
                         Toast.makeText(requireContext(),
                                 "Error al sincronizar carrito: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void cargarResumenDesdeApi() {
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+
+        int idCliente = prefs.getInt("idCliente", 0);
+        String token = prefs.getString("tokenJWT", null);
+
+        if (idCliente == 0 || token == null || token.trim().isEmpty()) {
+            Toast.makeText(requireContext(), "No se pudo cargar el carrito del cliente.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Integer> body = new HashMap<>();
+        body.put("id_cliente", idCliente);
+
+        RetrofitClient.getApiService()
+                .obtenerCarritoActual("JWT " + token.trim(), body)
+                .enqueue(new Callback<CarritoResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<CarritoResponse> call,
+                                           @NonNull Response<CarritoResponse> response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(requireContext(),
+                                    "No se pudo actualizar el resumen (" + response.code() + ")",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        CarritoResponse data = response.body();
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putInt("idVenta", data.getIdVenta());
+                        editor.putFloat("totalCarrito", (float) data.getTotalGeneral());
+                        editor.apply();
+
+                        if (binding != null) {
+                            binding.totalText.setText(
+                                    String.format(Locale.getDefault(), "S/. %.2f", data.getTotalGeneral())
+                            );
+                        }
+                        if (resumenAdapter != null) {
+                            resumenAdapter.setData(data.getProductos());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<CarritoResponse> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(requireContext(),
+                                "Error al cargar resumen: " + t.getMessage(),
                                 Toast.LENGTH_SHORT).show();
                     }
                 });

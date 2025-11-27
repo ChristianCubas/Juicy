@@ -72,12 +72,15 @@ public class ConfirmacionPedidoFragment extends Fragment {
     }
 
     private void dibujarInfo() {
-        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.getDefault());
+        Locale localePE = new Locale("es", "PE");
+        NumberFormat format = NumberFormat.getCurrencyInstance(localePE);
+
         binding.tvNumeroPedido.setText("Pedido #" + idVenta);
         binding.tvTotal.setText("Total: " + format.format(total));
         binding.tvDireccionEntrega.setText("Dirección: " + direccion);
         binding.tvMetodoPago.setText("Método de pago: " + metodoPago);
     }
+
 
     private void descargarPdf() {
         if (descargandoPdf) return;

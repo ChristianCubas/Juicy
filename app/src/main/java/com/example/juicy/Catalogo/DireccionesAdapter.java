@@ -22,12 +22,14 @@ public class DireccionesAdapter extends RecyclerView.Adapter<DireccionesAdapter.
 
     public interface OnDireccionListener {
         void onEliminarDireccion(Direccion direccion);
+        void onEditarDireccion(Direccion direccion);
     }
 
     private final List<Direccion> direccionList;
     private final Context context;
     private int selectedPosition = -1;
     private final OnDireccionListener listener;
+    private boolean modoGestion = false;
 
     public DireccionesAdapter(List<Direccion> direccionList,
                               Context context,
@@ -55,7 +57,9 @@ public class DireccionesAdapter extends RecyclerView.Adapter<DireccionesAdapter.
         holder.txtCodigoPostal.setText(direccion.getCodigoPostal());
 
         holder.radioPrincipal.setChecked(position == selectedPosition);
+        holder.radioPrincipal.setEnabled(!modoGestion);
         holder.radioPrincipal.setOnClickListener(v -> {
+            if (modoGestion) return;
             selectedPosition = position;
             SharedPreferences prefs = context.getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
@@ -69,9 +73,18 @@ public class DireccionesAdapter extends RecyclerView.Adapter<DireccionesAdapter.
             notifyDataSetChanged();
         });
 
+        holder.btnEliminar.setVisibility(modoGestion ? View.VISIBLE : View.GONE);
         holder.btnEliminar.setOnClickListener(v -> {
-            if (listener != null) {
+            if (modoGestion && listener != null) {
                 listener.onEliminarDireccion(direccion);
+            }
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (modoGestion && listener != null) {
+                listener.onEditarDireccion(direccion);
+            } else if (!modoGestion) {
+                holder.radioPrincipal.performClick();
             }
         });
     }
@@ -79,6 +92,11 @@ public class DireccionesAdapter extends RecyclerView.Adapter<DireccionesAdapter.
     @Override
     public int getItemCount() {
         return direccionList.size();
+    }
+
+    public void setModoGestion(boolean gestionar) {
+        this.modoGestion = gestionar;
+        notifyDataSetChanged();
     }
 
     public Direccion getDireccionSeleccionada() {

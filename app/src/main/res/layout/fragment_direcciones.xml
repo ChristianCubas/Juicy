@@ -15,11 +15,21 @@
         android:id="@+id/btnAgregarDireccion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Agregar nueva dirección"
+        android:text="Agregar nueva direccion"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="8dp"
         android:backgroundTint="@color/colorPrimary"
         android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnGestionDirecciones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Modificar direcciones"
+        android:layout_marginHorizontal="16dp"
+        android:backgroundTint="@color/colorPrimary"
+
+        android:layout_marginBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewDirecciones"
@@ -29,12 +39,13 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Botón para continuar a otro fragmento -->
     <Button
         android:id="@+id/btnContinuar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Continuar"
         android:backgroundTint="@color/colorPrimary"
-        android:layout_margin="16dp" />
+        android:textColor="@android:color/white"
+        android:layout_margin="16dp"
+        android:visibility="gone" />
 </LinearLayout>

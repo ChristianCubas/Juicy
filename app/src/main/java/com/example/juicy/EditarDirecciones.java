@@ -47,7 +47,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
+public class EditarDirecciones extends Fragment implements OnMapReadyCallback {
 
     private EditText etCategoria, etReferencia, etCiudad, etBuscarDireccion;
     private Switch swEsPrincipal;
@@ -56,10 +56,8 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private Marker marcador;
     private LatLng ubicacionSeleccionada;
-    private LatLng ubicacionSugerida;
     private Address ultimaDireccion;
     private String placeId;
-    private boolean requiereConfirmacion = false;
 
     private Button btnGuardar;
 
@@ -70,13 +68,13 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
     private static final LatLng DEFAULT_LOCATION = new LatLng(-6.7714, -79.8409); // Chiclayo
 
     private Integer idDireccionEdit = null;
-    private boolean isEditMode = false;
+    private final boolean isEditMode = true;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_agregar_direcciones, container, false);
+        View view = inflater.inflate(R.layout.fragment_editar_direcciones, container, false);
 
         etCategoria = view.findViewById(R.id.etCategoria);
         etReferencia = view.findViewById(R.id.etReferencia);
@@ -85,7 +83,7 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
         swEsPrincipal = view.findViewById(R.id.swEsPrincipal);
         tvCoordenadas = view.findViewById(R.id.tvCoordenadas);
         btnGuardar = view.findViewById(R.id.btnGuardarDireccion);
-        btnGuardar.setEnabled(false);
+        btnGuardar.setEnabled(true);
 
         mapView = view.findViewById(R.id.mapDireccion);
         if (mapView != null) {
@@ -107,17 +105,14 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
         etReferencia.addTextChangedListener(new SimpleWatcher(t -> actualizarEstadoGuardar()));
         etCiudad.addTextChangedListener(new SimpleWatcher(t -> actualizarEstadoGuardar()));
 
-        // Edit mode: pre-fill data
         if (getArguments() != null && getArguments().containsKey("id_direccion")) {
-            isEditMode = true;
             idDireccionEdit = getArguments().getInt("id_direccion");
             etCategoria.setText(getArguments().getString("categoria", ""));
             etBuscarDireccion.setText(getArguments().getString("direccion", ""));
             etReferencia.setText(getArguments().getString("referencia", ""));
             etCiudad.setText(getArguments().getString("ciudad", ""));
             swEsPrincipal.setChecked(getArguments().getBoolean("es_principal", false));
-            btnGuardar.setText("Guardar direccion");
-            btnGuardar.setEnabled(true);
+            btnGuardar.setText("Actualizar direccion");
         }
 
         return view;
@@ -129,7 +124,6 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 14f));
         googleMap.setOnMapClickListener(this::resolverDireccionDesdeMapa);
         googleMap.setOnMarkerClickListener(marker -> {
-            // Tocar el marcador también confirma la ubicación mostrada
             resolverDireccionDesdeMapa(marker.getPosition());
             return true;
         });
@@ -158,7 +152,7 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
                         marcarUbicacion(latLng, address, false, true));
                 requireActivity().runOnUiThread(() ->
                         Toast.makeText(requireContext(),
-                                "Ubicacion encontrada, toca el mapa o el pin para confirmarla",
+                                "Ubicacion encontrada, toca el mapa o el pin para confirmar",
                                 Toast.LENGTH_SHORT).show());
             }
         } catch (IOException ignored) {
@@ -177,15 +171,8 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
     }
 
     private void marcarUbicacion(@NonNull LatLng latLng, @Nullable Address address, boolean confirmarSeleccion, boolean actualizarBusqueda) {
-        // Si viene de búsqueda, solo mostramos y pedimos confirmación; si viene de tap/marker, seleccionamos.
         if (confirmarSeleccion) {
             ubicacionSeleccionada = latLng;
-            requiereConfirmacion = false;
-            ubicacionSugerida = null;
-        } else {
-            ubicacionSeleccionada = null;
-            ubicacionSugerida = latLng;
-            requiereConfirmacion = true;
         }
         if (marcador != null) {
             marcador.remove();
@@ -195,9 +182,8 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         }
 
-        String estado = confirmarSeleccion ? " (seleccionada)" : " (pendiente confirmar)";
         tvCoordenadas.setText(String.format(Locale.getDefault(),
-                "Lat: %.5f, Lng: %.5f%s", latLng.latitude, latLng.longitude, estado));
+                "Lat: %.5f, Lng: %.5f", latLng.latitude, latLng.longitude));
 
         if (address == null) {
             address = ultimaDireccion;
@@ -209,7 +195,6 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
         }
 
         if (address != null) {
-
             if (TextUtils.isEmpty(etCiudad.getText()) && address.getLocality() != null) {
                 etCiudad.setText(address.getLocality());
             }
@@ -228,9 +213,7 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
                 && !TextUtils.isEmpty(etReferencia.getText())
                 && !TextUtils.isEmpty(etCiudad.getText())
                 && !TextUtils.isEmpty(etCategoria.getText());
-        boolean ubicacionOk = isEditMode || ubicacionSeleccionada != null;
-        boolean habilitar = ubicacionOk && camposOk;
-        btnGuardar.setEnabled(habilitar);
+        btnGuardar.setEnabled(camposOk);
     }
 
     private void guardarDireccion() {
@@ -245,6 +228,11 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
                     Toast.LENGTH_SHORT).show();
             return;
         }
+        if (idDireccionEdit == null) {
+            Toast.makeText(requireContext(), "Direccion no valida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String categoria = etCategoria.getText().toString().trim();
         String direccionTexto = etBuscarDireccion.getText().toString().trim();
         String referencia = etReferencia.getText().toString().trim();
@@ -260,12 +248,6 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
         if (hasError) {
             Toast.makeText(requireContext(),
                     "Completa los campos obligatorios.",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (!isEditMode && ubicacionSeleccionada == null) {
-            Toast.makeText(requireContext(),
-                    "Toca el mapa o el pin para confirmar la ubicacion.",
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -285,66 +267,39 @@ public class AgregarDirecciones extends Fragment implements OnMapReadyCallback {
         }
 
         DambJuiceApi api = RetrofitClient.getApiService();
-        Callback<RptaGeneral> callbackGuardar = new Callback<RptaGeneral>() {
-            @Override
-            public void onResponse(@NonNull Call<RptaGeneral> call,
-                                   @NonNull Response<RptaGeneral> response) {
-                if (!response.isSuccessful() || response.body() == null) {
-                    Toast.makeText(requireContext(),
-                            "No se pudo procesar la direccion (" + response.code() + ")",
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                RptaGeneral rpta = response.body();
-                Toast.makeText(requireContext(),
-                        rpta.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-                if (rpta.getCode() == 1) {
-                    if (!isEditMode) {
-                        limpiarCampos();
+        api.actualizarDireccion("JWT " + token.trim(), idDireccionEdit, body)
+                .enqueue(new Callback<RptaGeneral>() {
+                    @Override
+                    public void onResponse(@NonNull Call<RptaGeneral> call,
+                                           @NonNull Response<RptaGeneral> response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(requireContext(),
+                                    "No se pudo procesar la direccion (" + response.code() + ")",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        RptaGeneral rpta = response.body();
+                        Toast.makeText(requireContext(),
+                                rpta.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        if (rpta.getCode() == 1) {
+                            NavController navController = NavHostFragment.findNavController(EditarDirecciones.this);
+                            navController.popBackStack();
+                        }
                     }
-                    NavController navController = NavHostFragment.findNavController(AgregarDirecciones.this);
-                    navController.popBackStack();
-                }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<RptaGeneral> call,
-                                  @NonNull Throwable t) {
-                Toast.makeText(requireContext(),
-                        "Error al guardar: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        if (isEditMode && idDireccionEdit != null) {
-            api.actualizarDireccion("JWT " + token.trim(), idDireccionEdit, body)
-                    .enqueue(callbackGuardar);
-        } else {
-            api.agregarDireccion("JWT " + token.trim(), body)
-                    .enqueue(callbackGuardar);
-        }
+                    @Override
+                    public void onFailure(@NonNull Call<RptaGeneral> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(requireContext(),
+                                "Error al guardar: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private String safeValue(String value) {
         return value == null ? "" : value;
-    }
-
-    private void limpiarCampos() {
-        etCategoria.setText("");
-        etReferencia.setText("");
-        etCiudad.setText("");
-        etBuscarDireccion.setText("");
-        swEsPrincipal.setChecked(false);
-        ubicacionSeleccionada = null;
-        ultimaDireccion = null;
-        placeId = null;
-        if (marcador != null) {
-            marcador.remove();
-            marcador = null;
-        }
-        tvCoordenadas.setText("Lat: -, Lng: -");
-        actualizarEstadoGuardar();
     }
 
     private static class SimpleWatcher implements TextWatcher {

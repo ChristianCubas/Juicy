@@ -89,6 +89,11 @@
         android:label=""
         tools:layout="@layout/fragment_agregar_direcciones" />
     <fragment
+        android:id="@+id/editarDirecciones"
+        android:name="com.example.juicy.EditarDirecciones"
+        android:label=""
+        tools:layout="@layout/fragment_editar_direcciones" />
+    <fragment
         android:id="@+id/buscarMapa"
         android:name="com.example.juicy.BuscarMapa"
         android:label=""
@@ -126,6 +131,9 @@
         <action
             android:id="@+id/action_direcciones_to_metodoPago"
             app:destination="@id/paymentMethodFragment" />
+        <action
+            android:id="@+id/action_direcciones_to_editarDirecciones"
+            app:destination="@id/editarDirecciones" />
     </fragment>
 
     <fragment

@@ -40,6 +40,7 @@ public class DireccionesFragment extends Fragment implements DireccionesAdapter.
     private RecyclerView recyclerView;
     private DireccionesAdapter direccionesAdapter;
     private List<Direccion> direccionList = new ArrayList<>();
+    private boolean modoGestion = false;
 
     public DireccionesFragment() {
         // Required empty public constructor
@@ -74,33 +75,48 @@ public class DireccionesFragment extends Fragment implements DireccionesAdapter.
         btnAgregar.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.agregarDirecciones));
 
-        Button btnContinuar = rootView.findViewById(R.id.btnContinuar);
-        btnContinuar.setOnClickListener(v -> {
-            Direccion seleccionada = direccionesAdapter.getDireccionSeleccionada();
-            if (seleccionada == null) {
-                Toast.makeText(getContext(), "Por favor, selecciona una dirección.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            SharedPreferences prefsLocal = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefsLocal.edit();
-            editor.putInt("direccionSeleccionada", seleccionada.getIdDireccion());
-
-            String direccionTexto = seleccionada.getDireccion();
-            if (seleccionada.getReferencia() != null && !seleccionada.getReferencia().isEmpty()) {
-                direccionTexto += " (" + seleccionada.getReferencia() + ")";
-            }
-            editor.putString("direccionTexto", direccionTexto);
-            editor.apply();
-
-            Navigation.findNavController(v).navigate(R.id.action_direcciones_to_metodoPago);
+        Button btnGestion = rootView.findViewById(R.id.btnGestionDirecciones);
+        btnGestion.setOnClickListener(v -> {
+            modoGestion = !modoGestion;
+            direccionesAdapter.setModoGestion(modoGestion);
+            btnGestion.setText(modoGestion ? "Terminar edición" : "Modificar direcciones");
         });
+
+        Button btnContinuar = rootView.findViewById(R.id.btnContinuar);
+        boolean mostrarContinuar = getArguments() != null && getArguments().getBoolean("mostrarContinuar", false);
+        btnContinuar.setVisibility(mostrarContinuar ? View.VISIBLE : View.GONE);
+        if (mostrarContinuar) {
+            btnContinuar.setOnClickListener(v -> {
+                Direccion seleccionada = direccionesAdapter.getDireccionSeleccionada();
+                if (seleccionada == null) {
+                    Toast.makeText(getContext(), "Por favor, selecciona una dirección.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                SharedPreferences prefsLocal = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefsLocal.edit();
+                editor.putInt("direccionSeleccionada", seleccionada.getIdDireccion());
+
+                String direccionTexto = seleccionada.getDireccion();
+                if (seleccionada.getReferencia() != null && !seleccionada.getReferencia().isEmpty()) {
+                    direccionTexto += " (" + seleccionada.getReferencia() + ")";
+                }
+                editor.putString("direccionTexto", direccionTexto);
+                editor.apply();
+
+                Navigation.findNavController(v).navigate(R.id.action_direcciones_to_metodoPago);
+            });
+        }
 
         return rootView;
     }
 
     @Override
     public void onEliminarDireccion(Direccion direccion) {
+        if (!modoGestion) {
+            Toast.makeText(getContext(), "Activa 'Modificar direcciones' para eliminar.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         String token = prefs.getString("tokenJWT", null);
         if (token == null) {
@@ -140,6 +156,20 @@ public class DireccionesFragment extends Fragment implements DireccionesAdapter.
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    @Override
+    public void onEditarDireccion(Direccion direccion) {
+        if (!modoGestion) return;
+        Bundle args = new Bundle();
+        args.putInt("id_direccion", direccion.getIdDireccion());
+        args.putString("categoria", direccion.getCategoria());
+        args.putString("direccion", direccion.getDireccion());
+        args.putString("referencia", direccion.getReferencia());
+        args.putString("ciudad", direccion.getCiudad());
+        args.putString("codigo_postal", direccion.getCodigoPostal());
+        args.putBoolean("es_principal", direccion.isEsPrincipal());
+        Navigation.findNavController(requireView()).navigate(R.id.editarDirecciones, args);
     }
 
     private void obtenerDirecciones(int idUsuario) {

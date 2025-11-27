@@ -30,6 +30,7 @@ import com.example.juicy.network.ApiConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -319,14 +320,7 @@ public class MpagoFragment extends Fragment {
             return;
         }
 
-        if (!guardar) {
-            // No se va a guardar en BD. Si tu backend tiene un endpoint para
-            // pago directo sin guardar, deberías llamarlo aquí.
-            toast("Pago con tarjeta no guardada (solo simulación)");
-            return;
-        }
-
-        // Guardar + listar usando /api_metodos_pago
+        // Construimos el objeto de tarjeta
         ApiMetodosPagoRequest.NuevoMetodo nuevo = new ApiMetodosPagoRequest.NuevoMetodo();
         nuevo.setTitular(titular);
         nuevo.setNum_tarjeta(pan);
@@ -334,6 +328,55 @@ public class MpagoFragment extends Fragment {
         nuevo.setCvv(cvv);
         nuevo.setCod_paypal(null);
 
+        final String panMask = maskPan(pan);
+
+        if (!guardar) {
+            // Pago puntual sin guardar la tarjeta en el listado
+            MetodoPagoVentaRequest bodyVenta = new MetodoPagoVentaRequest();
+            bodyVenta.setId_cliente(idCliente);
+            bodyVenta.setId_metodo_pago(0);
+            bodyVenta.setNuevo_metodo(nuevo);
+
+            api.setMetodoPagoVenta(authHeader, bodyVenta).enqueue(new Callback<RptaGeneral>() {
+                @Override
+                public void onResponse(@NonNull Call<RptaGeneral> call,
+                                       @NonNull Response<RptaGeneral> resp) {
+                    if (!resp.isSuccessful() || resp.body() == null) {
+                        toast("Código: " + resp.code());
+                        return;
+                    }
+                    RptaGeneral rg = resp.body();
+                    int idNuevoMetodo = extraerIdMetodo(rg.getData());
+                    if (idNuevoMetodo <= 0) {
+                        toast("No se pudo asignar el método de pago.");
+                        return;
+                    }
+                    if (idNuevoMetodo > 0) {
+                        SharedPreferences sp = requireActivity()
+                                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                        sp.edit().putInt("idMetodoPagoSeleccionado", idNuevoMetodo).apply();
+                    }
+                    String mensaje = rg.getMessage();
+                    if (mensaje == null || mensaje.trim().isEmpty()) {
+                        mensaje = resp.code() == 200 ? "Operación exitosa" : "Ocurrió un problema";
+                    }
+                    toast(mensaje);
+                    boolean operacionExitosa = rg.getCode() == 1 || resp.code() == 200;
+                    if (operacionExitosa) {
+                        irAResumen(panMask);
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<RptaGeneral> call,
+                                      @NonNull Throwable t) {
+                    toast("Error de red al confirmar pago");
+                }
+            });
+            return;
+        }
+
+        // Guardar + listar usando /api_metodos_pago
         ApiMetodosPagoRequest body = new ApiMetodosPagoRequest();
         body.setId_cliente(idCliente);
         body.setGuardar(true);
@@ -459,12 +502,12 @@ public class MpagoFragment extends Fragment {
             updateSelectionUI();
         });
 
-        binding.otherPaypalCard.setOnClickListener(v -> {
-            selectedMethod = SelectedMethod.OTHER_PAYPAL;
-            selectedSavedPosition = -1;
-            updateSavedCardsUI();
-            updateSelectionUI();
-        });
+//        binding.otherPaypalCard.setOnClickListener(v -> {
+//            selectedMethod = SelectedMethod.OTHER_PAYPAL;
+//            selectedSavedPosition = -1;
+//            updateSavedCardsUI();
+//            updateSelectionUI();
+//        });
 
         if (binding.otherVisaExpInput != null) {
             binding.otherVisaExpInput.addTextChangedListener(expiryWatcher(binding.otherVisaExpInput));
@@ -480,16 +523,16 @@ public class MpagoFragment extends Fragment {
         binding.otherVisaStatus.setImageResource(
                 selectedMethod == SelectedMethod.OTHER_VISA ? checkedIcon : uncheckedIcon
         );
-        binding.otherPaypalStatus.setImageResource(
-                selectedMethod == SelectedMethod.OTHER_PAYPAL ? checkedIcon : uncheckedIcon
-        );
+//        binding.otherPaypalStatus.setImageResource(
+//                selectedMethod == SelectedMethod.OTHER_PAYPAL ? checkedIcon : uncheckedIcon
+//        );
 
         binding.otherVisaFields.setVisibility(
                 selectedMethod == SelectedMethod.OTHER_VISA ? View.VISIBLE : View.GONE
         );
-        binding.otherPaypalFields.setVisibility(
-                selectedMethod == SelectedMethod.OTHER_PAYPAL ? View.VISIBLE : View.GONE
-        );
+//        binding.otherPaypalFields.setVisibility(
+//                selectedMethod == SelectedMethod.OTHER_PAYPAL ? View.VISIBLE : View.GONE
+//        );
     }
 
     // ===================== Utilitarios =====================
@@ -500,6 +543,26 @@ public class MpagoFragment extends Fragment {
 
     private void toast(String m) {
         Toast.makeText(requireContext(), m, Toast.LENGTH_SHORT).show();
+    }
+
+    private int extraerIdMetodo(Object data) {
+        if (data instanceof Map) {
+            Object val = ((Map<?, ?>) data).get("id_metodo_pago");
+            if (val instanceof Number) {
+                return ((Number) val).intValue();
+            }
+        }
+        return -1;
+    }
+
+    private String maskPan(String pan) {
+        if (pan == null) return "Tarjeta";
+        String digits = pan.replaceAll("\\s", "");
+        if (digits.length() <= 4) {
+            return "**** " + digits;
+        }
+        String last4 = digits.substring(digits.length() - 4);
+        return "**** " + last4;
     }
 
     private TextWatcher expiryWatcher(@NonNull TextView target) {
