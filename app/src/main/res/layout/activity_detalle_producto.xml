@@ -8,6 +8,7 @@
     android:background="#FFFFFF"
     tools:context=".Catalogo.DetalleProductoActivity">
 
+    <!-- HEADER -->
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -23,7 +24,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="12dp"
-            android:src="@drawable/ic_arrow_black" />
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@android:color/white"/>
 
         <TextView
             android:layout_width="0dp"
@@ -35,12 +37,10 @@
             android:textSize="32sp"
             android:gravity="center"/>
 
-        <View
-            android:layout_width="48dp"
-            android:layout_height="48dp" />
+        <View android:layout_width="48dp" android:layout_height="48dp" />
     </LinearLayout>
 
-
+    <!-- FOOTER -->
     <LinearLayout
         android:id="@+id/footerLayout"
         android:layout_width="match_parent"
@@ -56,14 +56,16 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp"> <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Total:"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-            android:textColor="#333333"
-            android:textStyle="bold"/>
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Total:"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                android:textColor="#333333"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/tvTotalFinal"
@@ -74,7 +76,6 @@
                 android:textColor="#000000"
                 android:textStyle="bold"/>
         </LinearLayout>
-
 
         <Button
             android:id="@+id/btnAnadirCarrito"
@@ -87,7 +88,7 @@
             app:cornerRadius="8dp"/>
     </LinearLayout>
 
-
+    <!-- CONTENIDO -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -118,7 +119,7 @@
                     android:id="@+id/tvNombreDetalle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="Cappuccino"
+                    tools:text="Producto"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                     android:textColor="#000000"
                     android:textStyle="bold"/>
@@ -127,7 +128,7 @@
                     android:id="@+id/tvPrecioDetalle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="S/ 10.00"
+                    tools:text="S/ 0.00"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                     android:textColor="#333333"
                     android:layout_marginTop="4dp"/>
@@ -136,11 +137,12 @@
                     android:id="@+id/tvDescripcionDetalle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="Bebida caliente de café pasado con leche batida y espumosa."
+                    tools:text="Descripción..."
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
 
+            <!-- CANTIDAD -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -184,6 +186,7 @@
                 android:background="#EEEEEE"
                 android:layout_margin="16dp"/>
 
+            <!-- TRIGGER (Botón para desplegar) -->
             <LinearLayout
                 android:id="@+id/triggerPersonalizacion"
                 android:layout_width="match_parent"
@@ -197,7 +200,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Personaliza tu bebida"
+                    android:text="Personaliza tu producto"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                     android:textStyle="bold"/>
 
@@ -208,67 +211,26 @@
                     android:src="@drawable/ic_chevron_down" />
             </LinearLayout>
 
+            <!-- SECCIÓN DE PERSONALIZACIÓN (Contenedor Dinámico) -->
             <LinearLayout
                 android:id="@+id/seccionPersonalizacion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="16dp"
                 android:visibility="gone"
-                tools:visibility="visible"> <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tamaño de tu vaso"
-                android:textStyle="bold"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"/>
+                tools:visibility="visible">
 
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/toggleGroupTamaño"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:selectionRequired="true"
-                    android:layout_marginTop="8dp">
-
-                    <Button android:id="@+id/btnTamañoSmall" style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Small"/>
-                    <Button android:id="@+id/btnTamañoRegular" style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Regular"/>
-                    <Button android:id="@+id/btnTamañoAlto" style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Alto"/>
-                </com.google.android.material.button.MaterialButtonToggleGroup>
-
+                <!-- AQUÍ ES DONDE JAVA DIBUJARÁ LOS BOTONES -->
                 <LinearLayout
+                    android:id="@+id/contenedorOpcionesDinamicas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView android:id="@+id/tvPrecioSmall" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Por defecto" android:gravity="center" android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"/>
-                    <TextView android:id="@+id/tvPrecioRegular" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Adicional s/ 1" android:gravity="center" android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"/>
-                    <TextView android:id="@+id/tvPrecioAlto" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Adicional s/ 2" android:gravity="center" android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"/>
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nivel de azúcar"
-                    android:textStyle="bold"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                    android:layout_marginTop="16dp"/>
-
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/toggleGroupAzucar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:selectionRequired="true"
-                    android:layout_marginTop="8dp">
-
-                    <Button android:id="@+id/btnAzucarCero" style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Cero"/>
-                    <Button android:id="@+id/btnAzucarBajo" style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Bajo"/>
-                    <Button android:id="@+id/btnAzucarNormal" style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Normal"/>
-                </com.google.android.material.button.MaterialButtonToggleGroup>
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingBottom="16dp" />
 
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
