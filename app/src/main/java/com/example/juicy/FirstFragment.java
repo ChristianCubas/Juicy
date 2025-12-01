@@ -3,6 +3,7 @@ package com.example.juicy;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,12 @@ import com.example.juicy.databinding.FragmentFirstBinding;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
 import com.example.juicy.Model.MeResponse;
+import com.example.juicy.Model.RptaGeneral;
+import com.example.juicy.Model.VerificacionEstadoRequest;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.util.Collections;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -88,8 +94,9 @@ public class FirstFragment extends Fragment {
                 if (!response.isSuccessful()) {
 
                     if (response.code() == 401 || response.code() == 400) {
-                        showDialog("Credenciales incorrectas",
-                                "El correo o la contraseña no son válidos. Inténtalo nuevamente.");
+                        revisarEstadoCuenta(api, email, () ->
+                                showDialog("Credenciales incorrectas",
+                                        "El correo o la contraseña no son válidos. Inténtalo nuevamente."));
                     } else {
                         showDialog("No se pudo iniciar sesión",
                                 "Código de error: " + response.code());
@@ -172,6 +179,106 @@ public class FirstFragment extends Fragment {
                 .setPositiveButton("OK", null)
                 .setCancelable(true)
                 .show();
+    }
+
+    private void revisarEstadoCuenta(DambJuiceApi api, String email, Runnable fallback) {
+        if (TextUtils.isEmpty(email)) {
+            if (fallback != null) fallback.run();
+            return;
+        }
+        api.verificarEstadoCuenta(new VerificacionEstadoRequest(email))
+                .enqueue(new Callback<RptaGeneral>() {
+                    @Override
+                    public void onResponse(@NonNull Call<RptaGeneral> call, @NonNull Response<RptaGeneral> response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            if (fallback != null) fallback.run();
+                            return;
+                        }
+                        RptaGeneral r = response.body();
+                        if (r.getCode() != 1) {
+                            if (fallback != null) fallback.run();
+                            return;
+                        }
+                        Map<String, Object> data = toMap(r.getData());
+                        boolean needsVerification = getBoolean(data.get("needs_verification"));
+                        if (needsVerification) {
+                            String celular = safeString(data.get("celular"));
+                            String medio = safeString(data.get("medio"));
+                            String destino = safeString(data.get("destino_mascarado"));
+                            mostrarDialogoVerificacion(email, celular, medio, destino);
+                        } else if (fallback != null) {
+                            fallback.run();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<RptaGeneral> call, @NonNull Throwable t) {
+                        if (fallback != null) fallback.run();
+                    }
+                });
+    }
+
+    private void mostrarDialogoVerificacion(String email, String celular, String medio, String destinoMasc) {
+        if (getContext() == null) return;
+        String medioLimpio = TextUtils.isEmpty(medio) ? "email" : medio;
+        String destinoMostrado = TextUtils.isEmpty(destinoMasc)
+                ? ("sms".equals(medioLimpio) ? maskPhone(celular) : maskEmail(email))
+                : destinoMasc;
+
+        Bundle args = new Bundle();
+        args.putString("email", email);
+        args.putString("celular", celular);
+        args.putString("medio", medioLimpio);
+        args.putString("destino_mascarado", destinoMostrado);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Cuenta pendiente de verificación")
+                .setMessage("Tu cuenta aún no está verificada. Ingresa el código enviado a " + destinoMostrado + ".")
+                .setPositiveButton("Ingresar código", (dialog, which) ->
+                        NavHostFragment.findNavController(FirstFragment.this)
+                                .navigate(R.id.action_FirstFragment_to_verificarCuentaFragment, args))
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private Map<String, Object> toMap(Object data) {
+        if (data instanceof Map) {
+            //noinspection unchecked
+            return (Map<String, Object>) data;
+        }
+        return Collections.emptyMap();
+    }
+
+    private boolean getBoolean(Object value) {
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).intValue() != 0;
+        }
+        if (value instanceof String) {
+            return Boolean.parseBoolean((String) value);
+        }
+        return false;
+    }
+
+    private String safeString(Object value) {
+        return value == null ? "" : String.valueOf(value);
+    }
+
+    private String maskEmail(String email) {
+        if (TextUtils.isEmpty(email) || !email.contains("@")) return email;
+        String[] parts = email.split("@");
+        String local = parts[0];
+        if (local.length() <= 2) {
+            return local.charAt(0) + "*@" + parts[1];
+        }
+        return local.substring(0, 1) + "***" + local.substring(local.length() - 1) + "@" + parts[1];
+    }
+
+    private String maskPhone(String celular) {
+        if (TextUtils.isEmpty(celular) || celular.length() < 3) return celular;
+        return "***" + celular.substring(celular.length() - 3);
     }
 
     private void runEntranceAnimations() {

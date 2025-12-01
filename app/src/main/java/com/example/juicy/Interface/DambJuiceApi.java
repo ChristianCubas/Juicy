@@ -13,6 +13,9 @@ import com.example.juicy.Model.RecuperarRequest;
 import com.example.juicy.Model.RegistrarClienteRequest;
 import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.Model.ValidarCodigoRequest;
+import com.example.juicy.Model.VerificacionCodigoRequest;
+import com.example.juicy.Model.VerificacionEnviarRequest;
+import com.example.juicy.Model.VerificacionEstadoRequest;
 
 import java.util.Map;
 
@@ -96,4 +99,13 @@ public interface DambJuiceApi {
 
     @POST("api_actualizar_password")
     Call<RptaGeneral> actualizarPassword(@Body ActualizarPasswordRequest request);
+
+    @POST("api_verificacion_estado")
+    Call<RptaGeneral> verificarEstadoCuenta(@Body VerificacionEstadoRequest request);
+
+    @POST("api_verificacion_enviar")
+    Call<RptaGeneral> reenviarCodigoVerificacion(@Body VerificacionEnviarRequest request);
+
+    @POST("api_verificacion_validar")
+    Call<RptaGeneral> validarCodigoVerificacion(@Body VerificacionCodigoRequest request);
 }
