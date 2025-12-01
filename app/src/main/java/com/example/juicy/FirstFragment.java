@@ -68,6 +68,7 @@ public class FirstFragment extends Fragment {
         runEntranceAnimations();
     }
 
+
     private void iniciarSesion() {
         String email = binding.etCorreo.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
