@@ -2,6 +2,9 @@ package com.example.juicy.Interface;
 
 import com.example.juicy.Catalogo.ResponseDirecciones;
 import com.example.juicy.Model.ActualizarPasswordRequest;
+import com.example.juicy.Model.AplicarCuponRequest;
+import com.example.juicy.Model.AplicarCuponResponse;
+import com.example.juicy.Model.PaypalComprobanteRequest;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
 import com.example.juicy.Model.CarritoResponse;
@@ -61,11 +64,13 @@ public interface DambJuiceApi {
             @Body ConfirmarVentaRequest request
     );
 
-    @GET("/api_venta_pdf/{id}")
-    Call<ResponseBody> obtenerPdfVenta(
+    @POST("/api_aplicar_cupon")
+    Call<AplicarCuponResponse> aplicarCupon(
             @Header("Authorization") String token,
-            @Path("id") int idVenta
+            @Body AplicarCuponRequest request
     );
+
+
 
     @POST("/api_enviar_comprobante/{id}")
     Call<RptaGeneral> enviarComprobanteCorreo(
