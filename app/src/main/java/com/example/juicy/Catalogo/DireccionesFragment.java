@@ -190,10 +190,8 @@ public class DireccionesFragment extends Fragment implements DireccionesAdapter.
             return;  // Si el token o el id_cliente son inválidos, no hacer la solicitud
         }
 
-        // Agregar el prefijo "JWT " al token antes de enviarlo en los encabezados
         String authHeader = "JWT " + token;
 
-        // Realizar la solicitud POST con el token en los encabezados y el cuerpo
         Call<ResponseDirecciones> call = apiService.listarDirecciones(authHeader, body);
 
         call.enqueue(new Callback<ResponseDirecciones>() {

@@ -8,6 +8,7 @@ public class RegistrarClienteRequest {
     private String ape_paterno;
     private String ape_materno;
     private String celular;
+    private String medio_verificacion;
 
     public void setEmail(String email) {
         this.email = email;
@@ -35,5 +36,9 @@ public class RegistrarClienteRequest {
 
     public void setCelular(String celular) {
         this.celular = celular;
+    }
+
+    public void setMedio_verificacion(String medio_verificacion) {
+        this.medio_verificacion = medio_verificacion;
     }
 }
