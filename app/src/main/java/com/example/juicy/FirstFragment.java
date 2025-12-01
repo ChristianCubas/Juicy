@@ -107,7 +107,6 @@ public class FirstFragment extends Fragment {
                     prefs.edit().putString("tokenJWT", token).apply();
 
 
-                    Toast.makeText(getContext(), "Token JWT obtenido", Toast.LENGTH_SHORT).show();
 
 
                     String authHeader = "JWT " + token;
@@ -126,11 +125,7 @@ public class FirstFragment extends Fragment {
                                         .apply();
 
 
-                                Toast.makeText(
-                                        getContext(),
-                                        "Bienvenido, " + nombre + " (ID: " + idCliente + ")",
-                                        Toast.LENGTH_LONG
-                                ).show();
+
 
                                 NavHostFragment.findNavController(FirstFragment.this)
                                         .navigate(R.id.action_FirstFragment_to_HomeFragment);

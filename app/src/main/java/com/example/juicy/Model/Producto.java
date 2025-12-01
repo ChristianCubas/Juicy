@@ -7,11 +7,34 @@ public class Producto {
     private double precio;
     private int cantidad;
     private String imagen_url;
+    private int stock;
     private int permite_personalizacion; // 1 = sí, 0 = no
     private double precio_extra_small;
     private double precio_extra_regular;
     private double precio_extra_alto;
     private String nivel_azucar_defecto;
+    private double ratingPromedio;
+    private int ratingTotal;
+    private int miRating;
+    private String miComentario;
+    private String config_personalizacion;
+
+    public String getConfig_personalizacion() {
+        return config_personalizacion;
+    }
+
+    public void setConfig_personalizacion(String config_personalizacion) {
+        this.config_personalizacion = config_personalizacion;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
     public int getPermite_personalizacion() {
         return permite_personalizacion;
     }
@@ -76,4 +99,37 @@ public class Producto {
 
     public String getImagen_url() { return imagen_url; }
     public void setImagen_url(String imagen_url) { this.imagen_url = imagen_url; }
+
+    // Getters y setters para el rating
+    public double getRatingPromedio() {
+        return ratingPromedio;
+    }
+
+    public void setRatingPromedio(double ratingPromedio) {
+        this.ratingPromedio = ratingPromedio;
+    }
+
+    public int getRatingTotal() {
+        return ratingTotal;
+    }
+
+    public void setRatingTotal(int ratingTotal) {
+        this.ratingTotal = ratingTotal;
+    }
+
+    public int getMiRating() {
+        return miRating;
+    }
+
+    public void setMiRating(int miRating) {
+        this.miRating = miRating;
+    }
+
+    public String getMiComentario() {
+        return miComentario;
+    }
+
+    public void setMiComentario(String miComentario) {
+        this.miComentario = miComentario;
+    }
 }
