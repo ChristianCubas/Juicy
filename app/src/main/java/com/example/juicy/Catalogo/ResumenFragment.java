@@ -2,11 +2,14 @@ package com.example.juicy.Catalogo;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.juicy.Model.AplicarCuponRequest;
+import com.example.juicy.Model.AplicarCuponResponse;
 import com.example.juicy.Model.CarritoResponse;
 import com.example.juicy.Model.ConfirmarVentaRequest;
 import com.example.juicy.Model.ConfirmarVentaResponse;
@@ -53,6 +58,14 @@ public class ResumenFragment extends Fragment {
         binding.recyclerViewProductos.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerViewProductos.setAdapter(resumenAdapter);
 
+        // --- INICIO DE CAMBIOS: Listeners nuevos ---
+        // Botón Atrás
+        //binding.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+
+        // Botón Cupón
+        binding.btnAplicarCupon.setOnClickListener(v -> aplicarCupon());
+        // --- FIN DE CAMBIOS ---
+
         fillSummary(getArguments());
         cargarResumenDesdeApi();
         binding.btnConfirmarPago.setOnClickListener(v -> confirmarVenta());
@@ -63,9 +76,10 @@ public class ResumenFragment extends Fragment {
                 .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
 
         float total = prefs.getFloat("totalCarrito", 0f);
-        binding.totalText.setText(
-                String.format(Locale.getDefault(), "S/. %.2f", total)
-        );
+
+        // --- CAMBIO: Inicializamos Subtotal y Total iguales ---
+        binding.tvSubtotal.setText(String.format(Locale.getDefault(), "S/. %.2f", total));
+        binding.totalText.setText(String.format(Locale.getDefault(), "S/. %.2f", total));
 
         String metodoTexto = bundle != null ? bundle.getString("metodo_pago") : null;
         int idMetodo = prefs.getInt("idMetodoPagoSeleccionado", -1);
@@ -87,6 +101,97 @@ public class ResumenFragment extends Fragment {
         binding.entregaText.setText(
                 TextUtils.isEmpty(direccionTexto) ? "Entrega no disponible" : direccionTexto
         );
+    }
+
+    // --- NUEVO MÉTODO: APLICAR CUPÓN ---
+    private void aplicarCupon() {
+        String codigo = binding.etCupon.getText().toString().trim().toUpperCase();
+        if (TextUtils.isEmpty(codigo)) {
+            binding.etCupon.setError("Ingresa un código");
+            return;
+        }
+
+        // Ocultar teclado
+        View view = requireActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+        SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        int idCliente = prefs.getInt("idCliente", 0);
+        String token = prefs.getString("tokenJWT", "");
+
+        binding.btnAplicarCupon.setEnabled(false);
+        binding.btnAplicarCupon.setText("...");
+
+        AplicarCuponRequest request = new AplicarCuponRequest(idCliente, codigo);
+
+        RetrofitClient.getApiService().aplicarCupon("JWT " + token, request)
+                .enqueue(new Callback<AplicarCuponResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<AplicarCuponResponse> call, @NonNull Response<AplicarCuponResponse> response) {
+                        if (binding == null) return;
+
+                        binding.btnAplicarCupon.setEnabled(true);
+                        binding.btnAplicarCupon.setText("Aplicar");
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            AplicarCuponResponse data = response.body();
+                            if (data.getCode() == 1) {
+                                // ÉXITO
+                                mostrarMensajeCupon(data.getMessage(), true);
+                                actualizarPreciosUI(data.getSubtotal(), data.getDescuento(), data.getTotal_final());
+
+                                binding.etCupon.setEnabled(false);
+                                binding.btnAplicarCupon.setEnabled(false);
+                                binding.btnAplicarCupon.setText("OK");
+                            } else {
+                                mostrarMensajeCupon(data.getMessage(), false);
+                            }
+                        } else {
+                            Log.d("CUPON_LOG", "Enviando cupón: " + codigo + " para cliente: " + idCliente);
+                            Log.e("CUPON_LOG", "Error API: " + response.code() + " - " + response.message()); // <--- LOG ERROR
+                            try {
+                                Log.e("CUPON_LOG", "Error Body: " + response.errorBody().string()); // <--- LOG DETALLE
+                            } catch (Exception e) {}
+                            mostrarMensajeCupon("Error al aplicar cupón", false);
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<AplicarCuponResponse> call, @NonNull Throwable t) {
+                        if (binding == null) return;
+                        binding.btnAplicarCupon.setEnabled(true);
+                        binding.btnAplicarCupon.setText("Aplicar");
+                        mostrarMensajeCupon("Error de conexión", false);
+                    }
+                });
+    }
+
+    // --- NUEVO MÉTODO: Mostrar mensajes de cupón ---
+    private void mostrarMensajeCupon(String msg, boolean exito) {
+        binding.tvMensajeCupon.setVisibility(View.VISIBLE);
+        binding.tvMensajeCupon.setText(msg);
+        binding.tvMensajeCupon.setTextColor(exito ? Color.parseColor("#4CAF50") : Color.RED);
+    }
+
+    // --- NUEVO MÉTODO: Actualizar UI de precios ---
+    private void actualizarPreciosUI(double subtotal, double descuento, double total) {
+        binding.tvSubtotal.setText(String.format(Locale.getDefault(), "S/. %.2f", subtotal));
+        binding.totalText.setText(String.format(Locale.getDefault(), "S/. %.2f", total));
+
+        // Guardar nuevo total para la confirmación final
+        SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        prefs.edit().putFloat("totalCarrito", (float) total).apply();
+
+        if (descuento > 0) {
+            binding.layoutDescuento.setVisibility(View.VISIBLE);
+            binding.tvDescuento.setText(String.format(Locale.getDefault(), "- S/. %.2f", descuento));
+        } else {
+            binding.layoutDescuento.setVisibility(View.GONE);
+        }
     }
 
     private void confirmarVenta() {
@@ -144,14 +249,16 @@ public class ResumenFragment extends Fragment {
                         }
 
                         ConfirmarVentaResponse body = response.body();
-                        Toast.makeText(requireContext(), body.getMessage(), Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(requireContext(), body.getMessage(), Toast.LENGTH_SHORT).show();
 
                         if (body.getCode() == 1 && body.getData() != null) {
                             ConfirmarVentaResponse.VentaData data = body.getData();
                             Toast.makeText(requireContext(),
-                                    "Venta #" + data.getId_venta() + " confirmada.",
+                                    "¡Pedido realizado con éxito!", // Mensaje más amigable
                                     Toast.LENGTH_LONG).show();
                             navegarAConfirmacion(data);
+                        } else {
+                            Toast.makeText(requireContext(), body.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -239,9 +346,9 @@ public class ResumenFragment extends Fragment {
                                 .apply();
 
                         if (binding != null) {
-                            binding.totalText.setText(
-                                    String.format(Locale.getDefault(), "S/. %.2f", body.getTotalGeneral())
-                            );
+                            // --- CAMBIO: Actualizamos Subtotal y Total ---
+                            double subtotal = body.getSubtotalSinDescuento() > 0 ? body.getSubtotalSinDescuento() : body.getTotalGeneral();
+                            actualizarPreciosUI(subtotal, body.getDescuentoAplicado(), body.getTotalGeneral());
                         }
                         if (resumenAdapter != null) {
                             resumenAdapter.setData(body.getProductos());
@@ -298,9 +405,12 @@ public class ResumenFragment extends Fragment {
                         editor.apply();
 
                         if (binding != null) {
-                            binding.totalText.setText(
-                                    String.format(Locale.getDefault(), "S/. %.2f", data.getTotalGeneral())
-                            );
+                            // --- CAMBIO: Actualizamos Subtotal y Total ---
+                            // Si tu CarritoResponse viejo no tiene getSubtotalSinDescuento,
+                            // puedes usar getTotalGeneral() como subtotal temporalmente.
+                            // Pero la API actualizada de Python YA devuelve estos campos.
+                            double subtotal = data.getSubtotalSinDescuento() > 0 ? data.getSubtotalSinDescuento() : data.getTotalGeneral();
+                            actualizarPreciosUI(subtotal, data.getDescuentoAplicado(), data.getTotalGeneral());
                         }
                         if (resumenAdapter != null) {
                             resumenAdapter.setData(data.getProductos());

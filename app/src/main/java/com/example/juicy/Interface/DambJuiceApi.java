@@ -2,6 +2,9 @@ package com.example.juicy.Interface;
 
 import com.example.juicy.Catalogo.ResponseDirecciones;
 import com.example.juicy.Model.ActualizarPasswordRequest;
+import com.example.juicy.Model.AplicarCuponRequest;
+import com.example.juicy.Model.AplicarCuponResponse;
+import com.example.juicy.Model.PaypalComprobanteRequest;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
 import com.example.juicy.Model.CarritoResponse;
@@ -16,6 +19,7 @@ import com.example.juicy.Model.ValidarCodigoRequest;
 import com.example.juicy.Model.VerificacionCodigoRequest;
 import com.example.juicy.Model.VerificacionEnviarRequest;
 import com.example.juicy.Model.VerificacionEstadoRequest;
+import com.example.juicy.Model.ValoracionProductoRequest;
 
 import java.util.Map;
 
@@ -61,11 +65,13 @@ public interface DambJuiceApi {
             @Body ConfirmarVentaRequest request
     );
 
-    @GET("/api_venta_pdf/{id}")
-    Call<ResponseBody> obtenerPdfVenta(
+    @POST("/api_aplicar_cupon")
+    Call<AplicarCuponResponse> aplicarCupon(
             @Header("Authorization") String token,
-            @Path("id") int idVenta
+            @Body AplicarCuponRequest request
     );
+
+
 
     @POST("/api_enviar_comprobante/{id}")
     Call<RptaGeneral> enviarComprobanteCorreo(
@@ -108,4 +114,10 @@ public interface DambJuiceApi {
 
     @POST("api_verificacion_validar")
     Call<RptaGeneral> validarCodigoVerificacion(@Body VerificacionCodigoRequest request);
+
+    @POST("/api_producto_rating")
+    Call<RptaGeneral> valorarProducto(
+            @Header("Authorization") String token,
+            @Body ValoracionProductoRequest body
+    );
 }

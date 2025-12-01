@@ -15,6 +15,28 @@ public class CarritoResponse {
     @SerializedName("productos")
     private List<Producto> productos;
 
+    @SerializedName("subtotal_sin_descuento")
+    private double subtotalSinDescuento;
+
+    @SerializedName("descuento_aplicado")
+    private double descuentoAplicado;
+
+    public double getSubtotalSinDescuento() {
+        return subtotalSinDescuento;
+    }
+
+    public void setSubtotalSinDescuento(double subtotalSinDescuento) {
+        this.subtotalSinDescuento = subtotalSinDescuento;
+    }
+
+    public double getDescuentoAplicado() {
+        return descuentoAplicado;
+    }
+
+    public void setDescuentoAplicado(double descuentoAplicado) {
+        this.descuentoAplicado = descuentoAplicado;
+    }
+
     public int getIdCliente() {
         return idCliente;
     }
