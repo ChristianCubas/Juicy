@@ -462,7 +462,24 @@ public class ResumenFragment extends Fragment {
                         CarritoResponse data = response.body();
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putInt("idVenta", data.getIdVenta());
-                        editor.putFloat("totalCarrito", (float) data.getTotalGeneral());
+
+                        float totalApi = (float) data.getTotalGeneral();
+
+                        // Si ya hubo un cupón aplicado NO pisar el total guardado
+                        float totalGuardado = prefs.getFloat("totalCarrito", -1);
+
+                        if (data.getDescuentoAplicado() > 0) {
+                            // API ya devuelve total con descuento
+                            totalGuardado = totalApi;
+                        }
+
+                        if (totalGuardado == -1) {
+                            // Primera vez
+                            totalGuardado = totalApi;
+                        }
+
+                        editor.putFloat("totalCarrito", totalGuardado).apply();
+
                         editor.apply();
 
                         if (binding != null) {
