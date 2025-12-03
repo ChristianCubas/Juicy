@@ -18,13 +18,17 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.juicy.Interface.metodosPagoApi;
 import com.example.juicy.Model.AplicarCuponRequest;
 import com.example.juicy.Model.AplicarCuponResponse;
 import com.example.juicy.Model.CarritoResponse;
 import com.example.juicy.Model.ConfirmarVentaRequest;
 import com.example.juicy.Model.ConfirmarVentaResponse;
+import com.example.juicy.Model.PaypalCreateOrderRequest;
+import com.example.juicy.Model.PaypalCreateOrderResponse;
 import com.example.juicy.R;
 import com.example.juicy.databinding.FragmentResumenBinding;
+import com.example.juicy.network.ApiConfig;
 import com.example.juicy.network.RetrofitClient;
 
 import java.util.HashMap;
@@ -34,12 +38,19 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ResumenFragment extends Fragment {
 
     private FragmentResumenBinding binding;
     private boolean sincronizandoVentaActiva = false;
     private ResumenProductosAdapter resumenAdapter;
+
+    // PayPal
+    private metodosPagoApi metodosPagoApi;
+    private String authHeaderPaypal;
+    private int idClientePaypal;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -54,22 +65,58 @@ public class ResumenFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Recycler
         resumenAdapter = new ResumenProductosAdapter();
         binding.recyclerViewProductos.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerViewProductos.setAdapter(resumenAdapter);
 
-        // --- INICIO DE CAMBIOS: Listeners nuevos ---
-        // Botón Atrás
-        //binding.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
-
-        // Botón Cupón
+        // Cupón
         binding.btnAplicarCupon.setOnClickListener(v -> aplicarCupon());
-        // --- FIN DE CAMBIOS ---
 
+        // Llenar textos iniciales desde SP + argumentos
         fillSummary(getArguments());
+
+        // Cargar carrito desde API
         cargarResumenDesdeApi();
-        binding.btnConfirmarPago.setOnClickListener(v -> confirmarVenta());
+
+        // ==== INICIALIZAR API PAYPAL ====
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        idClientePaypal = prefs.getInt("idCliente", 0);
+        String token = prefs.getString("tokenJWT", "");
+
+        if (!TextUtils.isEmpty(token) && idClientePaypal > 0) {
+            authHeaderPaypal = "JWT " + token.trim();
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(ApiConfig.BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            metodosPagoApi = retrofit.create(metodosPagoApi.class);
+        }
+
+        // Botón confirmar pago
+        binding.btnConfirmarPago.setOnClickListener(v -> {
+            String metodo = binding.metodoPagoText.getText().toString();
+
+            if (metodo != null && metodo.toLowerCase().contains("paypal")) {
+                // 👉 Si el método elegido es PayPal, primero llamamos a PayPal
+                iniciarPagoPaypal();
+            } else {
+                // 👉 Para VISA u otros métodos, flujo normal
+                confirmarVenta();
+            }
+        });
+
+        // Si venimos desde el deep link de PayPal y ya se capturó el pago
+        Bundle args = getArguments();
+        if (args != null && args.getBoolean("paypal_pagado", false)) {
+            // Ya se cobró en PayPal, solo falta cerrar la venta
+            confirmarVenta();
+        }
     }
+
+    // ================== RESUMEN / TEXTO ==================
 
     private void fillSummary(@Nullable Bundle bundle) {
         SharedPreferences prefs = requireActivity()
@@ -77,7 +124,6 @@ public class ResumenFragment extends Fragment {
 
         float total = prefs.getFloat("totalCarrito", 0f);
 
-        // --- CAMBIO: Inicializamos Subtotal y Total iguales ---
         binding.tvSubtotal.setText(String.format(Locale.getDefault(), "S/. %.2f", total));
         binding.totalText.setText(String.format(Locale.getDefault(), "S/. %.2f", total));
 
@@ -103,7 +149,8 @@ public class ResumenFragment extends Fragment {
         );
     }
 
-    // --- NUEVO MÉTODO: APLICAR CUPÓN ---
+    // ================== CUPÓN ==================
+
     private void aplicarCupon() {
         String codigo = binding.etCupon.getText().toString().trim().toUpperCase();
         if (TextUtils.isEmpty(codigo)) {
@@ -114,11 +161,13 @@ public class ResumenFragment extends Fragment {
         // Ocultar teclado
         View view = requireActivity().getCurrentFocus();
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) requireActivity()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
-        SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         int idCliente = prefs.getInt("idCliente", 0);
         String token = prefs.getString("tokenJWT", "");
 
@@ -130,7 +179,8 @@ public class ResumenFragment extends Fragment {
         RetrofitClient.getApiService().aplicarCupon("JWT " + token, request)
                 .enqueue(new Callback<AplicarCuponResponse>() {
                     @Override
-                    public void onResponse(@NonNull Call<AplicarCuponResponse> call, @NonNull Response<AplicarCuponResponse> response) {
+                    public void onResponse(@NonNull Call<AplicarCuponResponse> call,
+                                           @NonNull Response<AplicarCuponResponse> response) {
                         if (binding == null) return;
 
                         binding.btnAplicarCupon.setEnabled(true);
@@ -139,9 +189,12 @@ public class ResumenFragment extends Fragment {
                         if (response.isSuccessful() && response.body() != null) {
                             AplicarCuponResponse data = response.body();
                             if (data.getCode() == 1) {
-                                // ÉXITO
                                 mostrarMensajeCupon(data.getMessage(), true);
-                                actualizarPreciosUI(data.getSubtotal(), data.getDescuento(), data.getTotal_final());
+                                actualizarPreciosUI(
+                                        data.getSubtotal(),
+                                        data.getDescuento(),
+                                        data.getTotal_final()
+                                );
 
                                 binding.etCupon.setEnabled(false);
                                 binding.btnAplicarCupon.setEnabled(false);
@@ -151,17 +204,19 @@ public class ResumenFragment extends Fragment {
                             }
                         } else {
                             Log.d("CUPON_LOG", "Enviando cupón: " + codigo + " para cliente: " + idCliente);
-                            Log.e("CUPON_LOG", "Error API: " + response.code() + " - " + response.message()); // <--- LOG ERROR
+                            Log.e("CUPON_LOG", "Error API: " + response.code() + " - " + response.message());
                             try {
-                                Log.e("CUPON_LOG", "Error Body: " + response.errorBody().string()); // <--- LOG DETALLE
-                            } catch (Exception e) {}
+                                if (response.errorBody() != null) {
+                                    Log.e("CUPON_LOG", "Error Body: " + response.errorBody().string());
+                                }
+                            } catch (Exception e) { /* ignore */ }
                             mostrarMensajeCupon("Error al aplicar cupón", false);
-
                         }
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<AplicarCuponResponse> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<AplicarCuponResponse> call,
+                                          @NonNull Throwable t) {
                         if (binding == null) return;
                         binding.btnAplicarCupon.setEnabled(true);
                         binding.btnAplicarCupon.setText("Aplicar");
@@ -170,20 +225,20 @@ public class ResumenFragment extends Fragment {
                 });
     }
 
-    // --- NUEVO MÉTODO: Mostrar mensajes de cupón ---
     private void mostrarMensajeCupon(String msg, boolean exito) {
         binding.tvMensajeCupon.setVisibility(View.VISIBLE);
         binding.tvMensajeCupon.setText(msg);
-        binding.tvMensajeCupon.setTextColor(exito ? Color.parseColor("#4CAF50") : Color.RED);
+        binding.tvMensajeCupon.setTextColor(
+                exito ? Color.parseColor("#4CAF50") : Color.RED
+        );
     }
 
-    // --- NUEVO MÉTODO: Actualizar UI de precios ---
     private void actualizarPreciosUI(double subtotal, double descuento, double total) {
         binding.tvSubtotal.setText(String.format(Locale.getDefault(), "S/. %.2f", subtotal));
         binding.totalText.setText(String.format(Locale.getDefault(), "S/. %.2f", total));
 
-        // Guardar nuevo total para la confirmación final
-        SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         prefs.edit().putFloat("totalCarrito", (float) total).apply();
 
         if (descuento > 0) {
@@ -193,6 +248,8 @@ public class ResumenFragment extends Fragment {
             binding.layoutDescuento.setVisibility(View.GONE);
         }
     }
+
+    // ================== CONFIRMAR VENTA ==================
 
     private void confirmarVenta() {
         SharedPreferences prefs = requireActivity()
@@ -249,12 +306,11 @@ public class ResumenFragment extends Fragment {
                         }
 
                         ConfirmarVentaResponse body = response.body();
-                        // Toast.makeText(requireContext(), body.getMessage(), Toast.LENGTH_SHORT).show();
 
                         if (body.getCode() == 1 && body.getData() != null) {
                             ConfirmarVentaResponse.VentaData data = body.getData();
                             Toast.makeText(requireContext(),
-                                    "¡Pedido realizado con éxito!", // Mensaje más amigable
+                                    "¡Pedido realizado con éxito!",
                                     Toast.LENGTH_LONG).show();
                             navegarAConfirmacion(data);
                         } else {
@@ -289,8 +345,10 @@ public class ResumenFragment extends Fragment {
         Bundle args = new Bundle();
         args.putInt(ConfirmacionPedidoFragment.ARG_ID_VENTA, data.getId_venta());
         args.putDouble(ConfirmacionPedidoFragment.ARG_TOTAL, obtenerTotalPedido());
-        args.putString(ConfirmacionPedidoFragment.ARG_DIRECCION, binding != null ? binding.entregaText.getText().toString() : "");
-        args.putString(ConfirmacionPedidoFragment.ARG_METODO, binding != null ? binding.metodoPagoText.getText().toString() : "");
+        args.putString(ConfirmacionPedidoFragment.ARG_DIRECCION,
+                binding != null ? binding.entregaText.getText().toString() : "");
+        args.putString(ConfirmacionPedidoFragment.ARG_METODO,
+                binding != null ? binding.metodoPagoText.getText().toString() : "");
 
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_resumenFragment_to_confirmacionPedidoFragment, args);
@@ -346,9 +404,12 @@ public class ResumenFragment extends Fragment {
                                 .apply();
 
                         if (binding != null) {
-                            // --- CAMBIO: Actualizamos Subtotal y Total ---
-                            double subtotal = body.getSubtotalSinDescuento() > 0 ? body.getSubtotalSinDescuento() : body.getTotalGeneral();
-                            actualizarPreciosUI(subtotal, body.getDescuentoAplicado(), body.getTotalGeneral());
+                            double subtotal = body.getSubtotalSinDescuento() > 0
+                                    ? body.getSubtotalSinDescuento()
+                                    : body.getTotalGeneral();
+                            actualizarPreciosUI(subtotal,
+                                    body.getDescuentoAplicado(),
+                                    body.getTotalGeneral());
                         }
                         if (resumenAdapter != null) {
                             resumenAdapter.setData(body.getProductos());
@@ -405,12 +466,12 @@ public class ResumenFragment extends Fragment {
                         editor.apply();
 
                         if (binding != null) {
-                            // --- CAMBIO: Actualizamos Subtotal y Total ---
-                            // Si tu CarritoResponse viejo no tiene getSubtotalSinDescuento,
-                            // puedes usar getTotalGeneral() como subtotal temporalmente.
-                            // Pero la API actualizada de Python YA devuelve estos campos.
-                            double subtotal = data.getSubtotalSinDescuento() > 0 ? data.getSubtotalSinDescuento() : data.getTotalGeneral();
-                            actualizarPreciosUI(subtotal, data.getDescuentoAplicado(), data.getTotalGeneral());
+                            double subtotal = data.getSubtotalSinDescuento() > 0
+                                    ? data.getSubtotalSinDescuento()
+                                    : data.getTotalGeneral();
+                            actualizarPreciosUI(subtotal,
+                                    data.getDescuentoAplicado(),
+                                    data.getTotalGeneral());
                         }
                         if (resumenAdapter != null) {
                             resumenAdapter.setData(data.getProductos());
@@ -425,6 +486,85 @@ public class ResumenFragment extends Fragment {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    // ================== PAYPAL (crear orden y abrir navegador) ==================
+
+    private void iniciarPagoPaypal() {
+        if (metodosPagoApi == null || TextUtils.isEmpty(authHeaderPaypal) || idClientePaypal <= 0) {
+            Toast.makeText(requireContext(),
+                    "Sesión inválida para pagar con PayPal.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        toggleConfirmButton(false, true); // "Confirmando..."
+
+        PaypalCreateOrderRequest body = new PaypalCreateOrderRequest(idClientePaypal, "USD");
+
+        metodosPagoApi.createPaypalOrder(authHeaderPaypal, body)
+                .enqueue(new Callback<PaypalCreateOrderResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<PaypalCreateOrderResponse> call,
+                                           @NonNull Response<PaypalCreateOrderResponse> response) {
+
+                        toggleConfirmButton(true, false); // restaurar botón
+
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(requireContext(),
+                                    "Error al crear orden PayPal: " + response.code(),
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        PaypalCreateOrderResponse r = response.body();
+                        if (r.getCode() != 1 || r.getData() == null) {
+                            String msg = r.getMessage();
+                            if (msg == null || msg.trim().isEmpty()) {
+                                msg = "No se pudo crear la orden PayPal.";
+                            }
+                            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        PaypalCreateOrderResponse.Data data = r.getData();
+                        String approvalUrl = data.getApprovalUrl();
+
+                        if (approvalUrl == null || approvalUrl.trim().isEmpty()) {
+                            Toast.makeText(requireContext(),
+                                    "PayPal no devolvió URL de aprobación.",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        abrirPaypalEnNavegador(approvalUrl);
+
+                        Toast.makeText(requireContext(),
+                                "Completa el pago en PayPal y regresarás a la app.",
+                                Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<PaypalCreateOrderResponse> call,
+                                          @NonNull Throwable t) {
+                        toggleConfirmButton(true, false);
+                        Toast.makeText(requireContext(),
+                                "Error de red al crear orden PayPal: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void abrirPaypalEnNavegador(@NonNull String url) {
+        try {
+            android.content.Intent intent = new android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse(url)
+            );
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "No se pudo abrir PayPal.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

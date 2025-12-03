@@ -234,7 +234,7 @@ public class MpagoFragment extends Fragment {
                 break;
 
             case OTHER_PAYPAL:
-                pagarConPaypal();
+                seleccionarPaypalYContinuar();
                 break;
         }
     }
@@ -273,16 +273,14 @@ public class MpagoFragment extends Fragment {
 
                 boolean operacionExitosa = r.getCode() == 1 || resp.code() == 200;
                 if (operacionExitosa) {
-                    // 🔹 Guardar el id_metodo_pago en SharedPreferences
+                    // Guardar el id_metodo_pago en SharedPreferences
                     SharedPreferences sp = requireActivity()
                             .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
                     sp.edit()
                             .putInt("idMetodoPagoSeleccionado", metodoSeleccionado)
+                            .putBoolean("metodoPagoEsPaypal", false)
                             .apply();
-
-                    // Aquí tu equipo ya puede navegar a RESUMEN PEDIDO
-                    // NavHostFragment.findNavController(MpagoFragment.this)
-                    //        .navigate(R.id.resumenPedidoFragment);
+                    // Ir a la pantalla de resumen
                     irAResumen(getSelectedMetodoText());
                 }
             }
@@ -395,7 +393,10 @@ public class MpagoFragment extends Fragment {
                     if (idNuevoMetodo > 0) {
                         SharedPreferences sp = requireActivity()
                                 .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-                        sp.edit().putInt("idMetodoPagoSeleccionado", idNuevoMetodo).apply();
+                        sp.edit()
+                                .putInt("idMetodoPagoSeleccionado", idNuevoMetodo)
+                                .putBoolean("metodoPagoEsPaypal", false)
+                                .apply();
                     }
                     String mensaje = rg.getMessage();
                     if (mensaje == null || mensaje.trim().isEmpty()) {
@@ -452,6 +453,7 @@ public class MpagoFragment extends Fragment {
                         .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
                 sp.edit()
                         .putInt("idMetodoPagoSeleccionado", idNuevoMetodo)
+                        .putBoolean("metodoPagoEsPaypal", false)
                         .apply();
 
                 // Ahora sí, usar ese id en api_metodo_pago_venta
@@ -500,15 +502,28 @@ public class MpagoFragment extends Fragment {
 
     // ---------- 3) Pagar con PayPal (OTHER_PAYPAL) ----------
 
-    private void pagarConPaypal() {
-        // Si todavía no hemos creado la orden, la creamos
-        if (pendingPaypalOrderId == null) {
-            crearOrdenPaypal();
-        } else {
-            // Ya tenemos orderId, así que intentamos capturar
-            capturarOrdenPaypal();
-        }
+    private void seleccionarPaypalYContinuar() {
+        // Guardamos que el método elegido es PayPal
+        SharedPreferences sp = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        sp.edit()
+                .putBoolean("metodoPagoEsPaypal", true)
+                .putInt("idMetodoPagoSeleccionado", -1) // aún no hay id_metodo_pago real
+                .apply();
+
+        // Navegar al resumen mostrando "PayPal" como texto de método
+        irAResumen("PayPal");
     }
+
+//    private void pagarConPaypal() {
+//        // Si todavía no hemos creado la orden, la creamos
+//        if (pendingPaypalOrderId == null) {
+//            crearOrdenPaypal();
+//        } else {
+//            // Ya tenemos orderId, así que intentamos capturar
+//            capturarOrdenPaypal();
+//        }
+//    }
 
     private void crearOrdenPaypal() {
         if (api == null) {
