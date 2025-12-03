@@ -667,7 +667,6 @@ public class DetalleProductoActivity extends AppCompatActivity {
                         "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     private void actualizarResumenValoracion() {

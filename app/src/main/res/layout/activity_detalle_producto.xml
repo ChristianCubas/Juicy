@@ -199,7 +199,10 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+<<<<<<< HEAD
                     android:layout_weight="1"
+=======
+>>>>>>> origin/fabrizio2
                     android:text="Personaliza tu producto"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                     android:textStyle="bold"/>
@@ -228,6 +231,7 @@
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
                     android:paddingBottom="16dp" />
+<<<<<<< HEAD
 
             </LinearLayout>
 
@@ -291,6 +295,8 @@
                         android:layout_height="32dp"
                         android:src="@drawable/ic_star_outline"
                         android:padding="2dp"/>
+=======
+>>>>>>> origin/fabrizio2
 
                     <ImageView
                         android:id="@+id/star2"
@@ -352,4 +358,8 @@
 
         </LinearLayout>
     </ScrollView>
+<<<<<<< HEAD
 </androidx.constraintlayout.widget.ConstraintLayout>
+=======
+</androidx.constraintlayout.widget.ConstraintLayout>
+>>>>>>> origin/fabrizio2
