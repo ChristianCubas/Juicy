@@ -3,6 +3,7 @@ package com.example.juicy;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -297,11 +298,24 @@ public class MpagoFragment extends Fragment {
     // ---------- 2) Pagar con tarjeta nueva (OTHER_VISA) ----------
 
     private void pagarConTarjetaNuevaVisa() {
+        if (selectedMethod != SelectedMethod.OTHER_VISA) {
+            toast("Seleccione la opción VISA para pagar con tarjeta.");
+            return;
+        }
         String titular = textOf(binding.otherVisaHolderInput);
         String pan     = textOf(binding.otherVisaNumberInput);
         String exp     = textOf(binding.otherVisaExpInput);
         String cvv     = textOf(binding.otherVisaCvvInput);
         boolean guardar = binding.saveCardSwitch.isChecked();
+
+        // Si tod0 está vacío, no intentamos ni validar ni insertar
+        if (TextUtils.isEmpty(titular) &&
+                TextUtils.isEmpty(pan) &&
+                TextUtils.isEmpty(exp) &&
+                TextUtils.isEmpty(cvv)) {
+            toast("Complete los datos de la tarjeta para continuar.");
+            return;
+        }
 
         // Normalizar PAN
         pan = pan.replaceAll("\\s", "");
@@ -319,6 +333,29 @@ public class MpagoFragment extends Fragment {
             toast("Fecha de expiración inválida (MM/YY)");
             return;
         }
+        // ---- Validar que la fecha de expiración sea futura o del mes actual ----
+        try {
+            String[] partes = exp.split("/");
+            int expMonth = Integer.parseInt(partes[0]);
+            int expYear  = Integer.parseInt(partes[1]);
+
+            java.util.Calendar now = java.util.Calendar.getInstance();
+            int currentYear = now.get(java.util.Calendar.YEAR) % 100;
+            int currentMonth = now.get(java.util.Calendar.MONTH) + 1;
+
+            if (expYear < currentYear) {
+                toast("La tarjeta está expirada.");
+                return;
+            }
+            if (expYear == currentYear && expMonth < currentMonth) {
+                toast("La tarjeta está expirada.");
+                return;
+            }
+        } catch (Exception e) {
+            toast("Fecha de expiración inválida.");
+            return;
+        }
+
         if (TextUtils.isEmpty(cvv) || cvv.length() < 3) {
             toast("CVV inválido");
             return;
@@ -567,7 +604,7 @@ public class MpagoFragment extends Fragment {
                         .putInt("idMetodoPagoSeleccionado", idMetodoPago)
                         .apply();
 
-                toast("Pago PayPal completado correctamente.");
+                toast("Pago PayPal añadido correctamente.");
 
                 // Ya no tenemos orden pendiente
                 pendingPaypalOrderId = null;
@@ -644,6 +681,23 @@ public class MpagoFragment extends Fragment {
             updateSelectionUI();
         });
 
+        binding.otherVisaHolderInput.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(50),
+                (source, start, end, dest, dstart, dend) -> {
+                    for (int i = start; i < end; i++) {
+                        char c = source.charAt(i);
+                        if (!Character.isLetter(c) && c != ' ') {
+                            return "";
+                        }
+                    }
+                    return null;
+                }
+        });
+
+        if (binding.otherVisaExpInput != null) {
+            binding.otherVisaExpInput.addTextChangedListener(expiryWatcher(binding.otherVisaExpInput));
+        }
+
         // PayPal
         binding.otherPaypal.setOnClickListener(v -> {
             selectedMethod = SelectedMethod.OTHER_PAYPAL;
@@ -651,10 +705,6 @@ public class MpagoFragment extends Fragment {
             updateSavedCardsUI();
             updateSelectionUI();
         });
-
-        if (binding.otherVisaExpInput != null) {
-            binding.otherVisaExpInput.addTextChangedListener(expiryWatcher(binding.otherVisaExpInput));
-        }
     }
 
     private void updateSelectionUI() {
@@ -677,6 +727,9 @@ public class MpagoFragment extends Fragment {
         binding.otherVisaFields.setVisibility(
                 selectedMethod == SelectedMethod.OTHER_VISA ? View.VISIBLE : View.GONE
         );
+
+        binding.saveCardSwitch.setEnabled(selectedMethod == SelectedMethod.OTHER_VISA);
+
     }
 
     // ===================== Utilitarios =====================
@@ -712,22 +765,33 @@ public class MpagoFragment extends Fragment {
     private TextWatcher expiryWatcher(@NonNull TextView target) {
         return new TextWatcher() {
             boolean editing;
+
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            @Override public void afterTextChanged(Editable s) {
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 if (editing) return;
                 editing = true;
-                String digits = s.toString().replace("/", "");
-                if (digits.length() > 4) digits = digits.substring(0, 4);
-                if (digits.length() >= 3) {
-                    s.replace(0, s.length(), digits.substring(0, 2) + "/" + digits.substring(2));
-                } else {
-                    s.replace(0, s.length(), digits);
+
+                String digits = s.toString().replaceAll("[^0-9]", "");
+
+                if (digits.length() > 4) {
+                    digits = digits.substring(0, 4);
                 }
+                String formatted;
+                if (digits.length() >= 3) {
+                    formatted = digits.substring(0, 2) + "/" + digits.substring(2);
+                } else {
+                    formatted = digits;
+                }
+
+                s.replace(0, s.length(), formatted);
                 editing = false;
             }
         };
     }
+
 
     @Override
     public void onDestroyView() {
