@@ -45,13 +45,14 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="crear_cuenta"></string>
     <string name="payment_method_title">Método de pago</string>
     <string name="payment_saved_methods">Guardados:</string>
     <string name="payment_other_methods">Otros:</string>
     <string name="payment_card_visa">Visa</string>
+    <string name="select">Seleccionado</string>
     <string name="payment_saved_primary_title">Visa</string>
     <string name="payment_saved_secondary_title">Visa</string>
     <string name="payment_saved_primary_number">**** **** **** 5678</string>
@@ -71,9 +72,11 @@
     <string name="payment_other_cvv_hint">CVV</string>
     <string name="payment_other_cvv_sample">776</string>
     <string name="payment_other_save_card">Guardar tarjeta</string>
+    <string name="paypal">PayPal</string>
     <string name="payment_other_paypal_id_hint">ID del titular</string>
     <string name="payment_other_paypal_id_sample">cesar.paypal</string>
     <string name="payment_paypal_open_account">Abrir cuenta de Paypal</string>
+    <string name="payment_paypal_hint">Correo o ID PayPal</string>
     <string name="continuar">Continuar</string>
     <string name="payment_wallet_title">Billetera</string>
     <string name="payment_wallet_subtitle">Agregar tarjeta de pago</string>

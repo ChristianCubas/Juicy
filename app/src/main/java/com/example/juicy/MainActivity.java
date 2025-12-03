@@ -3,9 +3,11 @@ package com.example.juicy;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -20,11 +22,21 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Cambia del tema de splash al tema principal al iniciar
+        setTheme(R.style.Theme_Juicy);
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
+
+        // Fade-in del contenido tras el splash
+        binding.getRoot().setAlpha(0f);
+        binding.getRoot().animate()
+                .alpha(1f)
+                .setDuration(450L)
+                .setStartDelay(150L)
+                .start();
 
         // El id debe coincidir con el XML: nav_host_fragment
         NavHostFragment navHostFragment = (NavHostFragment)
@@ -38,25 +50,12 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_inferior, menu);
         return true;
     }
 
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) return true;
-
-        if (id == R.id.action_mpago)            { navController.navigate(R.id.paymentMethodFragment);  return true; }
-        if (id == R.id.action_billetera)        { navController.navigate(R.id.paymentWalletFragment);   return true; }
-        if (id == R.id.action_agregardirecciones){ navController.navigate(R.id.agregarDirecciones);     return true; }
-        if (id == R.id.action_direcciones)      { navController.navigate(R.id.direccionesFragment);     return true; }
-        if (id == R.id.action_buscarmapa)       { navController.navigate(R.id.buscarMapa);              return true; }
-        if (id == R.id.action_perfilUsuario)    { navController.navigate(R.id.perfilUsuario);           return true; }
-        if (id == R.id.action_editorPerfil)     { navController.navigate(R.id.editarPerfil);            return true; }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override public boolean onSupportNavigateUp() {
         return NavigationUI.navigateUp(navController, appBarConfiguration)

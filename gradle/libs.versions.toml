@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "8.13.1"
 converterGson = "3.0.0"
 converterGsonVersion = "2.5.0"
 junit = "4.13.2"
@@ -8,11 +8,15 @@ espressoCore = "3.7.0"
 appcompat = "1.7.1"
 material = "1.13.0"
 constraintlayout = "2.2.1"
+materialVersion = "1.11.0"
 navigationFragment = "2.9.4"
 navigationUi = "2.9.4"
 retrofit = "3.1.0-SNAPSHOT"
 retrofitVersion = "2.5.0"
+squareupRetrofit = "3.0.0"
 volley = "1.2.1"
+volleyVersion = "1.1.1"
+activity = "1.11.0"
 
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
@@ -23,11 +27,15 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+material-v1110 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-v250 = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
+retrofit-v300 = { module = "com.squareup.retrofit2:retrofit", version.ref = "squareupRetrofit" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
+volley-v111 = { module = "com.android.volley:volley", version.ref = "volleyVersion" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

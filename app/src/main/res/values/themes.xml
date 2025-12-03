@@ -2,8 +2,19 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Juicy" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/colorPrimary</item>
     </style>
 
     <style name="Theme.Juicy" parent="Base.Theme.Juicy" />
+
+    <!-- Tema de arranque (splash) -->
+    <style name="Theme.Juicy.Splash" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/button_outlined_stroke_color</item>
+        <item name="android:textColor">@color/button_outlined_text_color</item>
+    </style>
+
 </resources>
