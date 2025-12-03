@@ -27,6 +27,10 @@ import com.example.juicy.Model.MetodoPagoVentaRequest;
 import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.databinding.FragmentMpagoBinding;
 import com.example.juicy.network.ApiConfig;
+import com.example.juicy.Model.PaypalCreateOrderRequest;
+import com.example.juicy.Model.PaypalCreateOrderResponse;
+import com.example.juicy.Model.PaypalCaptureRequest;
+import com.example.juicy.Model.PaypalCaptureResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +61,8 @@ public class MpagoFragment extends Fragment {
         OTHER_VISA,
         OTHER_PAYPAL
     }
+    // PayPal: orderId pendiente de capturar
+    private String pendingPaypalOrderId = null;
 
     private SelectedMethod selectedMethod = SelectedMethod.SAVED;
 
@@ -227,9 +233,7 @@ public class MpagoFragment extends Fragment {
                 break;
 
             case OTHER_PAYPAL:
-                Toast.makeText(requireContext(),
-                        "Pago con PayPal aún no implementado",
-                        Toast.LENGTH_SHORT).show();
+                pagarConPaypal();
                 break;
         }
     }
@@ -457,6 +461,143 @@ public class MpagoFragment extends Fragment {
         });
     }
 
+    // ---------- 3) Pagar con PayPal (OTHER_PAYPAL) ----------
+
+    private void pagarConPaypal() {
+        // Si todavía no hemos creado la orden, la creamos
+        if (pendingPaypalOrderId == null) {
+            crearOrdenPaypal();
+        } else {
+            // Ya tenemos orderId, así que intentamos capturar
+            capturarOrdenPaypal();
+        }
+    }
+
+    private void crearOrdenPaypal() {
+        if (api == null) {
+            toast("Error interno: api nula");
+            return;
+        }
+
+        // Usamos la moneda que definiste en el backend, aquí USD
+        PaypalCreateOrderRequest body = new PaypalCreateOrderRequest(idCliente, "USD");
+
+        api.createPaypalOrder(authHeader, body).enqueue(new Callback<PaypalCreateOrderResponse>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<PaypalCreateOrderResponse> call,
+                    @NonNull Response<PaypalCreateOrderResponse> response
+            ) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    toast("Error al crear orden PayPal. Código: " + response.code());
+                    return;
+                }
+
+                PaypalCreateOrderResponse r = response.body();
+                if (r.getCode() != 1 || r.getData() == null) {
+                    toast(r.getMessage() != null ? r.getMessage() : "No se pudo crear orden PayPal");
+                    return;
+                }
+
+                PaypalCreateOrderResponse.Data data = r.getData();
+                String orderId = data.getOrderId();
+                String approvalUrl = data.getApprovalUrl();
+
+                if (orderId == null || approvalUrl == null) {
+                    toast("Respuesta inválida de PayPal (sin orderId o approvalUrl).");
+                    return;
+                }
+
+                // Guardamos temporalmente el orderId en el fragment
+                pendingPaypalOrderId = orderId;
+
+                // Abrimos PayPal en el navegador
+                abrirPaypalEnNavegador(approvalUrl);
+
+                // Avisamos al usuario que debe volver y pulsar continuar
+                toast("Completa el pago en PayPal y luego regresa para confirmar.");
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<PaypalCreateOrderResponse> call,
+                    @NonNull Throwable t
+            ) {
+                toast("Error de red al crear orden PayPal: " + t.getMessage());
+            }
+        });
+    }
+
+    private void capturarOrdenPaypal() {
+        if (pendingPaypalOrderId == null) {
+            toast("No hay orden PayPal pendiente.");
+            return;
+        }
+
+        PaypalCaptureRequest body = new PaypalCaptureRequest(idCliente, pendingPaypalOrderId);
+
+        api.capturePaypalOrder(authHeader, body).enqueue(new Callback<PaypalCaptureResponse>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<PaypalCaptureResponse> call,
+                    @NonNull Response<PaypalCaptureResponse> response
+            ) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    toast("Error al confirmar pago PayPal. Código: " + response.code());
+                    return;
+                }
+
+                PaypalCaptureResponse r = response.body();
+                if (r.getCode() != 1 || r.getData() == null) {
+                    String msg = r.getMessage();
+                    if (msg == null || msg.trim().isEmpty()) {
+                        msg = "No se pudo completar el pago con PayPal.";
+                    }
+                    toast(msg);
+                    return;
+                }
+
+                PaypalCaptureResponse.Data data = r.getData();
+                int idMetodoPago = data.getId_metodo_pago();
+
+                // Guardamos id_metodo_pago en SharedPreferences como en los otros métodos
+                SharedPreferences sp = requireActivity()
+                        .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                sp.edit()
+                        .putInt("idMetodoPagoSeleccionado", idMetodoPago)
+                        .apply();
+
+                toast("Pago PayPal completado correctamente.");
+
+                // Ya no tenemos orden pendiente
+                pendingPaypalOrderId = null;
+
+                // Ir a resumen indicando que fue PayPal
+                irAResumen("PayPal");
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<PaypalCaptureResponse> call,
+                    @NonNull Throwable t
+            ) {
+                toast("Error de red al confirmar pago PayPal.");
+            }
+        });
+    }
+
+    private void abrirPaypalEnNavegador(@NonNull String url) {
+        try {
+            android.content.Intent intent = new android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse(url)
+            );
+            startActivity(intent);
+        } catch (Exception e) {
+            toast("No se pudo abrir PayPal.");
+        }
+    }
+
     @Nullable
     private Integer resolveMetodoGuardado() {
         if (selectedSavedPosition >= 0 &&
@@ -495,6 +636,7 @@ public class MpagoFragment extends Fragment {
     // ===================== Listeners de “Otros métodos” =====================
 
     private void setupListeners() {
+        // VISA
         binding.otherVisaCard.setOnClickListener(v -> {
             selectedMethod = SelectedMethod.OTHER_VISA;
             selectedSavedPosition = -1;
@@ -502,12 +644,13 @@ public class MpagoFragment extends Fragment {
             updateSelectionUI();
         });
 
-//        binding.otherPaypalCard.setOnClickListener(v -> {
-//            selectedMethod = SelectedMethod.OTHER_PAYPAL;
-//            selectedSavedPosition = -1;
-//            updateSavedCardsUI();
-//            updateSelectionUI();
-//        });
+        // PayPal
+        binding.otherPaypal.setOnClickListener(v -> {
+            selectedMethod = SelectedMethod.OTHER_PAYPAL;
+            selectedSavedPosition = -1;
+            updateSavedCardsUI();
+            updateSelectionUI();
+        });
 
         if (binding.otherVisaExpInput != null) {
             binding.otherVisaExpInput.addTextChangedListener(expiryWatcher(binding.otherVisaExpInput));
@@ -520,19 +663,20 @@ public class MpagoFragment extends Fragment {
         int checkedIcon = R.drawable.ic_check_circle_file;
         int uncheckedIcon = R.drawable.ic_uncheck_circle;
 
+        // VISA
         binding.otherVisaStatus.setImageResource(
                 selectedMethod == SelectedMethod.OTHER_VISA ? checkedIcon : uncheckedIcon
         );
-//        binding.otherPaypalStatus.setImageResource(
-//                selectedMethod == SelectedMethod.OTHER_PAYPAL ? checkedIcon : uncheckedIcon
-//        );
 
+        // PayPal
+        binding.otherPaypalStatus.setImageResource(
+                selectedMethod == SelectedMethod.OTHER_PAYPAL ? checkedIcon : uncheckedIcon
+        );
+
+        // Campos de VISA visibles solo cuando se selecciona VISA
         binding.otherVisaFields.setVisibility(
                 selectedMethod == SelectedMethod.OTHER_VISA ? View.VISIBLE : View.GONE
         );
-//        binding.otherPaypalFields.setVisibility(
-//                selectedMethod == SelectedMethod.OTHER_PAYPAL ? View.VISIBLE : View.GONE
-//        );
     }
 
     // ===================== Utilitarios =====================

@@ -4,6 +4,7 @@ import com.example.juicy.Catalogo.ResponseDirecciones;
 import com.example.juicy.Model.ActualizarPasswordRequest;
 import com.example.juicy.Model.AplicarCuponRequest;
 import com.example.juicy.Model.AplicarCuponResponse;
+import com.example.juicy.Model.PagoPaypal;
 import com.example.juicy.Model.PaypalComprobanteRequest;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
@@ -108,7 +109,4 @@ public interface DambJuiceApi {
             @Header("Authorization") String token,
             @Body ValoracionProductoRequest body
     );
-
-
-
 }
