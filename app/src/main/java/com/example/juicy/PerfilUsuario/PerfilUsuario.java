@@ -88,6 +88,14 @@ public class PerfilUsuario extends Fragment {
         etApellidoM = root.findViewById(R.id.etApellidoM);
         etCelular = root.findViewById(R.id.etCelular);
         Button btnEditar = root.findViewById(R.id.btnEditarPerfil);
+        Button btnHistorial = root.findViewById(R.id.btnHistorial);
+
+
+        if (btnHistorial != null) {
+            btnHistorial.setOnClickListener(v -> {
+                NavHostFragment.findNavController(this).navigate(R.id.historialComprasFragment);
+            });
+        }
 
         SharedPreferences prefs = requireActivity().getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
         idCliente = prefs.getInt("idCliente", 0);
