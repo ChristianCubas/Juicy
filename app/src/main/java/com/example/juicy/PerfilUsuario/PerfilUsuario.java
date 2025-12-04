@@ -13,9 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import android.content.Intent;
+
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.juicy.FirstFragment;
 import com.example.juicy.network.VolleySingleton;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.juicy.R;
@@ -89,11 +92,22 @@ public class PerfilUsuario extends Fragment {
         etCelular = root.findViewById(R.id.etCelular);
         Button btnEditar = root.findViewById(R.id.btnEditarPerfil);
         Button btnHistorial = root.findViewById(R.id.btnHistorial);
+        Button btnCerrarSesion = root.findViewById(R.id.btnCerrarSesion);
 
 
         if (btnHistorial != null) {
             btnHistorial.setOnClickListener(v -> {
                 NavHostFragment.findNavController(this).navigate(R.id.historialComprasFragment);
+            });
+        }
+        if (btnCerrarSesion != null) {
+            btnCerrarSesion.setOnClickListener(v -> {
+                SharedPreferences prefs = requireActivity()
+                        .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                prefs.edit().clear().apply();
+
+                NavHostFragment.findNavController(PerfilUsuario.this)
+                        .navigate(R.id.FirstFragment); // <-- usa el id real de tu primer fragment
             });
         }
 

@@ -46,13 +46,8 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:text="Aplicar"
-<<<<<<< HEAD
             android:backgroundTint="#FFF48C"
             android:textColor="#333333"/>
-=======
-            android:backgroundTint="#333333"
-            android:textColor="@android:color/white"/>
->>>>>>> origin/fabrizio2
     </LinearLayout>
 
     <TextView

@@ -199,10 +199,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-<<<<<<< HEAD
                     android:layout_weight="1"
-=======
->>>>>>> origin/fabrizio2
                     android:text="Personaliza tu producto"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                     android:textStyle="bold"/>
@@ -231,7 +228,7 @@
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
                     android:paddingBottom="16dp" />
-<<<<<<< HEAD
+
 
             </LinearLayout>
 
@@ -295,8 +292,7 @@
                         android:layout_height="32dp"
                         android:src="@drawable/ic_star_outline"
                         android:padding="2dp"/>
-=======
->>>>>>> origin/fabrizio2
+
 
                     <ImageView
                         android:id="@+id/star2"
@@ -345,6 +341,21 @@
                     android:layout_marginTop="12dp"
                     android:text="Aún sin valoraciones"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"/>
+                <TextView
+                    android:id="@+id/tvVerResenas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ver reseñas"
+                    android:textStyle="bold"
+                    android:paddingTop="8dp"
+                    android:textColor="#618163"/>
+
+                <LinearLayout
+                    android:id="@+id/layoutResenas"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/btnEnviarValoracion"
@@ -358,8 +369,7 @@
 
         </LinearLayout>
     </ScrollView>
-<<<<<<< HEAD
+
 </androidx.constraintlayout.widget.ConstraintLayout>
-=======
-</androidx.constraintlayout.widget.ConstraintLayout>
->>>>>>> origin/fabrizio2
+
+

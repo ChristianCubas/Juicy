@@ -88,6 +88,14 @@ public class DetalleProductoActivity extends AppCompatActivity {
     private String miComentario = "";
     private TextView tvRatingResumen;
 
+    private boolean puedeValorar = false;
+    private TextView tvVerResenas;
+    private LinearLayout layoutResenas;
+    private JSONArray resenasBackend;
+    private LinearLayout layoutStars;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,6 +153,12 @@ public class DetalleProductoActivity extends AppCompatActivity {
                 findViewById(R.id.star4),
                 findViewById(R.id.star5)
         };
+
+        tvVerResenas = findViewById(R.id.tvVerResenas);
+        layoutResenas = findViewById(R.id.layoutResenas);
+        layoutStars = findViewById(R.id.layoutStars);
+
+
     }
 
     private void cargarDetallesProducto() {
@@ -160,6 +174,7 @@ public class DetalleProductoActivity extends AppCompatActivity {
                         }
 
                         JSONObject data = response.getJSONObject("data");
+                        resenasBackend = data.optJSONArray("resenas");
                         productoActual = new Producto();
                         productoActual.setId_producto(data.getInt("id_producto"));
                         productoActual.setNombre(data.getString("nombre"));
@@ -176,13 +191,23 @@ public class DetalleProductoActivity extends AppCompatActivity {
 
                         // ----- Rating recibido del backend -----
                         ratingPromedio = data.optDouble("rating_promedio", 0.0);
-                        ratingTotal = data.optInt("rating_total", 0);
+                        ratingTotal    = data.optInt("rating_total", 0);
+
+                        // Primero leo mi rating y comentario
                         if (!data.isNull("mi_rating")) {
                             miRating = data.optInt("mi_rating", 0);
                         } else {
                             miRating = 0;
                         }
                         miComentario = data.optString("mi_comentario", "");
+
+                        // Luego la bandera de puede_valorar
+                        puedeValorar = data.optInt("puede_valorar", 0) == 1;
+
+                        // (opcional pero OK) si ya tenía rating, igual permitimos editar
+                        if (miRating > 0) {
+                            puedeValorar = true;
+                        }
 
                         if (ratingTotal > 0) {
                             tvRatingResumen.setText(
@@ -205,12 +230,100 @@ public class DetalleProductoActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "JWT " + tokenJWT);
+
+                SharedPreferences prefs = getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                int idCliente = prefs.getInt("idCliente", 0);
+                if (idCliente != 0) {
+                    headers.put("id_cliente", String.valueOf(idCliente));
+                }
                 return headers;
             }
         };
 
         VolleySingleton.getInstance(this).getRequestQueue().add(request);
     }
+
+    private void pintarResenasDesdeJson(JSONArray lista) {
+        layoutResenas.removeAllViews();
+
+        try {
+            if (lista == null || lista.length() == 0) {
+                TextView tv = new TextView(this);
+                tv.setText("Aún no hay reseñas.");
+                tv.setTextSize(14f);
+                tv.setPadding(16, 16, 16, 16);
+                layoutResenas.addView(tv);
+                return;
+            }
+
+            for (int i = 0; i < lista.length(); i++) {
+                JSONObject item = lista.getJSONObject(i);
+
+                // 🔹 OJO: las claves vienen desde api_producto como:
+                // nombre, puntuacion, comentario, fecha
+                String nombre = item.optString("nombre");
+                int puntuacion = item.optInt("puntuacion");
+                String comentario = item.optString("comentario");
+                String fecha = item.optString("fecha");
+
+                LinearLayout card = new LinearLayout(this);
+                card.setOrientation(LinearLayout.VERTICAL);
+                card.setPadding(20, 20, 20, 20);
+                card.setBackgroundResource(R.drawable.bg_card_resena);
+
+                LinearLayout.LayoutParams paramsCard =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                paramsCard.setMargins(0, 15, 0, 15);
+                card.setLayoutParams(paramsCard);
+
+                TextView tvNombre = new TextView(this);
+                tvNombre.setText(nombre + "  ·  " + fecha);
+                tvNombre.setTextSize(16f);
+                tvNombre.setTypeface(null, Typeface.BOLD);
+                tvNombre.setTextColor(Color.parseColor("#333333"));
+                card.addView(tvNombre);
+
+                LinearLayout starRow = new LinearLayout(this);
+                starRow.setOrientation(LinearLayout.HORIZONTAL);
+                starRow.setPadding(0, 8, 0, 8);
+
+                for (int s = 1; s <= 5; s++) {
+                    ImageView star = new ImageView(this);
+                    star.setImageResource(
+                            s <= puntuacion
+                                    ? R.drawable.ic_star_filled
+                                    : R.drawable.ic_star_outline
+                    );
+                    LinearLayout.LayoutParams paramsStar =
+                            new LinearLayout.LayoutParams(48, 48);
+                    paramsStar.setMargins(4, 0, 4, 0);
+                    star.setLayoutParams(paramsStar);
+                    starRow.addView(star);
+                }
+                card.addView(starRow);
+
+                if (comentario != null && !comentario.trim().isEmpty()) {
+                    TextView tvComentario = new TextView(this);
+                    tvComentario.setText(comentario);
+                    tvComentario.setTextSize(14f);
+                    tvComentario.setTextColor(Color.parseColor("#555555"));
+                    tvComentario.setPadding(0, 4, 0, 0);
+                    card.addView(tvComentario);
+                }
+
+                layoutResenas.addView(card);
+            }
+
+        } catch (Exception e) {
+            Log.e("RESENAS", "Error pintando reseñas: " + e.getMessage());
+            Toast.makeText(this, "Error al mostrar reseñas", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
     private void configurarUI() {
         if (productoActual == null) return;
@@ -529,8 +642,16 @@ public class DetalleProductoActivity extends AppCompatActivity {
                 Map<String, String> headers = new HashMap<>();
                 if (tokenJWT != null) {
                     headers.put("Authorization", "JWT " + tokenJWT);
+                    SharedPreferences prefs = getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                    int idCliente = prefs.getInt("idCliente", 0);
+                    if (idCliente != 0) {
+                        headers.put("id_cliente", String.valueOf(idCliente));
+                    }
+
+
                 }
                 return headers;
+
             }
         };
 
@@ -543,8 +664,53 @@ public class DetalleProductoActivity extends AppCompatActivity {
     }
 
     // ----------- VALORACIÓN ----------
+
     private void configurarSeccionValoracion() {
 
+        // 1. Siempre configurar "Ver reseñas"
+        tvVerResenas.setOnClickListener(v -> {
+            if (layoutResenas.getVisibility() == View.VISIBLE) {
+                layoutResenas.setVisibility(View.GONE);
+            } else {
+                Log.d("RESEÑAS_BACKEND", "JSON: " + (resenasBackend != null ? resenasBackend.toString() : "NULL"));
+                pintarResenasDesdeJson(resenasBackend);
+                layoutResenas.setVisibility(View.VISIBLE);
+            }
+        });
+
+        // 2. Siempre mostrar el resumen del promedio
+        if (ratingTotal > 0) {
+            tvRatingResumen.setText(
+                    String.format("Promedio %.1f de 5, basado en %d valoraciones",
+                            ratingPromedio, ratingTotal)
+            );
+        } else {
+            tvRatingResumen.setText("Aún sin valoraciones para este producto");
+        }
+
+        // 3. Si NO puede valorar -> solo mostramos resumen + reseñas (no estrellas ni comentario)
+        if (!puedeValorar) {
+            // Queremos que igual vea el promedio y pueda abrir las reseñas
+            seccionValoracion.setVisibility(View.VISIBLE);
+            ivToggleValoracion.setVisibility(View.GONE); // flecha no tiene sentido
+
+            layoutStars.setVisibility(View.GONE);
+            etComentario.setVisibility(View.GONE);
+            btnEnviarValoracion.setVisibility(View.GONE);
+
+            // El trigger ya no colapsa nada
+            triggerValoracion.setOnClickListener(null);
+            return;
+        }
+
+        // 4. SI puede valorar -> formulario completo y comportamiento normal
+        seccionValoracion.setVisibility(View.VISIBLE); // puedes poner GONE si quieres que inicie cerrado
+        layoutStars.setVisibility(View.VISIBLE);
+        etComentario.setVisibility(View.VISIBLE);
+        btnEnviarValoracion.setVisibility(View.VISIBLE);
+        ivToggleValoracion.setVisibility(View.VISIBLE);
+
+        // Sección colapsable
         triggerValoracion.setOnClickListener(v -> {
             if (seccionValoracion.getVisibility() == View.VISIBLE) {
                 seccionValoracion.setVisibility(View.GONE);
@@ -555,7 +721,7 @@ public class DetalleProductoActivity extends AppCompatActivity {
             }
         });
 
-
+        // Estrellas clicables
         for (int i = 0; i < estrellas.length; i++) {
             final int index = i;
             estrellas[i].setOnClickListener(v -> {
@@ -564,27 +730,145 @@ public class DetalleProductoActivity extends AppCompatActivity {
             });
         }
 
-        // si el usuario ya tenía rating, precargar
+        // Si ya tenía rating, precargarlo
         if (miRating > 0) {
             valoracionSeleccionada = miRating;
             actualizarEstrellasUI();
+
             if (miComentario != null && !miComentario.isEmpty()) {
                 etComentario.setText(miComentario);
             }
-        }
-
-        // resumen
-        if (ratingTotal > 0) {
-            tvRatingResumen.setText(
-                    String.format("Promedio %.1f de 5, basado en %d valoraciones",
-                            ratingPromedio, ratingTotal)
-            );
+            btnEnviarValoracion.setText("Editar valoración");
         } else {
-            tvRatingResumen.setText("Aún sin valoraciones para este producto");
+            btnEnviarValoracion.setText("Enviar valoración");
         }
 
         btnEnviarValoracion.setOnClickListener(v -> enviarValoracion());
     }
+
+
+
+
+
+
+    private void pintarResenas() {
+        layoutResenas.removeAllViews();
+
+        String url = ApiConfig.BASE_URL + "api_resenas_producto/" + idProducto;
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        if (response.getInt("code") != 1) return;
+
+                        JSONArray lista = response.getJSONArray("data");
+
+                        if (lista.length() == 0) {
+                            TextView tv = new TextView(this);
+                            tv.setText("Aún no hay reseñas.");
+                            tv.setTextSize(14f);
+                            tv.setPadding(16, 16, 16, 16);
+                            layoutResenas.addView(tv);
+                            return;
+                        }
+
+                        for (int i = 0; i < lista.length(); i++) {
+                            JSONObject item = lista.getJSONObject(i);
+
+                            String nombre = item.optString("nombre");
+                            int puntuacion = item.optInt("puntuacion");
+                            String comentario = item.optString("comentario");
+                            String fecha = item.optString("fecha");
+
+                            LinearLayout card = new LinearLayout(this);
+                            card.setOrientation(LinearLayout.VERTICAL);
+                            card.setPadding(20, 20, 20, 20);
+                            card.setBackgroundResource(R.drawable.bg_card_resena);
+
+                            LinearLayout.LayoutParams paramsCard =
+                                    new LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.MATCH_PARENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT
+                                    );
+                            paramsCard.setMargins(0, 15, 0, 15);
+                            card.setLayoutParams(paramsCard);
+
+                            TextView tvNombre = new TextView(this);
+                            tvNombre.setText(nombre);
+                            tvNombre.setTextSize(16f);
+                            tvNombre.setTypeface(null, Typeface.BOLD);
+                            tvNombre.setTextColor(Color.parseColor("#333333"));
+                            card.addView(tvNombre);
+
+                            LinearLayout starRow = new LinearLayout(this);
+                            starRow.setOrientation(LinearLayout.HORIZONTAL);
+                            starRow.setPadding(0, 8, 0, 8);
+
+                            for (int s = 1; s <= 5; s++) {
+                                ImageView star = new ImageView(this);
+                                star.setImageResource(
+                                        s <= puntuacion
+                                                ? R.drawable.ic_star_filled
+                                                : R.drawable.ic_star_outline
+                                );
+                                LinearLayout.LayoutParams paramsStar =
+                                        new LinearLayout.LayoutParams(48, 48);
+                                paramsStar.setMargins(4, 0, 4, 0);
+                                star.setLayoutParams(paramsStar);
+                                starRow.addView(star);
+                            }
+                            card.addView(starRow);
+
+                            if (comentario != null && !comentario.trim().isEmpty()) {
+                                TextView tvComentario = new TextView(this);
+                                tvComentario.setText(comentario);
+                                tvComentario.setTextSize(14f);
+                                tvComentario.setTextColor(Color.parseColor("#555555"));
+                                tvComentario.setPadding(0, 4, 0, 0);
+                                card.addView(tvComentario);
+                            }
+
+                            layoutResenas.addView(card);
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("RESENAS", "Error parseando reseñas: " + e.getMessage());
+                    }
+                },
+                error -> {
+                    Log.e("RESENAS", "Volley error: " + error.toString());
+                    Toast.makeText(this, "Error al cargar reseñas", Toast.LENGTH_SHORT).show();
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+
+                SharedPreferences prefs = getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+
+                String token = prefs.getString("tokenJWT", "");
+                int idCliente = prefs.getInt("idCliente", 0);
+
+                Log.d("TOKEN", "TOKEN QUE SE ENVÍA: " + token); // <-- DEBUG
+
+                headers.put("Authorization", "JWT " + token);
+
+                if (idCliente > 0) {
+                    headers.put("id_cliente", String.valueOf(idCliente));
+                }
+
+                return headers;
+            }
+        };
+
+        VolleySingleton.getInstance(this).getRequestQueue().add(request);
+    }
+
+
+
 
     private void enviarValoracion() {
         if (valoracionSeleccionada == 0) {
@@ -620,13 +904,11 @@ public class DetalleProductoActivity extends AppCompatActivity {
         call.enqueue(new Callback<RptaGeneral>() {
             @Override
             public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> response) {
-                if (response.isSuccessful() && response.body() != null) {
-
+                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 1) {
 
                     Toast.makeText(DetalleProductoActivity.this,
                             "Valoración enviada correctamente", Toast.LENGTH_SHORT).show();
 
-                    // 2. Leer los nuevos datos de rating que el backend devuelve
                     Object dataObj = response.body().getData();
                     if (dataObj instanceof Map) {
                         Map<?, ?> map = (Map<?, ?>) dataObj;
@@ -652,8 +934,17 @@ public class DetalleProductoActivity extends AppCompatActivity {
                         }
                     }
 
-                    // 3. Actualizar el texto del resumen en pantalla
+                    puedeValorar = true;
+                    valoracionSeleccionada = miRating;
+
                     actualizarResumenValoracion();
+                    actualizarEstrellasUI();
+                    etComentario.setText(miComentario);
+                    btnEnviarValoracion.setText("Editar valoración");
+
+                    // REFRESCAR RESEÑAS
+                    pintarResenas();
+                    layoutResenas.setVisibility(View.VISIBLE);
 
                 } else {
                     Toast.makeText(DetalleProductoActivity.this,
@@ -668,6 +959,8 @@ public class DetalleProductoActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     private void actualizarResumenValoracion() {
         tvRatingResumen.setText(String.format("Promedio %.1f de 5, basado en %d valoraciones",

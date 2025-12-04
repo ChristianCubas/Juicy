@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Nombres"
-                android:text="Juan"
+
                 android:textColor="@android:color/black" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -59,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Apellidos (paterno materno)"
-                android:text="Perez Gomez"
+
                 android:textColor="@android:color/black" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="DNI (8 dígitos)"
-                android:text="12345678"
+
                 android:inputType="number"
                 android:maxLength="8"
                 android:textColor="@android:color/black" />
@@ -102,7 +102,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Celular (9 dígitos)"
-                android:text="987654321"
+
                 android:inputType="phone"
                 android:maxLength="9"
                 android:textColor="@android:color/black" />
@@ -124,7 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Correo electrónico"
-                android:text="email_example@gmail.com"
+
                 android:inputType="textEmailAddress"
                 android:textColor="@android:color/black" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -147,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Contraseña"
                 android:inputType="textPassword"
-                android:text="password12345"
+
                 android:textColor="@android:color/black" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -169,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Confirmar contraseña"
                 android:inputType="textPassword"
-                android:text="password12345"
+
                 android:textColor="@android:color/black" />
         </com.google.android.material.textfield.TextInputLayout>
 
