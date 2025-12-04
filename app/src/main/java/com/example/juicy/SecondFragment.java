@@ -17,6 +17,7 @@ import com.example.juicy.databinding.FragmentSecondBinding;
 import com.example.juicy.Model.RegistrarClienteRequest;
 import com.example.juicy.Model.RptaGeneral;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.gson.Gson;
 
 import java.util.Collections;
 import java.util.Map;
@@ -100,7 +101,7 @@ public class SecondFragment extends Fragment {
             @Override
             public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), buildErrorMessage(response), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 RptaGeneral r = response.body();
@@ -163,19 +164,32 @@ public class SecondFragment extends Fragment {
         return "***" + celular.substring(celular.length() - 3);
     }
 
+    private String buildErrorMessage(Response<RptaGeneral> response) {
+        String fallback = "Error: " + response.code();
+        try {
+            if (response.errorBody() != null) {
+                String raw = response.errorBody().string();
+                if (!TextUtils.isEmpty(raw)) {
+                    RptaGeneral parsed = new Gson().fromJson(raw, RptaGeneral.class);
+                    if (parsed != null && !TextUtils.isEmpty(parsed.getMessage())) {
+                        return parsed.getMessage();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return fallback;
+    }
+
     private String buildRegistroMensaje(String backendMessage, String destinoMasc, String envioError) {
+        if (!TextUtils.isEmpty(envioError)) return "No se pudo mandar el correo.";
+
         StringBuilder sb = new StringBuilder();
         if (!TextUtils.isEmpty(backendMessage)) {
             sb.append(backendMessage);
         } else {
             sb.append("Te enviamos un código a ").append(destinoMasc)
                     .append(". Debes confirmarlo para usar la app.");
-        }
-
-        if (!TextUtils.isEmpty(envioError)) {
-            sb.append("\n\nAviso: no pudimos entregar el mensaje automáticamente (")
-                    .append(envioError)
-                    .append("). Puedes consultar los endpoints de prueba para ver el código.");
         }
         return sb.toString();
     }
