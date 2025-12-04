@@ -3,6 +3,7 @@ package com.example.juicy;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,6 +28,10 @@ import com.example.juicy.Model.MetodoPagoVentaRequest;
 import com.example.juicy.Model.RptaGeneral;
 import com.example.juicy.databinding.FragmentMpagoBinding;
 import com.example.juicy.network.ApiConfig;
+import com.example.juicy.Model.PaypalCreateOrderRequest;
+import com.example.juicy.Model.PaypalCreateOrderResponse;
+import com.example.juicy.Model.PaypalCaptureRequest;
+import com.example.juicy.Model.PaypalCaptureResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +62,8 @@ public class MpagoFragment extends Fragment {
         OTHER_VISA,
         OTHER_PAYPAL
     }
+    // PayPal: orderId pendiente de capturar
+    private String pendingPaypalOrderId = null;
 
     private SelectedMethod selectedMethod = SelectedMethod.SAVED;
 
@@ -227,9 +234,7 @@ public class MpagoFragment extends Fragment {
                 break;
 
             case OTHER_PAYPAL:
-                Toast.makeText(requireContext(),
-                        "Pago con PayPal aún no implementado",
-                        Toast.LENGTH_SHORT).show();
+                seleccionarPaypalYContinuar();
                 break;
         }
     }
@@ -268,16 +273,14 @@ public class MpagoFragment extends Fragment {
 
                 boolean operacionExitosa = r.getCode() == 1 || resp.code() == 200;
                 if (operacionExitosa) {
-                    // 🔹 Guardar el id_metodo_pago en SharedPreferences
+                    // Guardar el id_metodo_pago en SharedPreferences
                     SharedPreferences sp = requireActivity()
                             .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
                     sp.edit()
                             .putInt("idMetodoPagoSeleccionado", metodoSeleccionado)
+                            .putBoolean("metodoPagoEsPaypal", false)
                             .apply();
-
-                    // Aquí tu equipo ya puede navegar a RESUMEN PEDIDO
-                    // NavHostFragment.findNavController(MpagoFragment.this)
-                    //        .navigate(R.id.resumenPedidoFragment);
+                    // Ir a la pantalla de resumen
                     irAResumen(getSelectedMetodoText());
                 }
             }
@@ -293,11 +296,24 @@ public class MpagoFragment extends Fragment {
     // ---------- 2) Pagar con tarjeta nueva (OTHER_VISA) ----------
 
     private void pagarConTarjetaNuevaVisa() {
+        if (selectedMethod != SelectedMethod.OTHER_VISA) {
+            toast("Seleccione la opción VISA para pagar con tarjeta.");
+            return;
+        }
         String titular = textOf(binding.otherVisaHolderInput);
         String pan     = textOf(binding.otherVisaNumberInput);
         String exp     = textOf(binding.otherVisaExpInput);
         String cvv     = textOf(binding.otherVisaCvvInput);
         boolean guardar = binding.saveCardSwitch.isChecked();
+
+        // Si tod0 está vacío, no intentamos ni validar ni insertar
+        if (TextUtils.isEmpty(titular) &&
+                TextUtils.isEmpty(pan) &&
+                TextUtils.isEmpty(exp) &&
+                TextUtils.isEmpty(cvv)) {
+            toast("Complete los datos de la tarjeta para continuar.");
+            return;
+        }
 
         // Normalizar PAN
         pan = pan.replaceAll("\\s", "");
@@ -315,6 +331,29 @@ public class MpagoFragment extends Fragment {
             toast("Fecha de expiración inválida (MM/YY)");
             return;
         }
+        // ---- Validar que la fecha de expiración sea futura o del mes actual ----
+        try {
+            String[] partes = exp.split("/");
+            int expMonth = Integer.parseInt(partes[0]);
+            int expYear  = Integer.parseInt(partes[1]);
+
+            java.util.Calendar now = java.util.Calendar.getInstance();
+            int currentYear = now.get(java.util.Calendar.YEAR) % 100;
+            int currentMonth = now.get(java.util.Calendar.MONTH) + 1;
+
+            if (expYear < currentYear) {
+                toast("La tarjeta está expirada.");
+                return;
+            }
+            if (expYear == currentYear && expMonth < currentMonth) {
+                toast("La tarjeta está expirada.");
+                return;
+            }
+        } catch (Exception e) {
+            toast("Fecha de expiración inválida.");
+            return;
+        }
+
         if (TextUtils.isEmpty(cvv) || cvv.length() < 3) {
             toast("CVV inválido");
             return;
@@ -354,7 +393,10 @@ public class MpagoFragment extends Fragment {
                     if (idNuevoMetodo > 0) {
                         SharedPreferences sp = requireActivity()
                                 .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
-                        sp.edit().putInt("idMetodoPagoSeleccionado", idNuevoMetodo).apply();
+                        sp.edit()
+                                .putInt("idMetodoPagoSeleccionado", idNuevoMetodo)
+                                .putBoolean("metodoPagoEsPaypal", false)
+                                .apply();
                     }
                     String mensaje = rg.getMessage();
                     if (mensaje == null || mensaje.trim().isEmpty()) {
@@ -411,6 +453,7 @@ public class MpagoFragment extends Fragment {
                         .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
                 sp.edit()
                         .putInt("idMetodoPagoSeleccionado", idNuevoMetodo)
+                        .putBoolean("metodoPagoEsPaypal", false)
                         .apply();
 
                 // Ahora sí, usar ese id en api_metodo_pago_venta
@@ -457,6 +500,156 @@ public class MpagoFragment extends Fragment {
         });
     }
 
+    // ---------- 3) Pagar con PayPal (OTHER_PAYPAL) ----------
+
+    private void seleccionarPaypalYContinuar() {
+        // Guardamos que el método elegido es PayPal
+        SharedPreferences sp = requireActivity()
+                .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+        sp.edit()
+                .putBoolean("metodoPagoEsPaypal", true)
+                .putInt("idMetodoPagoSeleccionado", -1) // aún no hay id_metodo_pago real
+                .apply();
+
+        // Navegar al resumen mostrando "PayPal" como texto de método
+        irAResumen("PayPal");
+    }
+
+//    private void pagarConPaypal() {
+//        // Si todavía no hemos creado la orden, la creamos
+//        if (pendingPaypalOrderId == null) {
+//            crearOrdenPaypal();
+//        } else {
+//            // Ya tenemos orderId, así que intentamos capturar
+//            capturarOrdenPaypal();
+//        }
+//    }
+
+    private void crearOrdenPaypal() {
+        if (api == null) {
+            toast("Error interno: api nula");
+            return;
+        }
+
+        // Usamos la moneda que definiste en el backend, aquí USD
+        PaypalCreateOrderRequest body = new PaypalCreateOrderRequest(idCliente, "USD");
+
+        api.createPaypalOrder(authHeader, body).enqueue(new Callback<PaypalCreateOrderResponse>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<PaypalCreateOrderResponse> call,
+                    @NonNull Response<PaypalCreateOrderResponse> response
+            ) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    toast("Error al crear orden PayPal. Código: " + response.code());
+                    return;
+                }
+
+                PaypalCreateOrderResponse r = response.body();
+                if (r.getCode() != 1 || r.getData() == null) {
+                    toast(r.getMessage() != null ? r.getMessage() : "No se pudo crear orden PayPal");
+                    return;
+                }
+
+                PaypalCreateOrderResponse.Data data = r.getData();
+                String orderId = data.getOrderId();
+                String approvalUrl = data.getApprovalUrl();
+
+                if (orderId == null || approvalUrl == null) {
+                    toast("Respuesta inválida de PayPal (sin orderId o approvalUrl).");
+                    return;
+                }
+
+                // Guardamos temporalmente el orderId en el fragment
+                pendingPaypalOrderId = orderId;
+
+                // Abrimos PayPal en el navegador
+                abrirPaypalEnNavegador(approvalUrl);
+
+                // Avisamos al usuario que debe volver y pulsar continuar
+                toast("Completa el pago en PayPal y luego regresa para confirmar.");
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<PaypalCreateOrderResponse> call,
+                    @NonNull Throwable t
+            ) {
+                toast("Error de red al crear orden PayPal: " + t.getMessage());
+            }
+        });
+    }
+
+    private void capturarOrdenPaypal() {
+        if (pendingPaypalOrderId == null) {
+            toast("No hay orden PayPal pendiente.");
+            return;
+        }
+
+        PaypalCaptureRequest body = new PaypalCaptureRequest(idCliente, pendingPaypalOrderId);
+
+        api.capturePaypalOrder(authHeader, body).enqueue(new Callback<PaypalCaptureResponse>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<PaypalCaptureResponse> call,
+                    @NonNull Response<PaypalCaptureResponse> response
+            ) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    toast("Error al confirmar pago PayPal. Código: " + response.code());
+                    return;
+                }
+
+                PaypalCaptureResponse r = response.body();
+                if (r.getCode() != 1 || r.getData() == null) {
+                    String msg = r.getMessage();
+                    if (msg == null || msg.trim().isEmpty()) {
+                        msg = "No se pudo completar el pago con PayPal.";
+                    }
+                    toast(msg);
+                    return;
+                }
+
+                PaypalCaptureResponse.Data data = r.getData();
+                int idMetodoPago = data.getId_metodo_pago();
+
+                // Guardamos id_metodo_pago en SharedPreferences como en los otros métodos
+                SharedPreferences sp = requireActivity()
+                        .getSharedPreferences("SP_JUICY", Context.MODE_PRIVATE);
+                sp.edit()
+                        .putInt("idMetodoPagoSeleccionado", idMetodoPago)
+                        .apply();
+
+                toast("Pago PayPal añadido correctamente.");
+
+                // Ya no tenemos orden pendiente
+                pendingPaypalOrderId = null;
+
+                // Ir a resumen indicando que fue PayPal
+                irAResumen("PayPal");
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<PaypalCaptureResponse> call,
+                    @NonNull Throwable t
+            ) {
+                toast("Error de red al confirmar pago PayPal.");
+            }
+        });
+    }
+
+    private void abrirPaypalEnNavegador(@NonNull String url) {
+        try {
+            android.content.Intent intent = new android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse(url)
+            );
+            startActivity(intent);
+        } catch (Exception e) {
+            toast("No se pudo abrir PayPal.");
+        }
+    }
+
     @Nullable
     private Integer resolveMetodoGuardado() {
         if (selectedSavedPosition >= 0 &&
@@ -495,6 +688,7 @@ public class MpagoFragment extends Fragment {
     // ===================== Listeners de “Otros métodos” =====================
 
     private void setupListeners() {
+        // VISA
         binding.otherVisaCard.setOnClickListener(v -> {
             selectedMethod = SelectedMethod.OTHER_VISA;
             selectedSavedPosition = -1;
@@ -502,16 +696,30 @@ public class MpagoFragment extends Fragment {
             updateSelectionUI();
         });
 
-//        binding.otherPaypalCard.setOnClickListener(v -> {
-//            selectedMethod = SelectedMethod.OTHER_PAYPAL;
-//            selectedSavedPosition = -1;
-//            updateSavedCardsUI();
-//            updateSelectionUI();
-//        });
+        binding.otherVisaHolderInput.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(50),
+                (source, start, end, dest, dstart, dend) -> {
+                    for (int i = start; i < end; i++) {
+                        char c = source.charAt(i);
+                        if (!Character.isLetter(c) && c != ' ') {
+                            return "";
+                        }
+                    }
+                    return null;
+                }
+        });
 
         if (binding.otherVisaExpInput != null) {
             binding.otherVisaExpInput.addTextChangedListener(expiryWatcher(binding.otherVisaExpInput));
         }
+
+        // PayPal
+        binding.otherPaypal.setOnClickListener(v -> {
+            selectedMethod = SelectedMethod.OTHER_PAYPAL;
+            selectedSavedPosition = -1;
+            updateSavedCardsUI();
+            updateSelectionUI();
+        });
     }
 
     private void updateSelectionUI() {
@@ -520,19 +728,23 @@ public class MpagoFragment extends Fragment {
         int checkedIcon = R.drawable.ic_check_circle_file;
         int uncheckedIcon = R.drawable.ic_uncheck_circle;
 
+        // VISA
         binding.otherVisaStatus.setImageResource(
                 selectedMethod == SelectedMethod.OTHER_VISA ? checkedIcon : uncheckedIcon
         );
-//        binding.otherPaypalStatus.setImageResource(
-//                selectedMethod == SelectedMethod.OTHER_PAYPAL ? checkedIcon : uncheckedIcon
-//        );
 
+        // PayPal
+        binding.otherPaypalStatus.setImageResource(
+                selectedMethod == SelectedMethod.OTHER_PAYPAL ? checkedIcon : uncheckedIcon
+        );
+
+        // Campos de VISA visibles solo cuando se selecciona VISA
         binding.otherVisaFields.setVisibility(
                 selectedMethod == SelectedMethod.OTHER_VISA ? View.VISIBLE : View.GONE
         );
-//        binding.otherPaypalFields.setVisibility(
-//                selectedMethod == SelectedMethod.OTHER_PAYPAL ? View.VISIBLE : View.GONE
-//        );
+
+        binding.saveCardSwitch.setEnabled(selectedMethod == SelectedMethod.OTHER_VISA);
+
     }
 
     // ===================== Utilitarios =====================
@@ -568,22 +780,33 @@ public class MpagoFragment extends Fragment {
     private TextWatcher expiryWatcher(@NonNull TextView target) {
         return new TextWatcher() {
             boolean editing;
+
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            @Override public void afterTextChanged(Editable s) {
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 if (editing) return;
                 editing = true;
-                String digits = s.toString().replace("/", "");
-                if (digits.length() > 4) digits = digits.substring(0, 4);
-                if (digits.length() >= 3) {
-                    s.replace(0, s.length(), digits.substring(0, 2) + "/" + digits.substring(2));
-                } else {
-                    s.replace(0, s.length(), digits);
+
+                String digits = s.toString().replaceAll("[^0-9]", "");
+
+                if (digits.length() > 4) {
+                    digits = digits.substring(0, 4);
                 }
+                String formatted;
+                if (digits.length() >= 3) {
+                    formatted = digits.substring(0, 2) + "/" + digits.substring(2);
+                } else {
+                    formatted = digits;
+                }
+
+                s.replace(0, s.length(), formatted);
                 editing = false;
             }
         };
     }
+
 
     @Override
     public void onDestroyView() {
