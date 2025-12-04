@@ -17,6 +17,10 @@ import com.example.juicy.databinding.FragmentSecondBinding;
 import com.example.juicy.Model.RegistrarClienteRequest;
 import com.example.juicy.Model.RptaGeneral;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.gson.Gson;
+
+import java.util.Collections;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,6 +53,7 @@ public class SecondFragment extends Fragment {
         String email = safe(binding.email.getText());
         String pass = safe(binding.password.getText());
         String pass2 = safe(binding.confirmPassword.getText());
+        String medioSeleccionado = binding.btnVerifySms.isChecked() ? "sms" : "email";
 
         if (TextUtils.isEmpty(nombres) || TextUtils.isEmpty(apellidos) ||
                 TextUtils.isEmpty(dni) || TextUtils.isEmpty(celular) ||
@@ -90,12 +95,13 @@ public class SecondFragment extends Fragment {
         req.setApe_paterno(apePaterno);
         req.setApe_materno(apeMaterno);
         req.setCelular(celular);
+        req.setMedio_verificacion(medioSeleccionado);
 
         api.registrarCliente(req).enqueue(new Callback<RptaGeneral>() {
             @Override
             public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), buildErrorMessage(response), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 RptaGeneral r = response.body();
@@ -104,14 +110,25 @@ public class SecondFragment extends Fragment {
                     return;
                 }
                 if (r.getCode() == 1) {
-                    new MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Registro")
-                            .setMessage("¡Registrado correctamente!")
-                            .setPositiveButton("OK", (dialog, which) -> {
+                    Map<String, Object> data = toMap(r.getData());
+                    String destinoMasc = safeString(data.get("destino_mascarado"));
+                    String medioRespuesta = safeString(data.get("medio"));
+                    String medioParaUsar = TextUtils.isEmpty(medioRespuesta) ? medioSeleccionado : medioRespuesta;
+                    String envioError = safeString(data.get("envio_error"));
 
-                                NavHostFragment.findNavController(SecondFragment.this)
-                                        .navigate(R.id.action_SecondFragment_to_FirstFragment);
-                            })
+                    Bundle args = new Bundle();
+                    args.putString("email", email);
+                    args.putString("celular", celular);
+                    args.putString("medio", medioParaUsar);
+                    args.putString("destino_mascarado",
+                            TextUtils.isEmpty(destinoMasc) ? (medioParaUsar.equals("sms") ? maskPhone(celular) : email) : destinoMasc);
+
+                    new MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Confirma tu cuenta")
+                            .setMessage(buildRegistroMensaje(r.getMessage(), args.getString("destino_mascarado"), envioError))
+                            .setPositiveButton("Ingresar código", (dialog, which) ->
+                                    NavHostFragment.findNavController(SecondFragment.this)
+                                            .navigate(R.id.action_SecondFragment_to_verificarCuentaFragment, args))
                             .setCancelable(false)
                             .show();
                 } else {
@@ -128,6 +145,53 @@ public class SecondFragment extends Fragment {
 
     private String safe(CharSequence cs) {
         return cs == null ? "" : cs.toString().trim();
+    }
+
+    private Map<String, Object> toMap(Object data) {
+        if (data instanceof Map) {
+            //noinspection unchecked
+            return (Map<String, Object>) data;
+        }
+        return Collections.emptyMap();
+    }
+
+    private String safeString(Object value) {
+        return value == null ? "" : String.valueOf(value);
+    }
+
+    private String maskPhone(String celular) {
+        if (TextUtils.isEmpty(celular) || celular.length() < 3) return celular;
+        return "***" + celular.substring(celular.length() - 3);
+    }
+
+    private String buildErrorMessage(Response<RptaGeneral> response) {
+        String fallback = "Error: " + response.code();
+        try {
+            if (response.errorBody() != null) {
+                String raw = response.errorBody().string();
+                if (!TextUtils.isEmpty(raw)) {
+                    RptaGeneral parsed = new Gson().fromJson(raw, RptaGeneral.class);
+                    if (parsed != null && !TextUtils.isEmpty(parsed.getMessage())) {
+                        return parsed.getMessage();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return fallback;
+    }
+
+    private String buildRegistroMensaje(String backendMessage, String destinoMasc, String envioError) {
+        if (!TextUtils.isEmpty(envioError)) return "No se pudo mandar el correo.";
+
+        StringBuilder sb = new StringBuilder();
+        if (!TextUtils.isEmpty(backendMessage)) {
+            sb.append(backendMessage);
+        } else {
+            sb.append("Te enviamos un código a ").append(destinoMasc)
+                    .append(". Debes confirmarlo para usar la app.");
+        }
+        return sb.toString();
     }
 
     @Override

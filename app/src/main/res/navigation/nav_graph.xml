@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_FirstFragment_to_recuperarCorreoFragment"
             app:destination="@id/recuperarCorreoFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_verificarCuentaFragment"
+            app:destination="@id/verificarCuentaFragment" />
     </fragment>
 
     <!-- Fragmento Home -->
@@ -52,6 +55,9 @@
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_verificarCuentaFragment"
+            app:destination="@id/verificarCuentaFragment" />
     </fragment>
 
     <!-- Fragmento Billetera -->
@@ -93,11 +99,11 @@
         android:name="com.example.juicy.EditarDirecciones"
         android:label=""
         tools:layout="@layout/fragment_editar_direcciones" />
-    <fragment
-        android:id="@+id/buscarMapa"
-        android:name="com.example.juicy.BuscarMapa"
-        android:label=""
-        tools:layout="@layout/fragment_buscar_mapa" />
+<!--    <fragment-->
+<!--        android:id="@+id/buscarMapa"-->
+<!--        android:name="com.example.juicy.BuscarMapa"-->
+<!--        android:label=""-->
+<!--        tools:layout="@layout/fragment_buscar_mapa" />-->
     <fragment
         android:id="@+id/perfilUsuario"
         android:name="com.example.juicy.PerfilUsuario.PerfilUsuario"
@@ -106,11 +112,9 @@
         <action
             android:id="@+id/action_perfilUsuario_to_editarPerfil"
             app:destination="@id/perfilUsuario" />
-
         <action
             android:id="@+id/action_perfilUsuario_to_HistorialComprasFragment"
             app:destination="@id/perfilUsuario" />
-
     </fragment>
     <fragment
         android:id="@+id/editarPerfil"
@@ -191,4 +195,15 @@
         android:label="Historial de Compras"
         tools:layout="@layout/fragment_historial_compras" />
 
+    <fragment
+        android:id="@+id/verificarCuentaFragment"
+        android:name="com.example.juicy.VerificarCuentaFragment"
+        android:label="Verificar cuenta"
+        tools:layout="@layout/fragment_verificar_cuenta">
+        <action
+            android:id="@+id/action_verificarCuentaFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment"
+            app:popUpTo="@id/FirstFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>
