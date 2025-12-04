@@ -7,7 +7,7 @@ import com.example.juicy.Model.AplicarCuponResponse;
 import com.example.juicy.Model.PagoPaypal;
 import com.example.juicy.Model.AplicarCuponRequest;
 import com.example.juicy.Model.AplicarCuponResponse;
-import com.example.juicy.Model.PaypalComprobanteRequest;
+//import com.example.juicy.Model.PaypalComprobanteRequest;
 
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;

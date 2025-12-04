@@ -216,6 +216,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+//        int idActual = navControler.getCurrentDestination().getId();
+//        if (idActual == R.id.FirstFragment) {
+//            return false;
+//        }
         getMenuInflater().inflate(R.menu.menu_inferior, menu);
         return true;
     }
