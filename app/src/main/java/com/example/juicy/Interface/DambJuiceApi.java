@@ -4,6 +4,7 @@ import com.example.juicy.Catalogo.ResponseDirecciones;
 import com.example.juicy.Model.ActualizarPasswordRequest;
 import com.example.juicy.Model.AplicarCuponRequest;
 import com.example.juicy.Model.AplicarCuponResponse;
+import com.example.juicy.Model.PagoPaypal;
 import com.example.juicy.Model.AuthRequest;
 import com.example.juicy.Model.AuthResponse;
 import com.example.juicy.Model.CarritoResponse;
@@ -19,6 +20,7 @@ import com.example.juicy.Model.ValoracionProductoRequest;
 
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -106,7 +108,4 @@ public interface DambJuiceApi {
             @Header("Authorization") String token,
             @Body ValoracionProductoRequest body
     );
-
-
-
 }

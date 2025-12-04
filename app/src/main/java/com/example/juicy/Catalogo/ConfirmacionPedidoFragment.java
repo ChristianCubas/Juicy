@@ -14,9 +14,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.juicy.Interface.DambJuiceApi;
 import com.example.juicy.Model.RptaGeneral;
+import com.example.juicy.R;
 import com.example.juicy.databinding.FragmentConfirmacionPedidoBinding;
 import com.example.juicy.network.RetrofitClient;
 
@@ -44,6 +46,19 @@ public class ConfirmacionPedidoFragment extends Fragment {
     private boolean descargandoPdf = false;
     private boolean enviandoCorreo = false;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Ocultar la flecha de back SOLO en esta pantalla
+        if (requireActivity() instanceof androidx.appcompat.app.AppCompatActivity) {
+            androidx.appcompat.app.AppCompatActivity act =
+                    (androidx.appcompat.app.AppCompatActivity) requireActivity();
+            if (act.getSupportActionBar() != null) {
+                act.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            }
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -60,6 +75,10 @@ public class ConfirmacionPedidoFragment extends Fragment {
         dibujarInfo();
         binding.btnDescargarPdf.setOnClickListener(v -> descargarPdf());
         binding.btnEnviarCorreo.setOnClickListener(v -> enviarPorCorreo());
+        binding.btnIrInicioConfirmacion.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.homeFragment)
+        );
     }
 
     private void leerArgumentos() {
