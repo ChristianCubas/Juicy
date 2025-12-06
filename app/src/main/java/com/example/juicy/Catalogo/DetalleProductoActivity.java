@@ -620,10 +620,41 @@ public class DetalleProductoActivity extends AppCompatActivity {
         call.enqueue(new Callback<RptaGeneral>() {
             @Override
             public void onResponse(Call<RptaGeneral> call, Response<RptaGeneral> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
+
+
                     Toast.makeText(DetalleProductoActivity.this,
                             "Valoración enviada correctamente", Toast.LENGTH_SHORT).show();
+
+                    // 2. Leer los nuevos datos de rating que el backend devuelve
+                    Object dataObj = response.body().getData();
+                    if (dataObj instanceof Map) {
+                        Map<?, ?> map = (Map<?, ?>) dataObj;
+
+                        Object prom = map.get("rating_promedio");
+                        if (prom instanceof Number) {
+                            ratingPromedio = ((Number) prom).doubleValue();
+                        }
+
+                        Object total = map.get("rating_total");
+                        if (total instanceof Number) {
+                            ratingTotal = ((Number) total).intValue();
+                        }
+
+                        Object miRat = map.get("mi_rating");
+                        if (miRat instanceof Number) {
+                            miRating = ((Number) miRat).intValue();
+                        }
+
+                        Object miCom = map.get("mi_comentario");
+                        if (miCom != null) {
+                            miComentario = miCom.toString();
+                        }
+                    }
+
+                    // 3. Actualizar el texto del resumen en pantalla
                     actualizarResumenValoracion();
+
                 } else {
                     Toast.makeText(DetalleProductoActivity.this,
                             "Error al enviar la valoración", Toast.LENGTH_SHORT).show();
